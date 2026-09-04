@@ -37,6 +37,14 @@ Build a polished, responsive multi-page Imagine Store Apple reseller website. Pr
 - P2: Product detail pages per SKU; trade-in calculator.
 - P2: Blog/news section; store locator map embed.
 
+## Implemented (2026-09-04, update 2 — Google Auth)
+- Emergent-managed Google sign-in: Sign-in button in nav + Account page, OAuth via auth.emergentagent.com, session_id exchange at POST /api/auth/session (backend-only call), httpOnly session_token cookie (7 days, secure, samesite=none).
+- Auth endpoints: POST /api/auth/session, GET /api/auth/me (cookie then Bearer fallback), POST /api/auth/logout, GET /api/quotes/mine (protected).
+- Quote/repair submissions attach user_id when signed in (withCredentials); wizards prefill name/email from the signed-in Google profile.
+- Account page (/account, auth-gated): Google profile card, quotes & repair history, logout. AuthCallback handles session_id via useLocation().hash (race-safe); AuthProvider skips /me on OAuth return.
+- CORS locked to frontend origin (credentials-enabled).
+
 ## Testing notes
 - curl verified: product quote, repair quote, repair status lookup, contact, email validation (422).
-- Screenshot verified: home hero/marquee/parallax/repairs band, shop filters, full product wizard flow (reference IMQ-0091BD returned).
+- Auth verified: /auth/me 200 with Bearer + 401 without; quote attaches user_id; /quotes/mine returns user's quotes; logout invalidates Bearer session (401 after); browser test with session cookie loads Account with history, logout returns to sign-in prompt. Full Google OAuth round-trip not exercised (requires a real Google account click-through) — test user was seeded in MongoDB per /app/auth_testing.md.
+- Screenshot verified: home hero/marquee/parallax/repairs band, shop filters, full product wizard flow (reference IMQ-0091BD returned), account page.

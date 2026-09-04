@@ -1,8 +1,9 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { WizardShell, OptionCard, SuccessPanel, fieldCls } from "../components/Wizard";
 import { submitProductQuote } from "../lib/api";
+import { useAuth } from "../lib/auth";
 import { categories, products, accessories } from "../lib/data";
 
 const STORAGE = ["128GB", "256GB", "512GB", "1TB", "Not sure yet"];
@@ -24,6 +25,17 @@ export default function ProductQuote() {
   });
   const [done, setDone] = useState(null);
   const [sending, setSending] = useState(false);
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (user) {
+      setForm((f) => ({
+        ...f,
+        name: f.name || user.name || "",
+        email: f.email || user.email || "",
+      }));
+    }
+  }, [user]);
 
   const models = useMemo(() => {
     if (!form.category) return [];

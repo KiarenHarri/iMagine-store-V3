@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, NavLink } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X, ArrowUpRight } from "lucide-react";
+import { useAuth, startGoogleLogin } from "../lib/auth";
 
 const LINKS = [
   { to: "/", label: "Home" },
@@ -10,10 +11,12 @@ const LINKS = [
   { to: "/accessories", label: "Accessories" },
   { to: "/about", label: "About" },
   { to: "/contact", label: "Contact" },
+  { to: "/account", label: "Account" },
 ];
 
 export default function Nav() {
   const [open, setOpen] = useState(false);
+  const { user } = useAuth();
   return (
     <header data-testid="site-header" className="sticky top-0 z-50 border-b border-black/5 bg-white/80 backdrop-blur-xl">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-8 lg:px-12 h-16 sm:h-20">
@@ -57,6 +60,26 @@ export default function Nav() {
             Get a Quote
             <ArrowUpRight size={15} className="transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
           </Link>
+          {user ? (
+            <Link to="/account" data-testid="nav-account-link" className="flex items-center gap-2 rounded-full border border-ink/10 py-1 pl-1 pr-3 transition-colors duration-200 hover:border-brand">
+              {user.picture ? (
+                <img src={user.picture} alt={user.name} className="h-7 w-7 rounded-full object-cover" />
+              ) : (
+                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-brand text-xs font-bold text-white">
+                  {(user.name || "U")[0]}
+                </span>
+              )}
+              <span className="max-w-[90px] truncate text-xs font-semibold text-ink">{user.name?.split(" ")[0]}</span>
+            </Link>
+          ) : (
+            <button
+              onClick={startGoogleLogin}
+              data-testid="nav-signin-btn"
+              className="text-sm font-semibold text-ink/70 transition-colors duration-200 hover:text-brand"
+            >
+              Sign in
+            </button>
+          )}
         </div>
 
         <button

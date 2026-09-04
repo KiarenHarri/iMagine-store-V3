@@ -1,4 +1,6 @@
-from fastapi import FastAPI, APIRouter, HTTPException
+import asyncio
+import requests
+from fastapi import FastAPI, APIRouter, HTTPException, Request, Response
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -7,8 +9,8 @@ import logging
 import uuid
 from pathlib import Path
 from pydantic import BaseModel, EmailStr
-from typing import List
-from datetime import datetime, timezone
+from typing import List, Optional
+from datetime import datetime, timezone, timedelta
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -67,13 +69,15 @@ async def root():
 
 
 @api_router.post("/quotes/product")
-async def create_product_quote(q: ProductQuote):
+async def create_product_quote(q: ProductQuote, request: Request):
+    user = await get_optional_user(request)
     doc = q.model_dump()
     doc.update({
         "id": str(uuid.uuid4()),
         "reference": ref_code("IMQ"),
         "type": "product",
         "status": "Received",
+        "user_id": user["user_id"] if user else None,
         "created_at": now_iso(),
     })
     await db.quotes.insert_one(doc)
@@ -81,13 +85,15 @@ async def create_product_quote(q: ProductQuote):
 
 
 @api_router.post("/quotes/repair")
-async def create_repair_quote(q: RepairQuote):
+async def create_repair_quote(q: RepairQuote, request: Request):
+    user = await get_optional_user(request)
     doc = q.model_dump()
     doc.update({
         "id": str(uuid.uuid4()),
         "reference": ref_code("IMR"),
         "type": "repair",
         "status": "Received — awaiting assessment",
+        "user_id": user["user_id"] if user else None,
         "created_at": now_iso(),
     })
     await db.quotes.insert_one(doc)
@@ -120,6 +126,111 @@ async def create_contact(msg: ContactMessage):
     })
     await db.contact_messages.insert_one(doc)
     return {"reference": doc["reference"], "message": "Message received"}
+
+
+class SessionExchange(BaseModel):
+    session_id: str
+
+
+async def get_current_user(request: Request):
+    token = request.cookies.get("session_token")
+    auth = request.headers.get("Authorization")
+    if not token and auth and auth.startswith("Bearer "):
+        token = auth.split(" ", 1)[1]
+    if not token:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+    session = await db.user_sessions.find_one({"session_token": token}, {"_id": 0})
+    if not session:
+        raise HTTPException(status_code=401, detail="Invalid session")
+    expires_at = session["expires_at"]
+    if isinstance(expires_at, str):
+        expires_at = datetime.fromisoformat(expires_at)
+    if expires_at.tzinfo is None:
+        expires_at = expires_at.replace(tzinfo=timezone.utc)
+    if expires_at < datetime.now(timezone.utc):
+        raise HTTPException(status_code=401, detail="Session expired")
+    user = await db.users.find_one({"user_id": session["user_id"]}, {"_id": 0})
+    if not user:
+        raise HTTPException(status_code=401, detail="User not found")
+    return user
+
+
+async def get_optional_user(request: Request) -> Optional[dict]:
+    try:
+        return await get_current_user(request)
+    except HTTPException:
+        return None
+
+
+@api_router.post("/auth/session")
+async def exchange_session(payload: SessionExchange, response: Response):
+    res = await asyncio.to_thread(
+        lambda: requests.get(
+            "https://demobackend.emergentagent.com/auth/v1/env/oauth/session-data",
+            headers={"X-Session-ID": payload.session_id},
+            timeout=15,
+        )
+    )
+    data = res.json()
+    if "session_token" not in data:
+        raise HTTPException(status_code=401, detail="Invalid session_id")
+    email = data["email"]
+    user = await db.users.find_one({"email": email}, {"_id": 0})
+    if not user:
+        user = {
+            "user_id": f"user_{uuid.uuid4().hex[:12]}",
+            "email": email,
+            "name": data.get("name", ""),
+            "picture": data.get("picture", ""),
+            "created_at": now_iso(),
+        }
+        await db.users.insert_one(user)
+    else:
+        await db.users.update_one(
+            {"email": email},
+            {"$set": {"name": data.get("name", ""), "picture": data.get("picture", "")}},
+        )
+        user.update({"name": data.get("name", ""), "picture": data.get("picture", "")})
+    await db.user_sessions.insert_one({
+        "user_id": user["user_id"],
+        "session_token": data["session_token"],
+        "expires_at": datetime.now(timezone.utc) + timedelta(days=7),
+        "created_at": datetime.now(timezone.utc),
+    })
+    response.set_cookie(
+        key="session_token",
+        value=data["session_token"],
+        httponly=True,
+        secure=True,
+        samesite="none",
+        path="/",
+        max_age=7 * 24 * 3600,
+    )
+    return user
+
+
+@api_router.get("/auth/me")
+async def auth_me(request: Request):
+    return await get_current_user(request)
+
+
+@api_router.post("/auth/logout")
+async def logout(request: Request, response: Response):
+    token = request.cookies.get("session_token")
+    auth = request.headers.get("Authorization")
+    if not token and auth and auth.startswith("Bearer "):
+        token = auth.split(" ", 1)[1]
+    if token:
+        await db.user_sessions.delete_many({"session_token": token})
+    response.delete_cookie("session_token", path="/", secure=True, samesite="none")
+    return {"message": "Logged out"}
+
+
+@api_router.get("/quotes/mine")
+async def my_quotes(request: Request):
+    user = await get_current_user(request)
+    docs = await db.quotes.find({"user_id": user["user_id"]}, {"_id": 0}).sort("created_at", -1).to_list(100)
+    return docs
 
 
 app.include_router(api_router)

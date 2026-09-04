@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { WizardShell, OptionCard, SuccessPanel, fieldCls } from "../components/Wizard";
 import { submitRepairQuote } from "../lib/api";
+import { useAuth } from "../lib/auth";
 import { repairDevices } from "../lib/data";
 
 const ISSUES = ["Cracked / damaged screen", "Battery draining fast", "Won't turn on", "Liquid damage", "Software / slow performance", "Camera or speaker fault", "Something else"];
@@ -26,6 +27,17 @@ export default function RepairQuote() {
   });
   const [done, setDone] = useState(null);
   const [sending, setSending] = useState(false);
+  const { user } = useAuth();
+
+  useEffect(() => {
+    if (user) {
+      setForm((f) => ({
+        ...f,
+        name: f.name || user.name || "",
+        email: f.email || user.email || "",
+      }));
+    }
+  }, [user]);
 
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
 

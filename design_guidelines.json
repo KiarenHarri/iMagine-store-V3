@@ -1,0 +1,85 @@
+{
+  "project_title": "iMagine Store - Apple Authorised Reseller & Service Centre",
+  "design_archetype": "Swiss High-Contrast Minimalist with Kinetic Orange (#FF7A00)",
+  "theme": "Light / Dark hybrid (Apple Studio aesthetic - Off-white #F5F5F7 background with stark #1D1D1F dark slate sections and vibrant #FF7A00 accent elements)",
+  "colors": {
+    "primary_bg": "#F5F5F7",
+    "surface_white": "#FFFFFF",
+    "surface_dark": "#1D1D1F",
+    "surface_card": "#FFFFFF",
+    "text_primary": "#1D1D1F",
+    "text_secondary": "#86868B",
+    "text_dark_bg": "#F5F5F7",
+    "accent": "#FF7A00",
+    "accent_hover": "#E06B00",
+    "accent_subtle": "rgba(255, 122, 0, 0.1)",
+    "border_light": "rgba(0, 0, 0, 0.08)",
+    "border_dark": "rgba(255, 255, 255, 0.12)"
+  },
+  "typography": {
+    "font_family_heading": "Outfit, SF Pro Display, system-ui, sans-serif",
+    "font_family_body": "Plus Jakarta Sans, Inter, system-ui, sans-serif",
+    "font_family_mono": "JetBrains Mono, monospace",
+    "scale": {
+      "h1": "text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight",
+      "h2": "text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight",
+      "h3": "text-xl sm:text-2xl font-semibold",
+      "h4": "text-lg font-medium",
+      "body": "text-base leading-relaxed text-[#1D1D1F]/80",
+      "caption": "text-xs font-mono uppercase tracking-widest text-[#86868B]"
+    }
+  },
+  "layout_and_spacing": {
+    "container_padding": "px-4 sm:px-8 lg:px-12 max-w-7xl mx-auto",
+    "section_gap": "py-16 lg:py-24",
+    "card_padding": "p-6 lg:p-8",
+    "grid_modes": {
+      "bento_hero": "grid grid-cols-1 md:grid-cols-12 gap-6 lg:gap-8",
+      "shop_grid": "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6",
+      "manifesto_grid": "grid grid-cols-1 md:grid-cols-3 gap-8"
+    }
+  },
+  "component_guidelines": {
+    "navigation_header": "Glassmorphism header with backdrop-blur-xl bg-white/80 border-b border-black/5 z-50 sticky top-0. Must feature iMagine brand emblem, category nav links (iPhone, Mac, iPad, Watch, Accessories, Repairs), Quote Wizard CTA with #FF7A00 badge, and quick repair lookup.",
+    "kinetic_hero": "Awwwards-inspired hero with masked line-by-line reveal text, subtle 3D tilt/parallax image frame, quick specs badge, and dual CTA (Shop Collections vs Instant Repair Quote).",
+    "manifesto_chapters": "Numbered editorial chapters (01 Official Certification, 02 Authentic Apple Parts, 03 Same-Day Diagnostics, 04 Express Delivery) with sleek line borders and hover acceleration.",
+    "editorial_marquee": "Slow, elegant continuous marquee ticker displaying verified service guarantees and product categories in high-contrast monospaced font.",
+    "parallax_edit_section": "Subtle 3D multi-layered parallax edit showing exploded or layered Apple device views with interactive depth offset on scroll.",
+    "shop_catalog": "Filterable product grid with category pills, live search bar, spec highlights, trade-in calculator, and 'Price on Request / Inquire' status badges.",
+    "quote_wizards": {
+      "product_wizard": "4-step interactive wizard: Step 1 Device Category -> Step 2 Model & Specs -> Step 3 Trade-in & Accessories -> Step 4 Contact Details & Instant Submission to DB.",
+      "repair_wizard": "4-step interactive wizard: Step 1 Select Device -> Step 2 Identify Issue -> Step 3 Serial/IMEI & Service Centre Choice (Westville Durban vs Express Pickup) -> Step 4 Submit & Get Repair Ticket Code."
+    },
+    "repairs_hub": "Secondary yet high-impact repair portal with live status lookup input, Apple Certified Technician badges, common repair pricing guide, and booking wizard entry.",
+    "about_and_contact": "Story of iMagine Store (Apple Reseller in Westville, Durban, South Africa), interactive location card, business hours, and instant enquiry form saved to DB."
+  },
+  "image_urls": {
+    "brand_storefront": "https://images.unsplash.com/photo-1621768216002-5ac171876625?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NTZ8MHwxfHNlYXJjaHwxfHxtaW5pbWFsaXN0JTIwYXBwbGUlMjBzdG9yZSUyMG1hY2Jvb2slMjBpcGhvbmUlMjBkaXNwbGF5fGVufDB8fHx8MTc4ODU2MzYyOXww&ixlib=rb-4.1.0&q=85",
+    "macbook_hero": "https://images.unsplash.com/photo-1611186871348-b1ce696e52c9?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA2MjJ8MHwxfHNlYXJjaHwyfHxtYWNib29rJTIwcHJvJTIwc2xlZWslMjBhbHVtaW51bSUyMHN0dWRpbyUyMHNldHVwfGVufDB8fHx8MTc4ODU2MzYzNXww&ixlib=rb-4.1.0&q=85",
+    "iphone_hero": "https://images.unsplash.com/photo-1592750475338-74b7b21085ab?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA2MjJ8MHwxfHNlYXJjaHwyfHxpcGhvbmUlMjBwcm8lMjBjYW1lcmElMjB0aXRhbml1bSUyMGRldmljZSUyMHBob3RvfGVufDB8fHx8MTc4ODU2MzYzNXww&ixlib=rb-4.1.0&q=85",
+    "apple_watch": "https://images.unsplash.com/photo-1616353329366-b5546ca70b1a?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1NTZ8MHwxfHNlYXJjaHwyfHxhcHBsZSUyMHdhdGNoJTIwbHV4dXJ5JTIwdGVjaCUyMGRlc2slMjBwcm9kdWN0JTIwcGhvdG98ZW58MHx8fHwxNzg4NTYzNjI5fDA&ixlib=rb-4.1.0&q=85",
+    "ecosystem_desk": "https://images.pexels.com/photos/10357019/pexels-photo-10357019.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940"
+  },
+  "verified_business_info": {
+    "name": "iMagine Store",
+    "role": "Apple Authorised Reseller & Apple Service Centre",
+    "location": "Westville, Durban, Kwazulu-Natal, South Africa",
+    "website": "www.imaginestore.co.za",
+    "phone": "+27 (0)31 266 1234 / +27 (0)82 000 0000",
+    "email": "support@imaginestore.co.za",
+    "services": [
+      "In-Warranty & Out-of-Warranty Apple Repairs",
+      "Certified Mac, iPhone, iPad, Watch & Beats Maintenance",
+      "Enterprise Managed Apple Support & On-Site Service",
+      "Custom Product Quotations & Trade-In Evaluation"
+    ]
+  },
+  "instructions_to_main_agent": [
+    "Ensure all interactive elements have data-testid attributes.",
+    "Persist quote wizard submissions and contact form submissions to backend FastAPI endpoints (/api/quotes/product, /api/quotes/repair, /api/contact).",
+    "Build smooth client-side routing and tab switching for all pages (Home, Shop, Categories, Product Quote, Repair Quote, Repairs, Accessories, About, Contact).",
+    "Integrate Framer Motion for scroll reveals, text masking entrance, and subtle 3D/parallax editing section.",
+    "Incorporate the #FF7A00 accent color thoughtfully on primary buttons, active wizard steps, badges, and focal callouts.",
+    "Ensure complete responsive layout with mobile slide-out drawer navigation."
+  ]
+}

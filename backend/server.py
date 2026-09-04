@@ -1,6 +1,7 @@
 import asyncio
 import requests
 from fastapi import FastAPI, APIRouter, HTTPException, Request, Response
+from mailer import notify_team, notify_customer
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -81,6 +82,25 @@ async def create_product_quote(q: ProductQuote, request: Request):
         "created_at": now_iso(),
     })
     await db.quotes.insert_one(doc)
+    rows = [
+        ("Reference", doc["reference"]),
+        ("Category", q.category),
+        ("Model", q.model),
+        ("Storage", q.storage),
+        ("Trade-in", "Yes" if q.trade_in else "No"),
+        ("Accessories", ", ".join(q.accessories)),
+        ("Name", q.name),
+        ("Email", q.email),
+        ("Phone", q.phone),
+        ("Notes", q.notes),
+    ]
+    asyncio.create_task(notify_team(f"New product quote — {doc['reference']}", rows))
+    asyncio.create_task(notify_customer(
+        q.email, q.name,
+        f"Your iMagine Store quote request — {doc['reference']}",
+        doc["reference"],
+        [("Model", q.model or q.category), ("Storage", q.storage), ("Trade-in", "Yes" if q.trade_in else "No")],
+    ))
     return {"reference": doc["reference"], "message": "Product quote request received"}
 
 
@@ -97,6 +117,25 @@ async def create_repair_quote(q: RepairQuote, request: Request):
         "created_at": now_iso(),
     })
     await db.quotes.insert_one(doc)
+    rows = [
+        ("Reference", doc["reference"]),
+        ("Device", q.device),
+        ("Model", q.model),
+        ("Issue", q.issue),
+        ("Description", q.description),
+        ("Serial / IMEI", q.serial),
+        ("Service mode", q.service_mode),
+        ("Name", q.name),
+        ("Email", q.email),
+        ("Phone", q.phone),
+    ]
+    asyncio.create_task(notify_team(f"New repair request — {doc['reference']}", rows))
+    asyncio.create_task(notify_customer(
+        q.email, q.name,
+        f"Your iMagine Store repair ticket — {doc['reference']}",
+        doc["reference"],
+        [("Device", q.device), ("Issue", q.issue), ("Status", "Received — awaiting assessment")],
+    ))
     return {"reference": doc["reference"], "message": "Repair quote request received"}
 
 
@@ -125,6 +164,21 @@ async def create_contact(msg: ContactMessage):
         "created_at": now_iso(),
     })
     await db.contact_messages.insert_one(doc)
+    rows = [
+        ("Reference", doc["reference"]),
+        ("Name", msg.name),
+        ("Email", msg.email),
+        ("Phone", msg.phone),
+        ("Subject", msg.subject),
+        ("Message", msg.message),
+    ]
+    asyncio.create_task(notify_team(f"New contact message — {doc['reference']}", rows))
+    asyncio.create_task(notify_customer(
+        msg.email, msg.name,
+        f"We've received your message — {doc['reference']}",
+        doc["reference"],
+        [("Subject", msg.subject or "General enquiry")],
+    ))
     return {"reference": doc["reference"], "message": "Message received"}
 
 

@@ -44,6 +44,14 @@ Build a polished, responsive multi-page Imagine Store Apple reseller website. Pr
 - Account page (/account, auth-gated): Google profile card, quotes & repair history, logout. AuthCallback handles session_id via useLocation().hash (race-safe); AuthProvider skips /me on OAuth return.
 - CORS locked to frontend origin (credentials-enabled).
 
+## Implemented (2026-09-04, update 3 — Email notifications)
+- Emergent-managed Resend email via integration proxy (/app/backend/mailer.py with guardrail gate _assert_safe_email on every send).
+- Team notification email on every product quote, repair quote and contact submission (all fields, escaped, branded template).
+- Customer confirmation email to the submitter with their reference code (per user choice).
+- Non-blocking fire-and-forget via asyncio.create_task so submissions never fail on email errors.
+- TEAM_NOTIFY_EMAIL currently = delivered@resend.dev (TEST INBOX — replace with the real team address when provided; user selected "will reply with address" but none given yet).
+- Verified: 6 sends (team + customer × 3 flows) returned HTTP 202 from the proxy.
+
 ## Testing notes
 - curl verified: product quote, repair quote, repair status lookup, contact, email validation (422).
 - Auth verified: /auth/me 200 with Bearer + 401 without; quote attaches user_id; /quotes/mine returns user's quotes; logout invalidates Bearer session (401 after); browser test with session cookie loads Account with history, logout returns to sign-in prompt. Full Google OAuth round-trip not exercised (requires a real Google account click-through) — test user was seeded in MongoDB per /app/auth_testing.md.

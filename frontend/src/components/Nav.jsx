@@ -7,6 +7,7 @@ import { useAuth, startGoogleLogin } from "../lib/auth";
 const LINKS = [
   { to: "/", label: "Home" },
   { to: "/shop", label: "Shop" },
+  { to: "/microsoft-services", label: "Microsoft" },
   { to: "/repairs", label: "Repairs" },
   { to: "/accessories", label: "Accessories" },
   { to: "/about", label: "About" },

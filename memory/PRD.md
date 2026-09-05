@@ -194,3 +194,11 @@ Build a polished, responsive multi-page Imagine Store Apple reseller website. Pr
 - iPhone entries with a specific model param (shop cards, sale links) start at the model step with that model pre-selected so colour/storage are always captured; other categories unchanged (still skip to extras).
 - Backend: ProductQuote gains color + condition fields (stored in Mongo, shown in team + customer emails); admin cards show colour and a "Pre-owned" badge.
 - Verified in browser: 33 model cards, per-model swatches/storage, validation gating, older-iPhone fields, summary "iPhone 7 Plus · Pre-owned · Rose Gold · 128GB"; API test IMQ-5CED31 stored color+condition.
+
+## Implemented (2026-09-05, update 30 — Microsoft Services page; store plan dropped)
+- New /microsoft-services page: dark hero ("Microsoft Services." + cloud/AI/data/collaboration subhead + Book a consultation CTA), services marquee, 5 categorized groups with eyebrow headers and 22 icon cards (Cloud & Infrastructure, AI & Innovation, Data & Analytics, Business Applications & Collaboration, Integration & Development), closing CTA band. Matches existing design system.
+- Every service card has "Enquire about this" → /contact?service=<name> which prefills the contact form subject ("Microsoft Services — <name>") and message, with a visible prefill banner; submissions save to Mongo and notify the team inbox as normal.
+- Contact details on the page use the standard iMagine details (BRAND: +27 83 777 3051, seni@imaginestore.co.za) — user initially gave a separate contact (Shuan Govender / whizkids.tech) then changed to the iMagine details.
+- Nav (desktop + mobile) gains "Microsoft" link; footer Company column gains "Microsoft Services".
+- Earlier Microsoft store/catalogue data (products, category, images) was fully reverted from data.js — nothing Microsoft in Shop.
+- Verified in browser: page loads, 5 groups / 22 cards, enquire → contact prefill (subject + message + banner), form submits (IMC-055A7A stored with Microsoft subject), closing CTA + footer link present.

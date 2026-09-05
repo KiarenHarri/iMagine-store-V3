@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { MapPin, Facebook, Phone, Mail, Clock, Send, CheckCircle2 } from "lucide-react";
 import { MaskedLine, Reveal } from "../components/motion";
 import { submitContact } from "../lib/api";
@@ -8,7 +9,15 @@ const inputCls =
   "w-full rounded-2xl border border-ink/10 bg-paper px-5 py-3.5 text-sm outline-none transition-colors focus:border-brand";
 
 export default function Contact() {
-  const [form, setForm] = useState({ name: "", email: "", phone: "", subject: "", message: "" });
+  const [params] = useSearchParams();
+  const service = params.get("service") || "";
+  const [form, setForm] = useState({
+    name: "",
+    email: "",
+    phone: "",
+    subject: service ? `Microsoft Services — ${service}` : "",
+    message: service ? `Hi, I'd like to know more about ${service} and how it could work for our business.` : "",
+  });
   const [done, setDone] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -96,6 +105,11 @@ export default function Contact() {
               ) : (
                 <form onSubmit={submit} data-testid="contact-form" className="rounded-3xl border border-black/5 bg-white p-7 lg:p-10">
                   <p className="eyebrow">Send a message</p>
+                  {service && (
+                    <p data-testid="contact-service-prefill" className="mt-4 rounded-2xl border border-brand/25 bg-brand-subtle px-4 py-3 text-xs font-semibold text-brand">
+                      Microsoft Services enquiry: {service} — this goes straight to the team.
+                    </p>
+                  )}
                   <div className="mt-6 grid grid-cols-1 gap-4 sm:grid-cols-2">
                     <input data-testid="contact-name-input" required value={form.name} onChange={set("name")} placeholder="Full name *" className={inputCls} />
                     <input data-testid="contact-email-input" required type="email" value={form.email} onChange={set("email")} placeholder="Email address *" className={inputCls} />

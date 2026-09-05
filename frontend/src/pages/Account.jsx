@@ -149,6 +149,13 @@ export default function Account() {
                         </div>
                       );
                     })()}
+                    {q.quote_price && (
+                      <div className="mt-3 w-fit rounded-xl bg-brand-subtle px-4 py-3" data-testid={`quote-price-${q.reference}`}>
+                        <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-brand">Quoted price</p>
+                        <p className="mt-0.5 font-display text-lg font-extrabold text-ink">{q.quote_price}</p>
+                        {q.quote_note && <p className="mt-1 max-w-xs text-xs leading-relaxed text-ink/60">{q.quote_note}</p>}
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

@@ -59,6 +59,12 @@ Build a polished, responsive multi-page Imagine Store Apple reseller website. Pr
 - Customers see live progress: orange step tracker per quote on Account page, and repair status lookup on Repairs page reflects flips instantly.
 - Verified: curl PATCH (200/400 invalid/403 non-admin), customer endpoint reflects flip, UI select flip + tracker render, 2 status emails HTTP 202.
 
+## Implemented (2026-09-05, update 5 — Priced quote notes + real team inbox)
+- TEAM_NOTIFY_EMAIL switched to real team inbox: seni@imaginestore.co.za.
+- "Quote sent" now opens an inline editor in the team console: attach price (e.g. R 24 999) + note; saved as quote_price/quote_note on the submission.
+- Customers see the quoted price card on their Account page; the status email includes price + note.
+- Verified: PATCH with price/note persists and shows on /quotes/mine; UI editor → send → customer price card renders; emails HTTP 202 routed to the real inbox.
+
 ## Testing notes
 - curl verified: product quote, repair quote, repair status lookup, contact, email validation (422).
 - Auth verified: /auth/me 200 with Bearer + 401 without; quote attaches user_id; /quotes/mine returns user's quotes; logout invalidates Bearer session (401 after); browser test with session cookie loads Account with history, logout returns to sign-in prompt. Full Google OAuth round-trip not exercised (requires a real Google account click-through) — test user was seeded in MongoDB per /app/auth_testing.md.

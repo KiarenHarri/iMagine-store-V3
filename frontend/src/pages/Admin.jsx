@@ -19,6 +19,7 @@ export default function Admin() {
   const [data, setData] = useState(null);
   const [tab, setTab] = useState("all");
   const [saving, setSaving] = useState("");
+  const [quoteForm, setQuoteForm] = useState(null);
 
   const load = async () => {
     try {
@@ -34,23 +35,32 @@ export default function Admin() {
     if (user?.is_admin) load();
   }, [user]);
 
-  const updateStatus = async (reference, status) => {
+  const updateStatus = async (reference, status, extras = {}) => {
     setSaving(reference);
     try {
       const res = await fetch(`${API}/admin/quotes/${reference}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ status }),
+        body: JSON.stringify({ status, ...extras }),
       });
       if (!res.ok) throw new Error();
       const updated = await res.json();
       setData((d) => ({ ...d, quotes: d.quotes.map((q) => (q.reference === reference ? updated : q)) }));
+      setQuoteForm(null);
       toast.success(`${reference} → ${status}. Customer emailed.`);
     } catch {
       toast.error("Status update failed");
     } finally {
       setSaving("");
+    }
+  };
+
+  const pickStatus = (q, status) => {
+    if (status === "Quote sent") {
+      setQuoteForm({ reference: q.reference, price: q.quote_price || "", note: q.quote_note || "" });
+    } else {
+      updateStatus(q.reference, status);
     }
   };
 
@@ -148,7 +158,7 @@ export default function Admin() {
                           data-testid={`admin-status-select-${q.reference}`}
                           value={q.status}
                           disabled={saving === q.reference}
-                          onChange={(e) => updateStatus(q.reference, e.target.value)}
+                          onChange={(e) => pickStatus(q, e.target.value)}
                           className="rounded-full border border-ink/10 bg-paper px-4 py-2.5 text-sm font-semibold text-ink outline-none transition-colors focus:border-brand disabled:opacity-50"
                         >
                           {[...(STATUS_FLOWS[q.type] || []), CANCEL_STATUS].map((s) => (
@@ -157,6 +167,44 @@ export default function Admin() {
                         </select>
                       </div>
                     </div>
+                    {quoteForm?.reference === q.reference && (
+                      <div data-testid={`quote-editor-${q.reference}`} className="mt-5 rounded-2xl border border-brand/30 bg-brand-subtle p-5">
+                        <p className="eyebrow !text-brand">Attach the quote</p>
+                        <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                          <input
+                            data-testid={`quote-price-input-${q.reference}`}
+                            value={quoteForm.price}
+                            onChange={(e) => setQuoteForm({ ...quoteForm, price: e.target.value })}
+                            placeholder="Price, e.g. R 24 999"
+                            className="w-full rounded-xl border border-ink/10 bg-white px-4 py-3 text-sm outline-none transition-colors focus:border-brand"
+                          />
+                          <input
+                            data-testid={`quote-note-input-${q.reference}`}
+                            value={quoteForm.note}
+                            onChange={(e) => setQuoteForm({ ...quoteForm, note: e.target.value })}
+                            placeholder="Note, e.g. includes MagSafe case, valid 7 days"
+                            className="w-full rounded-xl border border-ink/10 bg-white px-4 py-3 text-sm outline-none transition-colors focus:border-brand"
+                          />
+                        </div>
+                        <div className="mt-4 flex gap-3">
+                          <button
+                            data-testid={`quote-send-btn-${q.reference}`}
+                            disabled={saving === q.reference || !quoteForm.price.trim()}
+                            onClick={() => updateStatus(q.reference, "Quote sent", { price: quoteForm.price, note: quoteForm.note })}
+                            className="rounded-full bg-brand px-6 py-2.5 text-sm font-semibold text-white transition-colors duration-300 hover:bg-brand-hover disabled:opacity-40"
+                          >
+                            {saving === q.reference ? "Sending…" : "Send quote to customer"}
+                          </button>
+                          <button
+                            data-testid={`quote-cancel-btn-${q.reference}`}
+                            onClick={() => setQuoteForm(null)}
+                            className="rounded-full border border-ink/15 px-5 py-2.5 text-sm font-semibold text-ink transition-colors hover:border-brand hover:text-brand"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </Reveal>
               ))}

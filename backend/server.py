@@ -304,6 +304,8 @@ async def my_quotes(request: Request):
 
 class StatusUpdate(BaseModel):
     status: str
+    price: str = ""
+    note: str = ""
 
 
 @api_router.get("/admin/submissions")
@@ -323,12 +325,19 @@ async def admin_update_status(reference: str, payload: StatusUpdate, request: Re
     allowed = STATUS_FLOWS.get(doc["type"], []) + ["Cancelled"]
     if payload.status not in allowed:
         raise HTTPException(status_code=400, detail="Invalid status for this submission type")
-    await db.quotes.update_one(
-        {"reference": doc["reference"]},
-        {"$set": {"status": payload.status, "updated_at": now_iso()}},
-    )
-    doc["status"] = payload.status
-    asyncio.create_task(notify_status(doc.get("email", ""), doc.get("name", ""), doc["reference"], payload.status))
+    update = {"status": payload.status, "updated_at": now_iso()}
+    price = payload.price.strip()
+    note = payload.note.strip()
+    if price:
+        update["quote_price"] = price
+    if note:
+        update["quote_note"] = note
+    await db.quotes.update_one({"reference": doc["reference"]}, {"$set": update})
+    doc.update(update)
+    asyncio.create_task(notify_status(
+        doc.get("email", ""), doc.get("name", ""), doc["reference"], payload.status,
+        price=price or None, note=note or None,
+    ))
     return doc
 
 

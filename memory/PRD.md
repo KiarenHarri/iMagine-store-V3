@@ -150,6 +150,12 @@ Build a polished, responsive multi-page Imagine Store Apple reseller website. Pr
 ## Implemented (2026-09-05, update 22 — Repairs blueprint image)
 - Repairs page side visual replaced with the user-supplied iPhone Pro technical blueprint (/assets/blueprint.png), framed at its native 3:2 ratio so the full drawing is visible.
 
+## Implemented (2026-09-05, update 23 — Blueprint optimization + colour-flip fix + 17 Pro Max camera)
+- Blueprint image optimized: 1926KB PNG → 145KB progressive JPEG (verified 145KB transfer), lazy-loaded.
+- Colour switcher now obvious: tapping a swatch flips the phone to its BACK (new colour fully visible), holds ~0.4s, then spins back to front (keyframes [0,190,190,360] with dwell). Root cause of "not working": spins always landed on the front where colour change was subtle.
+- Camera module redesigned to the iPhone 17 Pro Max style: full-width camera bar with three lenses in a row + flash, LiDAR and mic on the right.
+- Verified in browser: black-swatch tap shows the black 17 Pro Max-style back mid-animation; blueprint loads fast and crisp.
+
 ## Testing notes
 - curl verified: product quote, repair quote, repair status lookup, contact, email validation (422).
 - Auth verified: /auth/me 200 with Bearer + 401 without; quote attaches user_id; /quotes/mine returns user's quotes; logout invalidates Bearer session (401 after); browser test with session cookie loads Account with history, logout returns to sign-in prompt. Full Google OAuth round-trip not exercised (requires a real Google account click-through) — test user was seeded in MongoDB per /app/auth_testing.md.

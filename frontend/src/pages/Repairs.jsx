@@ -136,7 +136,7 @@ export default function Repairs() {
           <div className="lg:col-span-5">
             <Reveal delay={0.15}>
               <div className="overflow-hidden rounded-[2rem] bg-[#0b3d91] shadow-xl shadow-ink/10">
-                <img src="/assets/blueprint.png" alt="iPhone Pro technical blueprint — front, side, back and camera views" data-testid="repairs-blueprint" className="aspect-[3/2] w-full object-cover" />
+                <img src="/assets/blueprint.jpg" alt="iPhone Pro technical blueprint — front, side, back and camera views" data-testid="repairs-blueprint" className="aspect-[3/2] w-full object-cover" loading="lazy" />
               </div>
               <p className="mt-4 font-mono text-[11px] uppercase tracking-[0.25em] text-mute">
                 Mac · iPhone · iPad · iPod · Apple Watch · Beats

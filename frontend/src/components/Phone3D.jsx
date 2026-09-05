@@ -15,7 +15,7 @@ const AppleLogo = ({ className }) => (
 );
 
 const Lens = ({ className }) => (
-  <span className={`absolute h-[30%] w-[42%] rounded-full ${className}`}>
+  <span className={`absolute top-1/2 aspect-square h-[66%] -translate-y-1/2 rounded-full ${className}`}>
     <span
       className="absolute inset-0 rounded-full"
       style={{
@@ -37,20 +37,21 @@ const Lens = ({ className }) => (
 
 const CameraPlateau = ({ tone }) => (
   <div
-    className="absolute left-[7%] top-[4.5%] aspect-square w-[46%] rounded-[28%] transition-colors duration-500"
-    style={{ background: tone, boxShadow: "inset 0 2px 3px rgba(255,255,255,0.35), inset 0 -3px 6px rgba(0,0,0,0.25), 0 10px 24px rgba(0,0,0,0.35)" }}
+    className="absolute left-[4%] right-[4%] top-[2.8%] h-[12.5%] rounded-[1.5rem] transition-colors duration-500"
+    style={{ background: tone, boxShadow: "inset 0 2px 3px rgba(255,255,255,0.35), inset 0 -3px 6px rgba(0,0,0,0.25), 0 8px 20px rgba(0,0,0,0.35)" }}
   >
-    <Lens className="left-[5%] top-[5%]" />
-    <Lens className="right-[5%] top-[24%]" />
-    <Lens className="bottom-[5%] left-[5%]" />
+    <Lens className="left-[5%]" />
+    <Lens className="left-[24%]" />
+    <Lens className="left-[43%]" />
     <span
-      className="absolute right-[16%] top-[6%] h-[12%] w-[20%] rounded-full"
+      className="absolute right-[13%] top-[16%] aspect-square h-[30%] rounded-full"
       style={{ background: "radial-gradient(circle at 40% 35%, #fdf3d0 0%, #d8c48c 55%, #8f7c4e 100%)", boxShadow: "0 1px 3px rgba(0,0,0,0.4), inset 0 0 3px rgba(255,255,255,0.6)" }}
     />
     <span
-      className="absolute bottom-[10%] right-[14%] h-[9%] w-[15%] rounded-full bg-black/60"
-      style={{ boxShadow: "inset 0 0 3px rgba(255,255,255,0.25)" }}
+      className="absolute right-[5.5%] top-[16%] aspect-square h-[30%] rounded-full"
+      style={{ background: "radial-gradient(circle at 40% 35%, #3a4250 0%, #11151d 70%)", boxShadow: "inset 0 0 3px rgba(255,255,255,0.25)" }}
     />
+    <span className="absolute right-[9%] bottom-[16%] aspect-square h-[10%] rounded-full bg-black/60" />
   </div>
 );
 
@@ -101,7 +102,12 @@ export default function Phone3D({ progress }) {
     if (c.id === color.id) return;
     setColor(c);
     playSpinSound();
-    animate(spin, spin.get() + 360, { duration: 1.1, ease: [0.16, 1, 0.3, 1] });
+    const from = spin.get();
+    animate(spin, [from, from + 190, from + 190, from + 360], {
+      duration: 1.6,
+      times: [0, 0.38, 0.62, 1],
+      ease: "easeInOut",
+    });
   };
 
   return (

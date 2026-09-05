@@ -18,6 +18,42 @@ const Lens = ({ className }) => (
   />
 );
 
+const playSpinSound = () => {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const t = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const og = ctx.createGain();
+    osc.type = "triangle";
+    osc.frequency.setValueAtTime(1400, t);
+    og.gain.setValueAtTime(0.12, t);
+    og.gain.exponentialRampToValueAtTime(0.001, t + 0.08);
+    osc.connect(og).connect(ctx.destination);
+    osc.start(t);
+    osc.stop(t + 0.09);
+    const dur = 1;
+    const buf = ctx.createBuffer(1, ctx.sampleRate * dur, ctx.sampleRate);
+    const data = buf.getChannelData(0);
+    for (let i = 0; i < data.length; i++) data[i] = Math.random() * 2 - 1;
+    const src = ctx.createBufferSource();
+    src.buffer = buf;
+    const filt = ctx.createBiquadFilter();
+    filt.type = "bandpass";
+    filt.Q.value = 1.1;
+    filt.frequency.setValueAtTime(300, t + 0.05);
+    filt.frequency.exponentialRampToValueAtTime(2400, t + 0.5);
+    filt.frequency.exponentialRampToValueAtTime(380, t + dur);
+    const g = ctx.createGain();
+    g.gain.setValueAtTime(0.0001, t + 0.05);
+    g.gain.exponentialRampToValueAtTime(0.07, t + 0.35);
+    g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    src.connect(filt).connect(g).connect(ctx.destination);
+    src.start(t + 0.05);
+    src.stop(t + dur + 0.05);
+    setTimeout(() => ctx.close(), (dur + 0.4) * 1000);
+  } catch {}
+};
+
 export default function Phone3D({ progress }) {
   const [color, setColor] = useState(COLORS[0]);
   const spin = useMotionValue(0);
@@ -28,6 +64,7 @@ export default function Phone3D({ progress }) {
   const pick = (c) => {
     if (c.id === color.id) return;
     setColor(c);
+    playSpinSound();
     animate(spin, spin.get() + 360, { duration: 1.1, ease: [0.16, 1, 0.3, 1] });
   };
 
@@ -87,8 +124,8 @@ export default function Phone3D({ progress }) {
               data-testid={`hero-color-${c.id}`}
               onClick={() => pick(c)}
               aria-label={c.label}
-              className={`h-8 w-8 rounded-full border-2 transition-all duration-300 ${
-                color.id === c.id ? "scale-110 border-brand shadow-lg shadow-brand/30" : "border-white shadow hover:scale-105"
+              className={`h-8 w-8 rounded-full ring-1 ring-ink/15 transition-all duration-300 ${
+                color.id === c.id ? "scale-110 ring-2 ring-brand shadow-lg shadow-brand/30" : "shadow hover:scale-105"
               }`}
               style={{ background: c.swatch }}
             />

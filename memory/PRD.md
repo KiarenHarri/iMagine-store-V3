@@ -95,6 +95,12 @@ Build a polished, responsive multi-page Imagine Store Apple reseller website. Pr
 - Hero iPhone now has 4 titanium colour swatches (Natural, Blue, White, Black): tapping one triggers a 360° spin (motion-value tween layered on scroll rotation) and re-skins the phone — CSS-rendered titanium back with camera module (3 lenses + flash), colour-tinted lock screen wallpaper, and label under the swatches.
 - Verified: swatch taps switch labels and active ring; spin completes to the recoloured front; scroll to ~180° shows the Natural Titanium CSS back.
 
+## Implemented (2026-09-05, update 11 — Sign-in account chooser hint + hero spin sound)
+- Sign-in URL now carries prompt=select_account (verified it survives the Emergent auth redirect chain to /oauth/) so Google is asked to show the account picker instead of silently re-using the last account. Note: with only ONE Google account signed into the browser, Google may still skip the chooser — that's Google-side behavior.
+- Hero colour spin now plays a WebAudio click + filtered-noise whoosh (generated in code, no assets) on every colour tap.
+- Fixed: Natural Titanium swatch invisible on light bg + "Now quoting" badge overlapping the swatches (badge moved up, swatches got visible rings).
+- Verified: all 4 swatches clickable (Natural/Blue/White/Black labels switch), spins + sound calls run without console errors.
+
 ## Testing notes
 - curl verified: product quote, repair quote, repair status lookup, contact, email validation (422).
 - Auth verified: /auth/me 200 with Bearer + 401 without; quote attaches user_id; /quotes/mine returns user's quotes; logout invalidates Bearer session (401 after); browser test with session cookie loads Account with history, logout returns to sign-in prompt. Full Google OAuth round-trip not exercised (requires a real Google account click-through) — test user was seeded in MongoDB per /app/auth_testing.md.

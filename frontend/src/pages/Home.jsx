@@ -112,7 +112,7 @@ function Hero() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.9, delay: 0.9, ease }}
-              className="absolute -left-4 bottom-10 rounded-2xl border border-white/40 bg-white/70 px-5 py-4 shadow-xl backdrop-blur-xl sm:-left-8"
+              className="absolute -left-4 bottom-32 rounded-2xl border border-white/40 bg-white/70 px-5 py-4 shadow-xl backdrop-blur-xl sm:-left-8"
             >
               <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-mute">Now quoting</p>
               <p className="mt-1 font-display text-sm font-bold text-ink">iPhone, Mac, iPad &amp; Watch</p>

@@ -2,6 +2,9 @@ const img = (id) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=12
 
 export const IMAGES = {
   hero: img("photo-1727093493864-0bcbd16c7e6d"),
+  iphone17promax: img("photo-1759203302534-c6e71c93e886"),
+  iphone17pro: img("photo-1758186361602-c3f23037eb95"),
+  iphone17: img("photo-1758467700578-7491a5c7eedd"),
   iphone16pro: img("photo-1727093493864-0bcbd16c7e6d"),
   iphone15pro: img("photo-1773414422103-7aa2623de1fa"),
   iphonePreOwned: img("photo-1663408261842-016bae520a0c"),
@@ -66,6 +69,9 @@ export const categories = [
 ];
 
 export const products = [
+  { id: "ip17promax", name: "iPhone 17 Pro Max", category: "iphone", tagline: "Cosmic Orange. The biggest Pro ever.", image: IMAGES.iphone17promax, specs: ["A19 Pro", "Full-width camera plateau", "Best battery ever"] },
+  { id: "ip17pro", name: "iPhone 17 Pro", category: "iphone", tagline: "Deep blue. Unibody aluminium.", image: IMAGES.iphone17pro, specs: ["A19 Pro", "48MP Fusion cameras", "Vapor chamber"] },
+  { id: "ip17", name: "iPhone 17", category: "iphone", tagline: "Lavender. ProMotion for everyone.", image: IMAGES.iphone17, specs: ["A19", "120Hz ProMotion", "Dual Fusion camera"] },
   { id: "ip16pro", name: "iPhone 16 Pro", category: "iphone", tagline: "Titanium build. A18 Pro chip.", image: IMAGES.iphone16pro, specs: ["A18 Pro", "ProMotion 120Hz", "48MP Fusion camera"] },
   { id: "ip16", name: "iPhone 16", category: "iphone", tagline: "Camera Control. All-day battery.", image: IMAGES.iphoneBlue, specs: ["A18", "Camera Control", "USB-C"] },
   { id: "ip15", name: "iPhone 15 Pro", category: "iphone", tagline: "Titanium. A17 Pro. Pro camera system.", image: IMAGES.iphone15pro, specs: ["A17 Pro", "48MP camera", "USB-C"] },

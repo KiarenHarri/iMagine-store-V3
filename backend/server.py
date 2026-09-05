@@ -1,8 +1,10 @@
 import asyncio
+import base64
+import secrets
 import bcrypt
 import requests
 from fastapi import FastAPI, APIRouter, HTTPException, Request, Response
-from mailer import notify_team, notify_customer, notify_status
+from mailer import notify_team, notify_customer, notify_status, send_password_reset
 from pdfgen import build_quote_pdf
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
@@ -380,6 +382,52 @@ async def password_login(payload: LoginIn, request: Request, response: Response)
     return await create_session_for(user, response)
 
 
+class ForgotIn(BaseModel):
+    email: EmailStr
+
+
+class ResetIn(BaseModel):
+    token: str
+    password: str
+
+
+@api_router.post("/auth/forgot-password")
+async def forgot_password(payload: ForgotIn):
+    email = payload.email.lower().strip()
+    user = await db.users.find_one({"email": email}, {"_id": 0})
+    if user and user.get("password_hash"):
+        token = secrets.token_urlsafe(32)
+        await db.password_reset_tokens.insert_one({
+            "token": token,
+            "email": email,
+            "expires_at": datetime.now(timezone.utc) + timedelta(hours=1),
+            "used": False,
+            "created_at": now_iso(),
+        })
+        base = os.environ.get("CORS_ORIGINS", "").split(",")[0].strip().strip('"')
+        asyncio.create_task(send_password_reset(email, user.get("name", ""), f"{base}/reset-password?token={token}"))
+    return {"message": "If that email is registered, a reset link is on its way"}
+
+
+@api_router.post("/auth/reset-password")
+async def reset_password(payload: ResetIn):
+    if len(payload.password) < 8:
+        raise HTTPException(status_code=400, detail="Password must be at least 8 characters")
+    doc = await db.password_reset_tokens.find_one({"token": payload.token})
+    if not doc or doc.get("used"):
+        raise HTTPException(status_code=400, detail="This reset link is invalid or has already been used")
+    exp = doc["expires_at"]
+    if isinstance(exp, str):
+        exp = datetime.fromisoformat(exp)
+    if exp.tzinfo is None:
+        exp = exp.replace(tzinfo=timezone.utc)
+    if exp < datetime.now(timezone.utc):
+        raise HTTPException(status_code=400, detail="This reset link has expired — request a new one")
+    await db.users.update_one({"email": doc["email"]}, {"$set": {"password_hash": hash_password(payload.password)}})
+    await db.password_reset_tokens.update_one({"token": payload.token}, {"$set": {"used": True}})
+    return {"message": "Password updated — you can sign in now"}
+
+
 @api_router.get("/auth/me")
 async def auth_me(request: Request):
     user = await get_current_user(request)
@@ -449,6 +497,66 @@ async def admin_update_status(reference: str, payload: StatusUpdate, request: Re
         price=price or None, note=note or None,
     ))
     return doc
+
+
+class SaleIn(BaseModel):
+    name: str
+    price: str
+    was_price: str = ""
+    description: str = ""
+    image: str = ""
+
+
+@api_router.get("/sales")
+async def list_sales():
+    return await db.sales.find({}, {"_id": 0}).sort("created_at", -1).to_list(50)
+
+
+@api_router.post("/admin/sales")
+async def create_sale(payload: SaleIn, request: Request):
+    user = await get_admin_user(request)
+    if not payload.name.strip() or not payload.price.strip():
+        raise HTTPException(status_code=400, detail="Name and sale price are required")
+    if payload.image and (not payload.image.startswith("data:image/") or len(payload.image) > 4_500_000):
+        raise HTTPException(status_code=400, detail="Image must be a photo under 3MB")
+    doc = payload.model_dump()
+    doc.update({
+        "id": str(uuid.uuid4()),
+        "active": True,
+        "created_by": user["email"],
+        "created_at": now_iso(),
+    })
+    await db.sales.insert_one(doc)
+    doc.pop("_id", None)
+    return doc
+
+
+@api_router.delete("/admin/sales/{sale_id}")
+async def delete_sale(sale_id: str, request: Request):
+    await get_admin_user(request)
+    res = await db.sales.delete_one({"id": sale_id})
+    if res.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Sale not found")
+    return {"message": "Sale removed"}
+
+
+@api_router.get("/admin/stats")
+async def admin_stats(request: Request):
+    await get_admin_user(request)
+    week_ago = (datetime.now(timezone.utc) - timedelta(days=7)).isoformat()
+    new_week = await db.quotes.count_documents({"created_at": {"$gte": week_ago}})
+    pending_repairs = await db.quotes.count_documents({"type": "repair", "status": {"$nin": ["Completed", "Cancelled"]}})
+    quoted = await db.quotes.count_documents({"status": {"$in": ["Quote sent", "Confirmed", "Approved — in repair", "Completed"]}})
+    accepted = await db.quotes.count_documents({"status": {"$in": ["Confirmed", "Approved — in repair", "Completed"]}})
+    active_sales = await db.sales.count_documents({})
+    total = await db.quotes.count_documents({})
+    return {
+        "new_this_week": new_week,
+        "pending_repairs": pending_repairs,
+        "acceptance_rate": round(accepted / quoted * 100) if quoted else 0,
+        "total_submissions": total,
+        "active_sales": active_sales,
+    }
 
 
 def owns_quote(doc: dict, user: dict) -> bool:
@@ -546,6 +654,10 @@ async def create_indexes():
     except Exception:
         pass
     await db.login_attempts.create_index("identifier")
+    try:
+        await db.password_reset_tokens.create_index("expires_at", expireAfterSeconds=0)
+    except Exception:
+        pass
 
 
 @app.on_event("shutdown")

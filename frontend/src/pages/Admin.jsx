@@ -4,6 +4,7 @@ import { ShieldAlert, RefreshCw, Wrench, PackageSearch, Mail } from "lucide-reac
 import { useAuth, startGoogleLogin } from "../lib/auth";
 import { MaskedLine, Reveal } from "../components/motion";
 import { STATUS_FLOWS, CANCEL_STATUS } from "../lib/data";
+import { StatsStrip, SalesPanel } from "../components/AdminExtras";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -12,6 +13,7 @@ const TABS = [
   { id: "product", label: "Product quotes" },
   { id: "repair", label: "Repairs" },
   { id: "contact", label: "Messages" },
+  { id: "sales", label: "Sales" },
 ];
 
 export default function Admin() {
@@ -115,7 +117,8 @@ export default function Admin() {
       </section>
 
       <section className="mx-auto max-w-7xl px-4 py-10 sm:px-8 lg:px-12 lg:py-14">
-        <div className="flex flex-wrap gap-2" data-testid="admin-tabs">
+        <StatsStrip />
+        <div className="mt-8 flex flex-wrap gap-2" data-testid="admin-tabs">
           {TABS.map((t) => (
             <button
               key={t.id}
@@ -130,7 +133,9 @@ export default function Admin() {
           ))}
         </div>
 
-        {data === null ? (
+        {tab === "sales" ? (
+          <div className="mt-8"><SalesPanel /></div>
+        ) : data === null ? (
           <div className="mt-10 flex justify-center py-10"><div className="h-8 w-8 animate-spin rounded-full border-2 border-ink/10 border-t-brand" /></div>
         ) : (
           <>

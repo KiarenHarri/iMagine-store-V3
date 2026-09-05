@@ -19,6 +19,7 @@ import Account from "@/pages/Account";
 import AuthCallback from "@/pages/AuthCallback";
 import Admin from "@/pages/Admin";
 import TradeIn from "@/pages/TradeIn";
+import ResetPassword from "@/pages/ResetPassword";
 
 function ScrollManager() {
   const lenisRef = useRef(null);
@@ -69,6 +70,7 @@ function AppRouter() {
           <Route path="/account" element={<Account />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/trade-in" element={<TradeIn />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="*" element={<Home />} />
         </Routes>
       </main>

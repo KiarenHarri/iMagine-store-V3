@@ -36,6 +36,26 @@ function SignInPanel() {
     }
   };
 
+  const [forgotSent, setForgotSent] = useState(false);
+  const forgotSubmit = async (e) => {
+    e.preventDefault();
+    setBusy(true);
+    setError("");
+    try {
+      const res = await fetch(`${API}/auth/forgot-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: form.email }),
+      });
+      if (!res.ok) throw new Error("Could not send the reset email. Please try again.");
+      setForgotSent(true);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
   return (
     <div data-testid="account-signin" className="bg-paper">
       <div className="mx-auto max-w-xl px-4 py-16 sm:px-8 lg:py-24">
@@ -52,6 +72,42 @@ function SignInPanel() {
         </div>
 
         <div className="mt-10 rounded-3xl bg-ink p-7 text-paper grain relative overflow-hidden sm:p-9" data-testid="signin-card">
+          {mode === "forgot" ? (
+            <form onSubmit={forgotSubmit} className="mt-6 space-y-3" data-testid="forgot-form">
+              <p className="text-sm text-paper/60">Enter your account email and we'll send you a reset link (valid 1 hour).</p>
+              {forgotSent ? (
+                <div className="rounded-2xl border border-brand/30 bg-brand/10 p-5 text-center" data-testid="forgot-success">
+                  <p className="font-display text-base font-bold text-paper">Check your inbox.</p>
+                  <p className="mt-1 text-sm text-paper/60">If that email is registered, a reset link is on its way.</p>
+                </div>
+              ) : (
+                <>
+                  <input
+                    data-testid="forgot-email-input"
+                    required
+                    type="email"
+                    value={form.email}
+                    onChange={(e) => setForm({ ...form, email: e.target.value })}
+                    placeholder="Email address"
+                    className={authInputCls}
+                  />
+                  {error && <p data-testid="forgot-error" className="text-sm text-red-400">{error}</p>}
+                  <button
+                    type="submit"
+                    data-testid="forgot-submit-btn"
+                    disabled={busy}
+                    className="w-full rounded-full bg-brand py-3.5 text-sm font-semibold text-white transition-colors duration-300 hover:bg-brand-hover disabled:opacity-50"
+                  >
+                    {busy ? "Sending…" : "Email me a reset link"}
+                  </button>
+                </>
+              )}
+              <button type="button" data-testid="forgot-back-btn" onClick={() => { setMode("login"); setForgotSent(false); setError(""); }} className="w-full pt-1 text-center text-xs font-semibold text-paper/50 transition-colors hover:text-brand">
+                ← Back to sign in
+              </button>
+            </form>
+          ) : (
+            <>
           <div className="flex rounded-full border border-white/10 p-1" data-testid="signin-tabs">
             {[
               { id: "login", label: "Sign in" },
@@ -100,6 +156,11 @@ function SignInPanel() {
               placeholder={mode === "register" ? "Password (8+ characters)" : "Password"}
               className={authInputCls}
             />
+            {mode === "login" && (
+              <button type="button" data-testid="forgot-link" onClick={() => { setMode("forgot"); setError(""); }} className="text-xs font-semibold text-paper/50 transition-colors hover:text-brand">
+                Forgot password?
+              </button>
+            )}
             {error && <p data-testid="signin-error" className="text-sm text-red-400">{error}</p>}
             <button
               type="submit"
@@ -110,7 +171,11 @@ function SignInPanel() {
               {busy ? "One moment…" : mode === "register" ? "Create my account" : "Sign in"}
             </button>
           </form>
+            </>
+          )}
 
+          {mode !== "forgot" && (
+            <>
           <div className="my-6 flex items-center gap-4">
             <span className="h-px flex-1 bg-white/10" />
             <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-paper/40">or</span>
@@ -125,6 +190,8 @@ function SignInPanel() {
             <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M21.35 11.1h-9.17v2.73h6.51c-.33 3.81-3.5 5.44-6.5 5.44C8.36 19.27 5 16.25 5 12c0-4.1 3.2-7.27 7.2-7.27 3.09 0 4.9 1.97 4.9 1.97L19 4.72S16.56 2 12.1 2C6.42 2 2.03 6.8 2.03 12c0 5.05 4.13 10 10.22 10 5.35 0 9.25-3.67 9.25-9.09 0-1.15-.15-1.81-.15-1.81Z"/></svg>
             Continue with Google
           </button>
+            </>
+          )}
         </div>
       </div>
     </div>

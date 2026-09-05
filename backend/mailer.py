@@ -161,6 +161,23 @@ async def notify_customer(to_email: str, name: str, subject: str, reference: str
         logger.exception("Customer confirmation failed")
 
 
+async def send_password_reset(to_email: str, name: str, link: str) -> None:
+    first = escape((name or "").split(" ")[0] or "there")
+    subject = f"Reset your {EMAIL_FROM_NAME} password"
+    body = (
+        f'<p style="font-size:14px;color:#1D1D1F;line-height:1.6">Hi {first}, we received a request to reset your '
+        f"password. This link expires in 1 hour.</p>"
+        f'<p style="margin:26px 0"><a href="{escape(link)}" style="background:#FF7A00;color:#FFFFFF;padding:13px 30px;'
+        'border-radius:999px;text-decoration:none;font-weight:700;font-size:14px;display:inline-block">Reset password</a></p>'
+        '<p style="font-size:12px;color:#86868B;line-height:1.6">If you didn\'t request this, you can safely ignore this email — '
+        "your password stays unchanged.</p>"
+    )
+    try:
+        await send_email(to=to_email, subject=subject, html=_shell(subject, body))
+    except Exception:
+        logger.exception("Password reset email failed")
+
+
 async def notify_status(to_email: str, name: str, reference: str, status: str, price: str | None = None, note: str | None = None) -> None:
     first = escape((name or "").split(" ")[0] or "there")
     subject = f"Update on your request — {reference}"

@@ -116,6 +116,13 @@ Build a polished, responsive multi-page Imagine Store Apple reseller website. Pr
 - Verified: register (400 dup / 400 short pw), login sets cookie + /me works, 5×wrong → 429 lockout, UI register → auto sign-in → logout → re-login all in browser.
 - Test accounts: shopper@test.com / TestPass123, uitest@example.com / UiTestPass9.
 
+## Implemented (2026-09-05, update 15 — Forgot password, dashboard stats, iPhone 17 lineup, sales manager)
+- Forgot password: "Forgot password?" link on the sign-in card → emails a 1-hour reset link (branded, Resend) → /reset-password page sets the new password; tokens single-use, TTL-indexed; unknown emails get the same response (no enumeration).
+- Admin dashboard stats strip: new submissions this week, pending repairs, quote acceptance rate, active sales.
+- Catalogue now leads with the iPhone 17 family — iPhone 17 Pro Max (Cosmic Orange), iPhone 17 Pro (deep blue), iPhone 17 (lavender) — with launch-window photos verified to match each model; 16 Pro/16/15 Pro/pre-owned kept.
+- Sales manager: admins create sales (name, now/was prices, description, photo upload up to 3MB stored inline) in the new Sales tab; live sales render as a "This week's deals" strip on Home and Shop with strikethrough pricing and a "Grab this deal" button that prefills the quote wizard.
+- Verified: reset flow end-to-end (issue → reset → reuse blocked → login with new password); stats values; sale create/list/delete + 403 for non-admin; forgot UI; sale strip + iPhone 17 grid in browser.
+
 ## Testing notes
 - curl verified: product quote, repair quote, repair status lookup, contact, email validation (422).
 - Auth verified: /auth/me 200 with Bearer + 401 without; quote attaches user_id; /quotes/mine returns user's quotes; logout invalidates Bearer session (401 after); browser test with session cookie loads Account with history, logout returns to sign-in prompt. Full Google OAuth round-trip not exercised (requires a real Google account click-through) — test user was seeded in MongoDB per /app/auth_testing.md.

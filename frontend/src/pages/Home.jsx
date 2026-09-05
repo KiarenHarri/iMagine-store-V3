@@ -5,6 +5,7 @@ import { ArrowRight, ArrowUpRight, Wrench, BadgeCheck, MapPin, RotateCcw } from 
 import { MaskedLine, Reveal, ease } from "../components/motion";
 import Marquee from "../components/Marquee";
 import Phone3D from "../components/Phone3D";
+import SaleStrip from "../components/SaleStrip";
 import { categories, chapters, IMAGES, MARQUEE_ITEMS, BRAND } from "../lib/data";
 
 function Hero() {
@@ -322,6 +323,7 @@ export default function Home() {
       <Hero />
       <Marquee items={MARQUEE_ITEMS} />
       <CategoryRail />
+      <SaleStrip />
       <ParallaxEdit />
       <Manifesto />
       <Marquee items={["Warranty Repairs", "Out-of-Warranty Repairs", "On-Site Support", "Quick Training", "Managed Services", "Trade-In Evaluation"]} />

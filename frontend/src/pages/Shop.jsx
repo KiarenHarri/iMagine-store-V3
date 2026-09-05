@@ -4,6 +4,7 @@ import { Search } from "lucide-react";
 import { motion } from "framer-motion";
 import { Reveal } from "../components/motion";
 import ProductCard from "../components/ProductCard";
+import SaleStrip from "../components/SaleStrip";
 import { products, categories } from "../lib/data";
 
 const PILLS = [{ slug: "all", name: "All" }, ...categories.filter((c) => c.slug !== "accessories")];
@@ -40,6 +41,7 @@ export default function Shop() {
         </div>
       </section>
 
+      <SaleStrip dark />
       <section className="mx-auto max-w-7xl px-4 py-12 sm:px-8 lg:px-12 lg:py-16">
         <Reveal>
           <div className="flex flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">

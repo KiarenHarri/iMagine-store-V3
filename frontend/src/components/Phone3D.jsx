@@ -1,44 +1,101 @@
-import { motion, useTransform } from "framer-motion";
-import { IMAGES } from "../lib/data";
+import { useState } from "react";
+import { motion, useTransform, useMotionValue, animate } from "framer-motion";
+
+const COLORS = [
+  { id: "natural", label: "Natural Titanium", body: "linear-gradient(160deg,#ddd7cb 0%,#c3bcae 45%,#a89f8f 100%)", module: "linear-gradient(160deg,#cfc8ba,#b0a795)", swatch: "#c3bcae", wallpaper: "from-[#17171a] via-[#2b2620] to-brand/50", text: "text-white" },
+  { id: "blue", label: "Blue Titanium", body: "linear-gradient(160deg,#4d607a 0%,#39485e 45%,#26303f 100%)", module: "linear-gradient(160deg,#42546c,#2e3a4b)", swatch: "#39485e", wallpaper: "from-[#10151d] via-[#1c2735] to-brand/40", text: "text-white" },
+  { id: "white", label: "White Titanium", body: "linear-gradient(160deg,#f4f2ee 0%,#e3e0d9 45%,#cfccc2 100%)", module: "linear-gradient(160deg,#e9e6df,#d4d1c7)", swatch: "#e3e0d9", wallpaper: "from-[#1a1a1e] via-[#2e2e33] to-brand/45", text: "text-white" },
+  { id: "black", label: "Black Titanium", body: "linear-gradient(160deg,#3c3c42 0%,#2b2b30 45%,#19191d 100%)", module: "linear-gradient(160deg,#343439,#232327)", swatch: "#2b2b30", wallpaper: "from-[#0f0f12] via-[#1d1d22] to-brand/45", text: "text-white" },
+];
+
+const Lens = ({ className }) => (
+  <span
+    className={`absolute h-[26%] w-[44%] rounded-full ${className}`}
+    style={{
+      background: "radial-gradient(circle at 35% 30%, #4a5568 0%, #1a202c 45%, #05070a 100%)",
+      boxShadow: "0 0 0 3px rgba(0,0,0,0.35), inset 0 0 6px rgba(255,255,255,0.15)",
+    }}
+  />
+);
 
 export default function Phone3D({ progress }) {
-  const rotY = useTransform(progress, [0, 1], [-22, 338]);
+  const [color, setColor] = useState(COLORS[0]);
+  const spin = useMotionValue(0);
+  const scrollRot = useTransform(progress, [0, 1], [-22, 338]);
+  const rotY = useTransform([scrollRot, spin], ([a, b]) => a + b);
   const float = useTransform(progress, [0, 1], [10, -70]);
 
+  const pick = (c) => {
+    if (c.id === color.id) return;
+    setColor(c);
+    animate(spin, spin.get() + 360, { duration: 1.1, ease: [0.16, 1, 0.3, 1] });
+  };
+
   return (
-    <div style={{ perspective: 1200 }} className="relative mx-auto w-52 sm:w-60 lg:w-64" data-testid="hero-iphone-3d">
-      <motion.div
-        style={{ rotateY: rotY, y: float, transformStyle: "preserve-3d" }}
-        className="relative aspect-[9/19] w-full will-change-transform"
-      >
-        <div
-          className="absolute inset-0 overflow-hidden rounded-[2.8rem] border-[5px] border-[#2b2b30] bg-black shadow-2xl shadow-ink/40"
-          style={{ backfaceVisibility: "hidden" }}
+    <div className="relative mx-auto w-52 sm:w-60 lg:w-64">
+      <div style={{ perspective: 1200 }} data-testid="hero-iphone-3d">
+        <motion.div
+          style={{ rotateY: rotY, y: float, transformStyle: "preserve-3d" }}
+          className="relative aspect-[9/19] w-full will-change-transform"
         >
-          <div className="absolute inset-0 bg-gradient-to-br from-[#17171a] via-[#26262c] to-brand/50" />
-          <div className="absolute left-1/2 top-2.5 h-[22px] w-24 -translate-x-1/2 rounded-full bg-black ring-1 ring-white/10" />
-          <div className="absolute inset-0 flex flex-col items-center pt-16">
-            <p className="font-display text-5xl font-extrabold tracking-tight text-white sm:text-6xl">9:41</p>
-            <p className="mt-1 text-[11px] font-medium uppercase tracking-[0.25em] text-white/50">Friday 5 September</p>
-            <div className="mt-auto mb-8 flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 backdrop-blur">
-              <img src="/assets/logo.png" alt="iMagine" className="h-4 w-4 rounded-full object-cover" />
-              <span className="text-[11px] font-semibold text-white/90">iMagine Store</span>
+          <div
+            className="absolute inset-0 overflow-hidden rounded-[2.8rem] border-[5px] border-[#2b2b30] bg-black shadow-2xl shadow-ink/40"
+            style={{ backfaceVisibility: "hidden" }}
+          >
+            <div className={`absolute inset-0 bg-gradient-to-br transition-colors duration-500 ${color.wallpaper}`} />
+            <div className="absolute left-1/2 top-2.5 h-[22px] w-24 -translate-x-1/2 rounded-full bg-black ring-1 ring-white/10" />
+            <div className="absolute inset-0 flex flex-col items-center pt-16">
+              <p className="font-display text-5xl font-extrabold tracking-tight text-white sm:text-6xl">9:41</p>
+              <p className="mt-1 text-[11px] font-medium uppercase tracking-[0.25em] text-white/50">Friday 5 September</p>
+              <div className="mt-auto mb-8 flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 backdrop-blur">
+                <img src="/assets/logo.png" alt="iMagine" className="h-4 w-4 rounded-full object-cover" />
+                <span className="text-[11px] font-semibold text-white/90">iMagine Store</span>
+              </div>
             </div>
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-white/15" />
           </div>
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-white/15" />
+          <div
+            className="absolute inset-0 overflow-hidden rounded-[2.8rem] border-[5px] border-[#2b2b30] shadow-2xl shadow-ink/40 transition-all duration-500"
+            style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)", background: color.body }}
+          >
+            <div
+              className="absolute left-[8%] top-[5%] aspect-square w-[42%] rounded-[30%] transition-all duration-500"
+              style={{ background: color.module, boxShadow: "0 4px 14px rgba(0,0,0,0.35)" }}
+            >
+              <Lens className="left-[6%] top-[6%]" />
+              <Lens className="right-[6%] top-[22%]" />
+              <Lens className="bottom-[6%] left-[6%]" />
+              <span className="absolute bottom-[12%] right-[16%] h-[10%] w-[18%] rounded-full bg-[#f5e9c8]/90 shadow" />
+            </div>
+            <p className="absolute bottom-[7%] left-1/2 -translate-x-1/2 font-mono text-[9px] uppercase tracking-[0.35em] text-white/40">
+              {color.label}
+            </p>
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-white/20" />
+          </div>
+          <div className="absolute -left-[7px] top-20 h-10 w-[3px] rounded-full bg-[#3a3a3f]" />
+          <div className="absolute -left-[7px] top-32 h-14 w-[3px] rounded-full bg-[#3a3a3f]" />
+          <div className="absolute -right-[7px] top-24 h-16 w-[3px] rounded-full bg-[#3a3a3f]" />
+        </motion.div>
+        <div className="mx-auto mt-8 h-5 w-3/4 rounded-[50%] bg-ink/15 blur-xl" />
+      </div>
+
+      <div className="mt-6 flex flex-col items-center gap-2.5" data-testid="hero-color-picker">
+        <div className="flex items-center gap-3">
+          {COLORS.map((c) => (
+            <button
+              key={c.id}
+              data-testid={`hero-color-${c.id}`}
+              onClick={() => pick(c)}
+              aria-label={c.label}
+              className={`h-8 w-8 rounded-full border-2 transition-all duration-300 ${
+                color.id === c.id ? "scale-110 border-brand shadow-lg shadow-brand/30" : "border-white shadow hover:scale-105"
+              }`}
+              style={{ background: c.swatch }}
+            />
+          ))}
         </div>
-        <div
-          className="absolute inset-0 overflow-hidden rounded-[2.8rem] border-[5px] border-[#2b2b30] shadow-2xl shadow-ink/40"
-          style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
-        >
-          <img src={IMAGES.iphone15pro} alt="iPhone Pro back — titanium with camera system" className="h-full w-full object-cover" />
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-white/10" />
-        </div>
-        <div className="absolute -left-[7px] top-20 h-10 w-[3px] rounded-full bg-[#3a3a3f]" />
-        <div className="absolute -left-[7px] top-32 h-14 w-[3px] rounded-full bg-[#3a3a3f]" />
-        <div className="absolute -right-[7px] top-24 h-16 w-[3px] rounded-full bg-[#3a3a3f]" />
-      </motion.div>
-      <div className="mx-auto mt-8 h-5 w-3/4 rounded-[50%] bg-ink/15 blur-xl" />
+        <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-mute" data-testid="hero-color-label">{color.label}</p>
+      </div>
     </div>
   );
 }

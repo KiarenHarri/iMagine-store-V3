@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { LogOut, PackageSearch, Wrench, ArrowRight, User as UserIcon } from "lucide-react";
 import { useAuth, startGoogleLogin } from "../lib/auth";
 import { MaskedLine, Reveal } from "../components/motion";
+import { STATUS_FLOWS } from "../lib/data";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -129,9 +130,27 @@ export default function Account() {
                       {q.type === "repair" ? `${q.device} — ${q.issue}` : q.model || q.category}
                     </p>
                     <p className="mt-0.5 text-xs text-mute">{new Date(q.created_at).toLocaleDateString("en-ZA", { day: "numeric", month: "short", year: "numeric" })}</p>
+                    {(() => {
+                      const flow = STATUS_FLOWS[q.type] || [];
+                      const cancelled = q.status === "Cancelled";
+                      const idx = flow.indexOf(q.status);
+                      return (
+                        <div className="mt-3 flex items-center gap-1" data-testid={`status-tracker-${q.reference}`}>
+                          {flow.map((s, i) => (
+                            <span
+                              key={s}
+                              title={s}
+                              className={`h-1.5 w-8 rounded-full transition-colors duration-500 ${
+                                cancelled ? "bg-red-300" : i <= idx ? "bg-brand" : "bg-ink/10"
+                              }`}
+                            />
+                          ))}
+                          <span className={`ml-2 text-xs font-semibold ${cancelled ? "text-red-500" : "text-ink/70"}`}>{q.status}</span>
+                        </div>
+                      );
+                    })()}
                   </div>
                 </div>
-                <span className="w-fit rounded-full bg-paper px-4 py-1.5 text-xs font-semibold text-ink/70">{q.status}</span>
               </div>
             ))}
           </div>

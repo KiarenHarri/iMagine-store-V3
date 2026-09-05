@@ -97,3 +97,10 @@ export const chapters = [
   { n: "03", title: "Reliable Repairs", body: "A leading KwaZulu-Natal Apple Service Provider. Warranty and out-of-warranty repairs by certified technicians." },
   { n: "04", title: "Software & Consulting", body: "Application development, IT consultancy and managed services for enterprises, education and professionals." },
 ];
+
+export const STATUS_FLOWS = {
+  product: ["Received", "Quoting", "Quote sent", "Confirmed", "Completed"],
+  repair: ["Received — awaiting assessment", "Assessing", "Quote sent", "Approved — in repair", "Ready for collection", "Completed"],
+};
+
+export const CANCEL_STATUS = "Cancelled";

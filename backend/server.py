@@ -1,7 +1,7 @@
 import asyncio
 import requests
 from fastapi import FastAPI, APIRouter, HTTPException, Request, Response
-from mailer import notify_team, notify_customer
+from mailer import notify_team, notify_customer, notify_status
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -19,6 +19,13 @@ load_dotenv(ROOT_DIR / '.env')
 mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ['DB_NAME']]
+
+ADMIN_EMAILS = {e.strip().lower() for e in os.environ.get("ADMIN_EMAILS", "").split(",") if e.strip()}
+
+STATUS_FLOWS = {
+    "product": ["Received", "Quoting", "Quote sent", "Confirmed", "Completed"],
+    "repair": ["Received — awaiting assessment", "Assessing", "Quote sent", "Approved — in repair", "Ready for collection", "Completed"],
+}
 
 app = FastAPI()
 api_router = APIRouter(prefix="/api")
@@ -238,7 +245,7 @@ async def exchange_session(payload: SessionExchange, response: Response):
             "picture": data.get("picture", ""),
             "created_at": now_iso(),
         }
-        await db.users.insert_one(user)
+        await db.users.insert_one({**user})
     else:
         await db.users.update_one(
             {"email": email},
@@ -265,7 +272,15 @@ async def exchange_session(payload: SessionExchange, response: Response):
 
 @api_router.get("/auth/me")
 async def auth_me(request: Request):
-    return await get_current_user(request)
+    user = await get_current_user(request)
+    return {**user, "is_admin": user["email"].lower() in ADMIN_EMAILS}
+
+
+async def get_admin_user(request: Request):
+    user = await get_current_user(request)
+    if user["email"].lower() not in ADMIN_EMAILS:
+        raise HTTPException(status_code=403, detail="Team access only")
+    return user
 
 
 @api_router.post("/auth/logout")
@@ -285,6 +300,36 @@ async def my_quotes(request: Request):
     user = await get_current_user(request)
     docs = await db.quotes.find({"user_id": user["user_id"]}, {"_id": 0}).sort("created_at", -1).to_list(100)
     return docs
+
+
+class StatusUpdate(BaseModel):
+    status: str
+
+
+@api_router.get("/admin/submissions")
+async def admin_submissions(request: Request):
+    await get_admin_user(request)
+    quotes = await db.quotes.find({}, {"_id": 0}).sort("created_at", -1).to_list(500)
+    messages = await db.contact_messages.find({}, {"_id": 0}).sort("created_at", -1).to_list(500)
+    return {"quotes": quotes, "messages": messages}
+
+
+@api_router.patch("/admin/quotes/{reference}")
+async def admin_update_status(reference: str, payload: StatusUpdate, request: Request):
+    await get_admin_user(request)
+    doc = await db.quotes.find_one({"reference": reference.strip().upper()}, {"_id": 0})
+    if not doc:
+        raise HTTPException(status_code=404, detail="Quote not found")
+    allowed = STATUS_FLOWS.get(doc["type"], []) + ["Cancelled"]
+    if payload.status not in allowed:
+        raise HTTPException(status_code=400, detail="Invalid status for this submission type")
+    await db.quotes.update_one(
+        {"reference": doc["reference"]},
+        {"$set": {"status": payload.status, "updated_at": now_iso()}},
+    )
+    doc["status"] = payload.status
+    asyncio.create_task(notify_status(doc.get("email", ""), doc.get("name", ""), doc["reference"], payload.status))
+    return doc
 
 
 app.include_router(api_router)

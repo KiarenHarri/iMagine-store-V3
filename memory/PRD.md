@@ -52,6 +52,13 @@ Build a polished, responsive multi-page Imagine Store Apple reseller website. Pr
 - TEAM_NOTIFY_EMAIL currently = delivered@resend.dev (TEST INBOX — replace with the real team address when provided; user selected "will reply with address" but none given yet).
 - Verified: 6 sends (team + customer × 3 flows) returned HTTP 202 from the proxy.
 
+## Implemented (2026-09-05, update 4 — Quote status updates)
+- Admin/team role: ADMIN_EMAILS env allowlist checked against Google-authenticated email; /auth/me returns is_admin; non-admins get 403 on admin endpoints.
+- Team console at /admin: all product quotes, repairs and contact messages with filter tabs; status dropdown per submission (validated per type: product flow Received→Quoting→Quote sent→Confirmed→Completed; repair flow Received→Assessing→Quote sent→Approved— in repair→Ready for collection→Completed; plus Cancelled).
+- PATCH /api/admin/quotes/{reference} updates status and auto-emails the customer the new status (notify_status in mailer.py).
+- Customers see live progress: orange step tracker per quote on Account page, and repair status lookup on Repairs page reflects flips instantly.
+- Verified: curl PATCH (200/400 invalid/403 non-admin), customer endpoint reflects flip, UI select flip + tracker render, 2 status emails HTTP 202.
+
 ## Testing notes
 - curl verified: product quote, repair quote, repair status lookup, contact, email validation (422).
 - Auth verified: /auth/me 200 with Bearer + 401 without; quote attaches user_id; /quotes/mine returns user's quotes; logout invalidates Bearer session (401 after); browser test with session cookie loads Account with history, logout returns to sign-in prompt. Full Google OAuth round-trip not exercised (requires a real Google account click-through) — test user was seeded in MongoDB per /app/auth_testing.md.

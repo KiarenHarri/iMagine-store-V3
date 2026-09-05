@@ -159,3 +159,19 @@ async def notify_customer(to_email: str, name: str, subject: str, reference: str
         await send_email(to=to_email, subject=subject, html=_shell(subject, body))
     except Exception:
         logger.exception("Customer confirmation failed")
+
+
+async def notify_status(to_email: str, name: str, reference: str, status: str) -> None:
+    first = escape((name or "").split(" ")[0] or "there")
+    subject = f"Update on your request — {reference}"
+    body = (
+        f'<p style="font-size:14px;color:#1D1D1F;line-height:1.6">Hi {first}, there is an update on your '
+        f"{escape(EMAIL_FROM_NAME)} request.</p>"
+        f'<p style="margin:18px 0 6px;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#86868B">New status</p>'
+        f'<p style="margin:0 0 18px;font-size:20px;font-weight:700;color:#FF7A00">{escape(status)}</p>'
+        + _rows_html([("Reference", reference), ("Status", status)])
+    )
+    try:
+        await send_email(to=to_email, subject=subject, html=_shell(subject, body))
+    except Exception:
+        logger.exception("Status notification failed")

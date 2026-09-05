@@ -61,7 +61,13 @@ export default function Nav() {
             <ArrowUpRight size={15} className="transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
           </Link>
           {user ? (
-            <Link to="/account" data-testid="nav-account-link" className="flex items-center gap-2 rounded-full border border-ink/10 py-1 pl-1 pr-3 transition-colors duration-200 hover:border-brand">
+            <>
+              {user.is_admin && (
+                <Link to="/admin" data-testid="nav-admin-link" className="rounded-full border border-brand/40 bg-brand-subtle px-4 py-2 text-xs font-bold uppercase tracking-widest text-brand transition-colors duration-200 hover:bg-brand hover:text-white">
+                  Team
+                </Link>
+              )}
+              <Link to="/account" data-testid="nav-account-link" className="flex items-center gap-2 rounded-full border border-ink/10 py-1 pl-1 pr-3 transition-colors duration-200 hover:border-brand">
               {user.picture ? (
                 <img src={user.picture} alt={user.name} className="h-7 w-7 rounded-full object-cover" />
               ) : (
@@ -70,7 +76,8 @@ export default function Nav() {
                 </span>
               )}
               <span className="max-w-[90px] truncate text-xs font-semibold text-ink">{user.name?.split(" ")[0]}</span>
-            </Link>
+              </Link>
+            </>
           ) : (
             <button
               onClick={startGoogleLogin}

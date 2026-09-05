@@ -17,6 +17,7 @@ import ProductQuote from "@/pages/ProductQuote";
 import RepairQuote from "@/pages/RepairQuote";
 import Account from "@/pages/Account";
 import AuthCallback from "@/pages/AuthCallback";
+import Admin from "@/pages/Admin";
 
 function ScrollManager() {
   const lenisRef = useRef(null);
@@ -65,6 +66,7 @@ function AppRouter() {
           <Route path="/quote/product" element={<ProductQuote />} />
           <Route path="/quote/repair" element={<RepairQuote />} />
           <Route path="/account" element={<Account />} />
+          <Route path="/admin" element={<Admin />} />
           <Route path="*" element={<Home />} />
         </Routes>
       </main>

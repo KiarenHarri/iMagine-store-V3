@@ -21,8 +21,8 @@ export default function Nav() {
     <header data-testid="site-header" className="sticky top-0 z-50 border-b border-black/5 bg-white/80 backdrop-blur-xl">
       <div className="mx-auto flex max-w-7xl items-center justify-between px-4 sm:px-8 lg:px-12 h-16 sm:h-20">
         <Link to="/" data-testid="nav-logo" className="flex items-center gap-3">
-          <img src="/assets/logo.png" alt="iMagine logo" className="h-9 w-9 rounded-full object-cover" />
-          <span className="font-display text-xl font-extrabold tracking-tight text-ink">
+          <img src="/assets/logo.png" alt="iMagine logo" className="h-12 w-12 rounded-full object-cover sm:h-14 sm:w-14" />
+          <span className="font-display text-xl font-extrabold tracking-tight text-ink sm:text-2xl">
             iMagine<span className="text-brand">.</span>
           </span>
         </Link>

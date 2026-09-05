@@ -9,7 +9,7 @@ export default function Footer() {
         <div className="grid grid-cols-1 gap-12 md:grid-cols-12">
           <div className="md:col-span-5">
             <div className="flex items-center gap-3">
-              <img src="/assets/logo.png" alt="iMagine logo" className="h-10 w-10 rounded-full object-cover" />
+              <img src="/assets/logo.png" alt="iMagine logo" className="h-14 w-14 rounded-full object-cover" />
               <span className="font-display text-2xl font-extrabold tracking-tight">iMagine<span className="text-brand">.</span></span>
             </div>
             <p className="mt-5 max-w-sm text-sm leading-relaxed text-paper/60">

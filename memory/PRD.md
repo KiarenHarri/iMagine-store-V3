@@ -147,6 +147,9 @@ Build a polished, responsive multi-page Imagine Store Apple reseller website. Pr
 - Hero phone back is now fully code-generated (no photo): per-colour titanium gradient with brushed-metal texture, a camera plateau with three realistic layered lenses + flash + lidar dot, and the Apple logo centered. Verified at full 180° — clean and realistic.
 - Sale photo uploads are auto-cropped client-side to exactly 500×500 (center square crop, canvas, JPEG 0.88) before saving; upload limit raised to 8MB pre-crop; label confirms the crop. Verified: 1400×700 upload → 500×500 stored preview.
 
+## Implemented (2026-09-05, update 22 — Repairs blueprint image)
+- Repairs page side visual replaced with the user-supplied iPhone Pro technical blueprint (/assets/blueprint.png), framed at its native 3:2 ratio so the full drawing is visible.
+
 ## Testing notes
 - curl verified: product quote, repair quote, repair status lookup, contact, email validation (422).
 - Auth verified: /auth/me 200 with Bearer + 401 without; quote attaches user_id; /quotes/mine returns user's quotes; logout invalidates Bearer session (401 after); browser test with session cookie loads Account with history, logout returns to sign-in prompt. Full Google OAuth round-trip not exercised (requires a real Google account click-through) — test user was seeded in MongoDB per /app/auth_testing.md.

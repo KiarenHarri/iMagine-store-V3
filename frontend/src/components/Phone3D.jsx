@@ -14,8 +14,8 @@ const AppleLogo = ({ className }) => (
   </svg>
 );
 
-const Lens = ({ className }) => (
-  <span className={`absolute top-1/2 aspect-square h-[66%] -translate-y-1/2 rounded-full ${className}`}>
+const Lens = ({ className, large = false }) => (
+  <span className={`absolute top-1/2 aspect-square -translate-y-1/2 rounded-full ${large ? "h-[78%]" : "h-[66%]"} ${className}`}>
     <span
       className="absolute inset-0 rounded-full"
       style={{
@@ -40,9 +40,7 @@ const CameraPlateau = ({ tone }) => (
     className="absolute left-[4%] right-[4%] top-[2.8%] h-[12.5%] rounded-[1.5rem] transition-colors duration-500"
     style={{ background: tone, boxShadow: "inset 0 2px 3px rgba(255,255,255,0.35), inset 0 -3px 6px rgba(0,0,0,0.25), 0 8px 20px rgba(0,0,0,0.35)" }}
   >
-    <Lens className="left-[5%]" />
-    <Lens className="left-[24%]" />
-    <Lens className="left-[43%]" />
+    <Lens className="left-[7%]" large />
     <span
       className="absolute right-[13%] top-[16%] aspect-square h-[30%] rounded-full"
       style={{ background: "radial-gradient(circle at 40% 35%, #fdf3d0 0%, #d8c48c 55%, #8f7c4e 100%)", boxShadow: "0 1px 3px rgba(0,0,0,0.4), inset 0 0 3px rgba(255,255,255,0.6)" }}

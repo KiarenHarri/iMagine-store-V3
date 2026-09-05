@@ -156,6 +156,9 @@ Build a polished, responsive multi-page Imagine Store Apple reseller website. Pr
 - Camera module redesigned to the iPhone 17 Pro Max style: full-width camera bar with three lenses in a row + flash, LiDAR and mic on the right.
 - Verified in browser: black-swatch tap shows the black 17 Pro Max-style back mid-animation; blueprint loads fast and crisp.
 
+## Implemented (2026-09-05, update 24 — Single camera)
+- Hero phone camera bar now has one large lens (iPhone Air style) with flash/sensor on the right; verified at full back view.
+
 ## Testing notes
 - curl verified: product quote, repair quote, repair status lookup, contact, email validation (422).
 - Auth verified: /auth/me 200 with Bearer + 401 without; quote attaches user_id; /quotes/mine returns user's quotes; logout invalidates Bearer session (401 after); browser test with session cookie loads Account with history, logout returns to sign-in prompt. Full Google OAuth round-trip not exercised (requires a real Google account click-through) — test user was seeded in MongoDB per /app/auth_testing.md.

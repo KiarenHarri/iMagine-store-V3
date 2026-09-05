@@ -101,6 +101,10 @@ Build a polished, responsive multi-page Imagine Store Apple reseller website. Pr
 - Fixed: Natural Titanium swatch invisible on light bg + "Now quoting" badge overlapping the swatches (badge moved up, swatches got visible rings).
 - Verified: all 4 swatches clickable (Natural/Blue/White/Black labels switch), spins + sound calls run without console errors.
 
+## Implemented (2026-09-05, update 12 — True sign-out)
+- Sign-out now also revokes the Google grant for the signed-in email (GSI revoke + disableAutoSelect, loaded with the platform's Google client ID) — so the next "Continue with Google" must show the account picker instead of silently re-signing the last account. Combined with the prompt=select_account hint from update 11.
+- Verified in browser: logout clears session and shows the sign-in prompt, GSI library loads and revoke executes without console errors. Final chooser behavior needs one real-account check by the user.
+
 ## Testing notes
 - curl verified: product quote, repair quote, repair status lookup, contact, email validation (422).
 - Auth verified: /auth/me 200 with Bearer + 401 without; quote attaches user_id; /quotes/mine returns user's quotes; logout invalidates Bearer session (401 after); browser test with session cookie loads Account with history, logout returns to sign-in prompt. Full Google OAuth round-trip not exercised (requires a real Google account click-through) — test user was seeded in MongoDB per /app/auth_testing.md.

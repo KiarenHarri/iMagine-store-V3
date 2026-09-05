@@ -30,7 +30,9 @@ export function AuthProvider({ children }) {
   }, [checkAuth]);
 
   const logout = async () => {
+    const email = user?.email;
     await fetch(`${API}/auth/logout`, { method: "POST", credentials: "include" });
+    revokeGoogleGrant(email);
     setUser(null);
   };
 
@@ -38,6 +40,24 @@ export function AuthProvider({ children }) {
 }
 
 export const useAuth = () => useContext(AuthContext);
+
+const GOOGLE_CLIENT_ID = "201274743812-k07hp14e6i6v43od3qhcdcvq8asqacls.apps.googleusercontent.com";
+
+const revokeGoogleGrant = (email) => {
+  try {
+    const run = () => {
+      if (!window.google?.accounts?.id || !email) return;
+      window.google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID });
+      window.google.accounts.id.disableAutoSelect();
+      window.google.accounts.id.revoke(email, () => {});
+    };
+    if (window.google?.accounts?.id) return run();
+    const s = document.createElement("script");
+    s.src = "https://accounts.google.com/gsi/client";
+    s.onload = run;
+    document.head.appendChild(s);
+  } catch {}
+};
 
 export const startGoogleLogin = () => {
   // REMINDER: DO NOT HARDCODE THE URL, OR ADD ANY FALLBACKS OR REDIRECT URLS, THIS BREAKS THE AUTH

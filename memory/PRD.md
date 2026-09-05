@@ -159,6 +159,9 @@ Build a polished, responsive multi-page Imagine Store Apple reseller website. Pr
 ## Implemented (2026-09-05, update 24 — Single camera)
 - Hero phone camera bar now has one large lens (iPhone Air style) with flash/sensor on the right; verified at full back view.
 
+## Implemented (2026-09-05, update 25 — Blueprint parallax edit on Repairs)
+- The blueprint is now a full-width parallax showpiece on the Repairs page ("Every repair, down to the millimetre."): blueprint-blue band, giant ghost "PRECISION" outline, scroll-driven drift + tilt on the blueprint frame, mouse-move 3D tilt, and three floating glass spec chips (Board-level diagnostics, Certified technicians, OEM-grade parts) moving at different scroll speeds. The old side image became a dark "Service modes" card.
+
 ## Testing notes
 - curl verified: product quote, repair quote, repair status lookup, contact, email validation (422).
 - Auth verified: /auth/me 200 with Bearer + 401 without; quote attaches user_id; /quotes/mine returns user's quotes; logout invalidates Bearer session (401 after); browser test with session cookie loads Account with history, logout returns to sign-in prompt. Full Google OAuth round-trip not exercised (requires a real Google account click-through) — test user was seeded in MongoDB per /app/auth_testing.md.

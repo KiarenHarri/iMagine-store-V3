@@ -1,5 +1,6 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
+import { motion, useScroll, useTransform, useMotionValue, useSpring } from "framer-motion";
 import { ArrowRight, Wrench, BadgeCheck, Search, Building2, GraduationCap, Clock } from "lucide-react";
 import { MaskedLine, Reveal } from "../components/motion";
 import Marquee from "../components/Marquee";
@@ -61,6 +62,84 @@ function StatusLookup() {
       )}
       {error && <p data-testid="repair-status-error" className="mt-4 text-sm text-red-600">{error}</p>}
     </div>
+  );
+}
+
+function BlueprintEdit() {
+  const ref = useRef(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
+  const imgY = useTransform(scrollYProgress, [0, 1], [70, -70]);
+  const imgR = useTransform(scrollYProgress, [0, 1], [-2.5, 2.5]);
+  const chipY1 = useTransform(scrollYProgress, [0, 1], [120, -140]);
+  const chipY2 = useTransform(scrollYProgress, [0, 1], [-60, 90]);
+  const chipY3 = useTransform(scrollYProgress, [0, 1], [90, -60]);
+
+  const mx = useMotionValue(0);
+  const my = useMotionValue(0);
+  const rx = useSpring(useTransform(my, [-0.5, 0.5], [5, -5]), { stiffness: 120, damping: 16 });
+  const ry = useSpring(useTransform(mx, [-0.5, 0.5], [-7, 7]), { stiffness: 120, damping: 16 });
+
+  const onMove = (e) => {
+    const r = e.currentTarget.getBoundingClientRect();
+    mx.set((e.clientX - r.left) / r.width - 0.5);
+    my.set((e.clientY - r.top) / r.height - 0.5);
+  };
+
+  const chips = [
+    { t: "Board-level diagnostics", y: chipY1, cls: "left-4 top-[55%] sm:left-10" },
+    { t: "Certified technicians", y: chipY2, cls: "right-4 top-1/3 sm:right-12" },
+    { t: "OEM-grade parts", y: chipY3, cls: "bottom-12 left-1/4" },
+  ];
+
+  return (
+    <section
+      ref={ref}
+      data-testid="blueprint-edit"
+      onMouseMove={onMove}
+      onMouseLeave={() => { mx.set(0); my.set(0); }}
+      className="relative overflow-hidden bg-[#0b3d91] py-20 lg:py-32"
+    >
+      <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
+        <p className="select-none whitespace-nowrap font-display text-[20vw] font-black leading-none tracking-tighter" style={{ WebkitTextStroke: "1px rgba(255,255,255,0.12)", color: "transparent" }}>
+          PRECISION
+        </p>
+      </div>
+      <div className="relative mx-auto max-w-5xl px-4 sm:px-8">
+        <Reveal>
+          <div className="text-center">
+            <p className="eyebrow !text-white/60">The parallax edit</p>
+            <h2 className="mt-3 font-display text-2xl font-bold tracking-tight text-white sm:text-3xl lg:text-4xl">
+              Every repair, down to the millimetre.
+            </h2>
+            <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-white/60 sm:text-base">
+              Scroll and move your cursor — the drawing floats with you. That's the level of detail our technicians work at.
+            </p>
+          </div>
+        </Reveal>
+        <motion.div
+          style={{ y: imgY, rotate: imgR, rotateX: rx, rotateY: ry, transformPerspective: 1100 }}
+          className="relative z-10 mt-12 will-change-transform"
+        >
+          <div className="overflow-hidden rounded-[2rem] border border-white/15 shadow-2xl shadow-black/50">
+            <img
+              src="/assets/blueprint.jpg"
+              alt="iPhone Pro technical blueprint — front, side, back and camera views"
+              data-testid="blueprint-parallax-image"
+              className="w-full object-cover"
+            />
+          </div>
+        </motion.div>
+        {chips.map((c) => (
+          <motion.span
+            key={c.t}
+            style={{ y: c.y }}
+            className={`absolute z-20 rounded-full border border-white/20 bg-white/10 px-4 py-2 font-mono text-[10px] uppercase tracking-[0.25em] text-white backdrop-blur-md sm:text-xs ${c.cls}`}
+          >
+            {c.t}
+          </motion.span>
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -135,16 +214,23 @@ export default function Repairs() {
           </div>
           <div className="lg:col-span-5">
             <Reveal delay={0.15}>
-              <div className="overflow-hidden rounded-[2rem] bg-[#0b3d91] shadow-xl shadow-ink/10">
-                <img src="/assets/blueprint.jpg" alt="iPhone Pro technical blueprint — front, side, back and camera views" data-testid="repairs-blueprint" className="aspect-[3/2] w-full object-cover" loading="lazy" />
+              <div className="rounded-[2rem] bg-ink p-8 text-paper grain relative overflow-hidden">
+                <p className="eyebrow !text-brand">Service modes</p>
+                <p className="mt-4 font-display text-xl font-bold">Walk-ins welcome at the Westville service centre.</p>
+                <p className="mt-2 text-sm leading-relaxed text-paper/60">
+                  Collection and courier options available, plus scheduled on-site visits for business and education fleets.
+                </p>
+                <div className="mt-6 border-t border-white/10 pt-5">
+                  <p className="font-mono text-[11px] uppercase tracking-[0.25em] text-paper/40">Devices we service</p>
+                  <p className="mt-2 text-sm font-semibold tracking-wide text-paper/80">Mac · iPhone · iPad · iPod · Apple Watch · Beats</p>
+                </div>
               </div>
-              <p className="mt-4 font-mono text-[11px] uppercase tracking-[0.25em] text-mute">
-                Mac · iPhone · iPad · iPod · Apple Watch · Beats
-              </p>
             </Reveal>
           </div>
         </div>
       </section>
+
+      <BlueprintEdit />
     </div>
   );
 }

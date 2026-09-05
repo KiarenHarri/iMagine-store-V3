@@ -46,6 +46,9 @@ export const BRAND = {
   philosophy: "Educate. Innovate. Entertain.",
   facebook: "https://www.facebook.com/imaginestoreza/",
   website: "https://www.imaginestore.co.za",
+  phone: "+27 83 777 3051",
+  email: "seni@imaginestore.co.za",
+  hours: "Monday – Friday: 09:00 – 16:30 · Saturday & Sunday: Closed",
 };
 
 export const MARQUEE_ITEMS = [

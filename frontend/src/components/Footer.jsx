@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Facebook, MapPin, ArrowUpRight } from "lucide-react";
+import { Facebook, MapPin, Phone, Mail, ArrowUpRight } from "lucide-react";
 import { BRAND, categories } from "../lib/data";
 
 export default function Footer() {
@@ -53,6 +53,12 @@ export default function Footer() {
             <p className="eyebrow !text-paper/40">Visit</p>
             <div className="mt-4 space-y-3 text-sm text-paper/70">
               <p className="flex items-start gap-2"><MapPin size={15} className="mt-0.5 shrink-0 text-brand" />{BRAND.location}</p>
+              <a href={`tel:${BRAND.phone.replace(/\s/g, "")}`} data-testid="footer-phone-link" className="flex items-center gap-2 transition-colors duration-200 hover:text-brand">
+                <Phone size={15} className="text-brand" /> {BRAND.phone}
+              </a>
+              <a href={`mailto:${BRAND.email}`} data-testid="footer-email-link" className="flex items-center gap-2 transition-colors duration-200 hover:text-brand">
+                <Mail size={15} className="text-brand" /> {BRAND.email}
+              </a>
             </div>
           </div>
         </div>

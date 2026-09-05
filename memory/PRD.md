@@ -131,6 +131,9 @@ Build a polished, responsive multi-page Imagine Store Apple reseller website. Pr
 ## Implemented (2026-09-05, update 17 — Square sale images)
 - Deal cards render sale photos in a square frame (aspect-square) so 500×500 uploads fit edge-to-edge without cropping; verified with the live iphone 17 pro sale photo.
 
+## Implemented (2026-09-05, update 18 — Real contact details)
+- Contact page placeholders replaced with owner-provided details: phone +27 83 777 3051 (tappable tel:), email seni@imaginestore.co.za (mailto:), trading hours Mon–Fri 09:00–16:30, Sat & Sun closed. Phone + email also added to the footer. Stored centrally in BRAND (data.js).
+
 ## Testing notes
 - curl verified: product quote, repair quote, repair status lookup, contact, email validation (422).
 - Auth verified: /auth/me 200 with Bearer + 401 without; quote attaches user_id; /quotes/mine returns user's quotes; logout invalidates Bearer session (401 after); browser test with session cookie loads Account with history, logout returns to sign-in prompt. Full Google OAuth round-trip not exercised (requires a real Google account click-through) — test user was seeded in MongoDB per /app/auth_testing.md.

@@ -54,25 +54,25 @@ export default function Contact() {
                   <p className="mt-1 text-sm text-ink/60">{BRAND.location}</p>
                 </div>
               </div>
-              <div className="flex items-start gap-4 rounded-2xl border border-dashed border-ink/20 bg-white p-5" data-testid="contact-phone-placeholder">
+              <a href={`tel:${BRAND.phone.replace(/\s/g, "")}`} data-testid="contact-phone-link" className="flex items-start gap-4 rounded-2xl border border-black/5 bg-white p-5 transition-colors duration-200 hover:border-brand">
                 <Phone size={18} className="mt-0.5 shrink-0 text-brand" />
                 <div>
-                  <p className="text-sm font-bold text-ink">Phone <span className="ml-2 rounded-full bg-brand-subtle px-2 py-0.5 font-mono text-[10px] uppercase tracking-widest text-brand">Placeholder</span></p>
-                  <p className="mt-1 text-sm text-ink/60">Direct line to be confirmed — please use the form or Facebook for now.</p>
+                  <p className="text-sm font-bold text-ink">Phone</p>
+                  <p className="mt-1 text-sm text-ink/60">{BRAND.phone}</p>
                 </div>
-              </div>
-              <div className="flex items-start gap-4 rounded-2xl border border-dashed border-ink/20 bg-white p-5" data-testid="contact-email-placeholder">
+              </a>
+              <a href={`mailto:${BRAND.email}`} data-testid="contact-email-link" className="flex items-start gap-4 rounded-2xl border border-black/5 bg-white p-5 transition-colors duration-200 hover:border-brand">
                 <Mail size={18} className="mt-0.5 shrink-0 text-brand" />
                 <div>
-                  <p className="text-sm font-bold text-ink">Email <span className="ml-2 rounded-full bg-brand-subtle px-2 py-0.5 font-mono text-[10px] uppercase tracking-widest text-brand">Placeholder</span></p>
-                  <p className="mt-1 text-sm text-ink/60">Email address to be confirmed — the form below reaches the team directly.</p>
+                  <p className="text-sm font-bold text-ink">Email</p>
+                  <p className="mt-1 text-sm text-ink/60">{BRAND.email}</p>
                 </div>
-              </div>
-              <div className="flex items-start gap-4 rounded-2xl border border-dashed border-ink/20 bg-white p-5" data-testid="contact-hours-placeholder">
+              </a>
+              <div className="flex items-start gap-4 rounded-2xl border border-black/5 bg-white p-5" data-testid="contact-hours">
                 <Clock size={18} className="mt-0.5 shrink-0 text-brand" />
                 <div>
-                  <p className="text-sm font-bold text-ink">Trading hours <span className="ml-2 rounded-full bg-brand-subtle px-2 py-0.5 font-mono text-[10px] uppercase tracking-widest text-brand">Placeholder</span></p>
-                  <p className="mt-1 text-sm text-ink/60">Hours to be confirmed.</p>
+                  <p className="text-sm font-bold text-ink">Trading hours</p>
+                  <p className="mt-1 text-sm text-ink/60">{BRAND.hours}</p>
                 </div>
               </div>
               <div className="flex flex-wrap gap-3">

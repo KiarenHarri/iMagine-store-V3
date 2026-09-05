@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { Search } from "lucide-react";
 import { motion } from "framer-motion";
 import { Reveal } from "../components/motion";
@@ -32,6 +33,9 @@ export default function Shop() {
             <p className="mt-4 max-w-xl text-sm leading-relaxed text-paper/60 sm:text-base">
               New and pre-owned Apple devices. Pricing and availability change daily — every item is quoted personally by the iMagine team.
             </p>
+            <Link to="/trade-in" data-testid="shop-tradein-link" className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-brand transition-colors hover:text-brand-hover">
+              Trading in? Estimate your old device's value →
+            </Link>
           </Reveal>
         </div>
       </section>

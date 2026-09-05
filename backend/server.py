@@ -377,6 +377,29 @@ async def accept_quote(reference: str, request: Request):
     return {"reference": doc["reference"], "status": new_status}
 
 
+@api_router.post("/quotes/{reference}/decline")
+async def decline_quote(reference: str, request: Request):
+    user = await get_current_user(request)
+    doc = await db.quotes.find_one({"reference": reference.strip().upper()}, {"_id": 0})
+    if not doc or not owns_quote(doc, user):
+        raise HTTPException(status_code=404, detail="Quote not found")
+    if doc["status"] != "Quote sent":
+        raise HTTPException(status_code=400, detail="Only a sent quote can be declined")
+    await db.quotes.update_one(
+        {"reference": doc["reference"]},
+        {"$set": {"status": "Cancelled", "declined_at": now_iso()}},
+    )
+    rows = [
+        ("Reference", doc["reference"]),
+        ("Customer", doc.get("name", "")),
+        ("Email", doc.get("email", "")),
+        ("Item", doc.get("model") or doc.get("device", "")),
+        ("Quoted price", doc.get("quote_price", "")),
+    ]
+    asyncio.create_task(notify_team(f"Quote declined — {doc['reference']} — follow up", rows))
+    return {"reference": doc["reference"], "status": "Cancelled"}
+
+
 @api_router.get("/quotes/{reference}/pdf")
 async def quote_pdf(reference: str, request: Request):
     user = await get_current_user(request)

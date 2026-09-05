@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { WizardShell, OptionCard, SuccessPanel, fieldCls } from "../components/Wizard";
 import { submitProductQuote } from "../lib/api";
@@ -16,7 +16,7 @@ export default function ProductQuote() {
     category: params.get("cat") || "",
     model: params.get("model") || "",
     storage: "",
-    trade_in: false,
+    trade_in: params.get("tradein") === "1",
     accessories: [],
     name: "",
     email: "",
@@ -145,6 +145,9 @@ export default function ProductQuote() {
                 <div>
                   <p className="font-display text-base font-bold text-ink">Trading in a device?</p>
                   <p className="mt-1 text-sm text-ink/60">We'll include a trade-in evaluation with your quote.</p>
+                  <Link to="/trade-in" data-testid="pq-tradein-estimate-link" className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-brand transition-colors hover:text-brand-hover">
+                    Estimate my trade-in value first →
+                  </Link>
                 </div>
                 <button
                   type="button"

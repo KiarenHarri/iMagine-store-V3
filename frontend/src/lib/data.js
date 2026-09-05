@@ -104,3 +104,35 @@ export const STATUS_FLOWS = {
 };
 
 export const CANCEL_STATUS = "Cancelled";
+
+export const TRADE_IN = {
+  iPhone: [
+    { label: "iPhone 15 / 16 series", base: [9000, 14000] },
+    { label: "iPhone 13 / 14 series", base: [5000, 9000] },
+    { label: "iPhone 11 / 12 series", base: [2500, 5000] },
+    { label: "iPhone X or older", base: [800, 2500] },
+  ],
+  Mac: [
+    { label: "Apple-silicon MacBook Pro", base: [9000, 16000] },
+    { label: "Apple-silicon MacBook Air", base: [7000, 12000] },
+    { label: "Intel Mac / iMac", base: [2500, 6000] },
+    { label: "Mac mini / older desktops", base: [1500, 4500] },
+  ],
+  iPad: [
+    { label: "iPad Pro (M-series)", base: [5000, 9000] },
+    { label: "iPad Air / iPad mini", base: [3000, 5500] },
+    { label: "Standard / older iPad", base: [1000, 3000] },
+  ],
+  "Apple Watch": [
+    { label: "Ultra / Series 9 – 10", base: [2500, 5000] },
+    { label: "Series 6 – 8 / SE", base: [1200, 2500] },
+    { label: "Series 5 or older", base: [400, 1200] },
+  ],
+};
+
+export const CONDITION_MULTIPLIERS = [
+  { id: "like-new", label: "Like new", desc: "No marks, battery healthy, box & accessories", m: 1 },
+  { id: "good", label: "Good", desc: "Light wear, fully working", m: 0.85 },
+  { id: "fair", label: "Fair", desc: "Visible wear or ageing battery", m: 0.7 },
+  { id: "damaged", label: "Damaged", desc: "Cracks, faults or heavy wear", m: 0.4 },
+];

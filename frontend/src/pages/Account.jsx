@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
-import { LogOut, PackageSearch, Wrench, ArrowRight, User as UserIcon, Check, Download } from "lucide-react";
+import { LogOut, PackageSearch, Wrench, ArrowRight, User as UserIcon, Check, Download, X } from "lucide-react";
 import { useAuth, startGoogleLogin } from "../lib/auth";
 import { MaskedLine, Reveal } from "../components/motion";
 import { STATUS_FLOWS } from "../lib/data";
@@ -41,6 +41,20 @@ export default function Account() {
       URL.revokeObjectURL(url);
     } catch {
       toast.error("Could not download the PDF");
+    }
+  };
+
+  const declineQuote = async (ref) => {
+    setBusy(ref);
+    try {
+      const res = await fetch(`${API}/quotes/${ref}/decline`, { method: "POST", credentials: "include" });
+      if (!res.ok) throw new Error();
+      setQuotes((qs) => qs.map((q) => (q.reference === ref ? { ...q, status: "Cancelled" } : q)));
+      toast.success("Quote declined — the team has been notified to follow up.");
+    } catch {
+      toast.error("Could not decline this quote");
+    } finally {
+      setBusy("");
     }
   };
 
@@ -192,14 +206,24 @@ export default function Account() {
                     {q.quote_price && (
                       <div className="mt-4 flex flex-wrap gap-3">
                         {q.status === "Quote sent" && (
-                          <button
-                            data-testid={`accept-quote-${q.reference}`}
-                            onClick={() => acceptQuote(q.reference)}
-                            disabled={busy === q.reference}
-                            className="flex items-center gap-1.5 rounded-full bg-brand px-5 py-2.5 text-xs font-bold uppercase tracking-widest text-white transition-colors duration-300 hover:bg-brand-hover disabled:opacity-50"
-                          >
-                            <Check size={13} /> {busy === q.reference ? "Accepting…" : "Accept quote"}
-                          </button>
+                          <>
+                            <button
+                              data-testid={`accept-quote-${q.reference}`}
+                              onClick={() => acceptQuote(q.reference)}
+                              disabled={busy === q.reference}
+                              className="flex items-center gap-1.5 rounded-full bg-brand px-5 py-2.5 text-xs font-bold uppercase tracking-widest text-white transition-colors duration-300 hover:bg-brand-hover disabled:opacity-50"
+                            >
+                              <Check size={13} /> {busy === q.reference ? "Accepting…" : "Accept quote"}
+                            </button>
+                            <button
+                              data-testid={`decline-quote-${q.reference}`}
+                              onClick={() => declineQuote(q.reference)}
+                              disabled={busy === q.reference}
+                              className="flex items-center gap-1.5 rounded-full border border-red-200 px-5 py-2.5 text-xs font-bold uppercase tracking-widest text-red-500 transition-colors duration-300 hover:border-red-400 hover:bg-red-50 disabled:opacity-50"
+                            >
+                              <X size={13} /> Decline
+                            </button>
+                          </>
                         )}
                         <button
                           data-testid={`download-pdf-${q.reference}`}

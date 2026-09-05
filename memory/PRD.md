@@ -72,6 +72,12 @@ Build a polished, responsive multi-page Imagine Store Apple reseller website. Pr
 - Team access: user deferred — ADMIN_EMAILS keeps only test.user@example.com for now.
 - Verified: accept flow (200/400 double-accept/404 ownership), valid %PDF bytes, UI accept → toast + status flip, PDF button, hero scroll frames.
 
+## Implemented (2026-09-05, update 7 — Decline quote + Trade-in estimator)
+- Decline button next to Accept on Account page (POST /api/quotes/{ref}/decline, ownership-checked, Quote sent → Cancelled; team emailed "follow up" alert; tracker renders red for cancelled).
+- Trade-in estimator at /trade-in: 3-tap flow (device → generation → condition multiplier) with animated indicative range, explicit "placeholder estimate — not a store offer" disclaimer (keeps no-invented-prices rule), CTA deep-links to /quote/product?tradein=1 which pre-ticks the trade-in toggle.
+- Entry links added on Shop hero and wizard step 3.
+- Verified: decline 200/400/404 via curl + cancelled tracker render; estimator range math (iPhone 13/14, Good → R 4 300–R 7 700); wizard prefill confirmed.
+
 ## Testing notes
 - curl verified: product quote, repair quote, repair status lookup, contact, email validation (422).
 - Auth verified: /auth/me 200 with Bearer + 401 without; quote attaches user_id; /quotes/mine returns user's quotes; logout invalidates Bearer session (401 after); browser test with session cookie loads Account with history, logout returns to sign-in prompt. Full Google OAuth round-trip not exercised (requires a real Google account click-through) — test user was seeded in MongoDB per /app/auth_testing.md.

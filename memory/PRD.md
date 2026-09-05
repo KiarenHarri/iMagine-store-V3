@@ -212,3 +212,9 @@ Build a polished, responsive multi-page Imagine Store Apple reseller website. Pr
 
 ## Implemented (2026-09-05, update 32 — Removed "The parallax edit" labels)
 - Removed the "The parallax edit" eyebrow label from the Home layered-image section and the Repairs blueprint section; animations/effects unchanged. Verified in browser: neither page shows the label, both sections render cleanly.
+
+## Implemented (2026-09-05, update 33 — Microsoft-themed services page)
+- /microsoft-services restyled with the Microsoft identity: navy gradient hero (#002050→#00122B) with soft four-colour glows, Microsoft squares mark, Surface laptop hero image framed in a four-colour gradient border, and a four-colour divider strip.
+- Per-category accent colours (Cloud=blue #0078D4, AI=purple #5C2D91, Data=green #107C10, Business Apps=red #D83B01, Integration=gold #8A6D00) on eyebrow labels, icon tiles, card accent bars and Enquire links.
+- Added a full-width image band ("One Westville team for your Apple and Microsoft worlds.") with navy overlay before the closing CTA; CTA buttons in Microsoft blue; closing headline has four-colour gradient text.
+- Verified at 1920/768/390px: all 5 groups and 22 cards render, no horizontal overflow, hero + band images load, closing CTA reachable, enquire→contact prefill still works (Microsoft Fabric subject verified).

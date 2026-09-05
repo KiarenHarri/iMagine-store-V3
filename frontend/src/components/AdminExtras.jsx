@@ -65,14 +65,28 @@ export function SalesPanel() {
   const pickImage = (e) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 3 * 1024 * 1024) {
-      toast.error("Image must be under 3MB");
+    if (file.size > 8 * 1024 * 1024) {
+      toast.error("Image must be under 8MB");
       return;
     }
     const reader = new FileReader();
     reader.onload = () => {
-      setForm((f) => ({ ...f, image: reader.result }));
-      setPreview(reader.result);
+      const imgEl = new Image();
+      imgEl.onload = () => {
+        const size = 500;
+        const canvas = document.createElement("canvas");
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext("2d");
+        const side = Math.min(imgEl.width, imgEl.height);
+        const sx = (imgEl.width - side) / 2;
+        const sy = (imgEl.height - side) / 2;
+        ctx.drawImage(imgEl, sx, sy, side, side, 0, 0, size, size);
+        const dataUrl = canvas.toDataURL("image/jpeg", 0.88);
+        setForm((f) => ({ ...f, image: dataUrl }));
+        setPreview(dataUrl);
+      };
+      imgEl.src = reader.result;
     };
     reader.readAsDataURL(file);
   };
@@ -143,7 +157,7 @@ export function SalesPanel() {
           </div>
           <label data-testid="sale-image-label" className="flex cursor-pointer items-center gap-3 rounded-2xl border border-dashed border-ink/20 bg-paper px-5 py-3 text-sm text-ink/60 transition-colors hover:border-brand sm:col-span-2">
             <ImagePlus size={17} className="text-brand" />
-            {preview ? "Photo attached — click to change" : "Add a photo of the item (under 3MB)"}
+            {preview ? "Photo attached (auto-cropped to 500×500) — click to change" : "Add a photo of the item — auto-cropped to 500×500"}
             <input data-testid="sale-image-input" type="file" accept="image/*" onChange={pickImage} className="hidden" />
             {preview && <img src={preview} alt="Sale preview" className="ml-auto h-10 w-10 rounded-lg object-cover" />}
           </label>

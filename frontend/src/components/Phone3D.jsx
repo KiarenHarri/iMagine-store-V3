@@ -1,18 +1,57 @@
 import { useState } from "react";
 import { motion, useTransform, useMotionValue, animate } from "framer-motion";
-import { IMAGES } from "../lib/data";
 
 const COLORS = [
-  { id: "natural", label: "Natural Titanium", frame: "#b5ac9d", tint: "rgba(196,189,175,0.22)", swatch: "#c3bcae", wallpaper: "from-[#17171a] via-[#2b2620] to-brand/50" },
-  { id: "blue", label: "Blue Titanium", frame: "#33445a", tint: "rgba(51,68,90,0.4)", swatch: "#39485e", wallpaper: "from-[#10151d] via-[#1c2735] to-brand/40" },
-  { id: "white", label: "White Titanium", frame: "#cfccc2", tint: "rgba(235,232,224,0.3)", swatch: "#e3e0d9", wallpaper: "from-[#1a1a1e] via-[#2e2e33] to-brand/45" },
-  { id: "black", label: "Black Titanium", frame: "#1d1d21", tint: "rgba(24,24,28,0.3)", swatch: "#2b2b30", wallpaper: "from-[#0f0f12] via-[#1d1d22] to-brand/45" },
+  { id: "natural", label: "Natural Titanium", frame: "#b5ac9d", back: ["#d6cfc2", "#b8b0a0", "#9c9384"], module: "#c2baa9", wallpaper: "from-[#17171a] via-[#2b2620] to-brand/50", swatch: "#c3bcae" },
+  { id: "blue", label: "Blue Titanium", frame: "#33445a", back: ["#48597a", "#34445c", "#232f40"], module: "#3d4e68", wallpaper: "from-[#10151d] via-[#1c2735] to-brand/40", swatch: "#39485e" },
+  { id: "white", label: "White Titanium", frame: "#cfccc2", back: ["#f1efe9", "#dcd9d0", "#c2beb4"], module: "#e4e1d8", wallpaper: "from-[#1a1a1e] via-[#2e2e33] to-brand/45", swatch: "#e3e0d9" },
+  { id: "black", label: "Black Titanium", frame: "#1d1d21", back: ["#3a3a40", "#26262b", "#141417"], module: "#2e2e34", wallpaper: "from-[#0f0f12] via-[#1d1d22] to-brand/45", swatch: "#2b2b30" },
 ];
 
 const AppleLogo = ({ className }) => (
   <svg viewBox="0 0 384 512" className={className} fill="currentColor" aria-hidden="true">
     <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z" />
   </svg>
+);
+
+const Lens = ({ className }) => (
+  <span className={`absolute h-[30%] w-[42%] rounded-full ${className}`}>
+    <span
+      className="absolute inset-0 rounded-full"
+      style={{
+        background: "radial-gradient(circle at 38% 32%, #7c8aa0 0%, #2a3140 38%, #0a0d13 72%, #000 100%)",
+        boxShadow: "0 0 0 2px rgba(255,255,255,0.22), 0 3px 8px rgba(0,0,0,0.55), inset 0 0 8px rgba(0,0,0,0.8)",
+      }}
+    />
+    <span
+      className="absolute rounded-full"
+      style={{
+        inset: "22%",
+        background: "radial-gradient(circle at 40% 35%, #5a6c86 0%, #141a24 60%, #05070b 100%)",
+        boxShadow: "inset 0 0 4px rgba(120,160,220,0.35)",
+      }}
+    />
+    <span className="absolute left-[30%] top-[26%] h-[10%] w-[10%] rounded-full bg-white/70 blur-[1px]" />
+  </span>
+);
+
+const CameraPlateau = ({ tone }) => (
+  <div
+    className="absolute left-[7%] top-[4.5%] aspect-square w-[46%] rounded-[28%] transition-colors duration-500"
+    style={{ background: tone, boxShadow: "inset 0 2px 3px rgba(255,255,255,0.35), inset 0 -3px 6px rgba(0,0,0,0.25), 0 10px 24px rgba(0,0,0,0.35)" }}
+  >
+    <Lens className="left-[5%] top-[5%]" />
+    <Lens className="right-[5%] top-[24%]" />
+    <Lens className="bottom-[5%] left-[5%]" />
+    <span
+      className="absolute right-[16%] top-[6%] h-[12%] w-[20%] rounded-full"
+      style={{ background: "radial-gradient(circle at 40% 35%, #fdf3d0 0%, #d8c48c 55%, #8f7c4e 100%)", boxShadow: "0 1px 3px rgba(0,0,0,0.4), inset 0 0 3px rgba(255,255,255,0.6)" }}
+    />
+    <span
+      className="absolute bottom-[10%] right-[14%] h-[9%] w-[15%] rounded-full bg-black/60"
+      style={{ boxShadow: "inset 0 0 3px rgba(255,255,255,0.25)" }}
+    />
+  </div>
 );
 
 const playSpinSound = () => {
@@ -90,14 +129,23 @@ export default function Phone3D({ progress }) {
           </div>
 
           <div
-            className="absolute inset-0 overflow-hidden rounded-[2.8rem] border-[5px] shadow-2xl shadow-ink/40"
-            style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)", borderColor: color.frame, transition: "border-color 0.5s" }}
+            className="absolute inset-0 overflow-hidden rounded-[2.8rem] border-[5px] shadow-2xl shadow-ink/40 transition-all duration-500"
+            style={{
+              backfaceVisibility: "hidden",
+              transform: "rotateY(180deg)",
+              borderColor: color.frame,
+              background: `linear-gradient(155deg, ${color.back[0]} 0%, ${color.back[1]} 45%, ${color.back[2]} 100%)`,
+            }}
           >
-            <img src={IMAGES.iphone15pro} alt="iPhone titanium back with camera system" className="h-full w-full object-cover" />
-            <div className="absolute inset-0 transition-colors duration-500" style={{ background: color.tint, mixBlendMode: "soft-light" }} />
+            <div
+              className="absolute inset-0 opacity-[0.35]"
+              style={{ background: "repeating-linear-gradient(115deg, rgba(255,255,255,0.05) 0 1px, transparent 1px 3px)" }}
+            />
+            <CameraPlateau tone={color.module} />
             <div className="absolute inset-0 flex items-center justify-center">
-              <AppleLogo className="h-10 w-10 text-white/70 drop-shadow-[0_1px_3px_rgba(0,0,0,0.5)] sm:h-12 sm:w-12" />
+              <AppleLogo className="h-9 w-9 text-black/25 mix-blend-overlay sm:h-11 sm:w-11" style={{ filter: "drop-shadow(0 1px 1px rgba(255,255,255,0.35))" }} />
             </div>
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-black/10 via-transparent to-white/15" />
           </div>
           <div className="absolute -left-[7px] top-20 h-10 w-[3px] rounded-full" style={{ background: color.frame, transition: "background 0.5s" }} />
           <div className="absolute -left-[7px] top-32 h-14 w-[3px] rounded-full" style={{ background: color.frame, transition: "background 0.5s" }} />

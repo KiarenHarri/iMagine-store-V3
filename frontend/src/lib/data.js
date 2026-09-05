@@ -1,4 +1,4 @@
-const img = (id) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=1200&q=80`;
+const img = (id) => `https://images.unsplash.com/${id}?auto=format&fit=crop&w=900&q=70`;
 
 export const IMAGES = {
   hero: img("photo-1727093493864-0bcbd16c7e6d"),

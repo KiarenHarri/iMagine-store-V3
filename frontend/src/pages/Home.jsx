@@ -159,7 +159,7 @@ function CategoryRail() {
                 className="group relative block overflow-hidden rounded-3xl bg-paper"
               >
                 <div className="overflow-hidden">
-                  <img src={c.image} alt={c.name} className="aspect-[4/5] w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" />
+                  <img src={c.image} alt={c.name} loading="lazy" className="aspect-[4/5] w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" />
                 </div>
                 <div className="absolute inset-0 bg-gradient-to-t from-ink/70 via-ink/10 to-transparent" />
                 <div className="absolute bottom-0 left-0 right-0 p-5">
@@ -194,10 +194,10 @@ function ParallaxEdit() {
       </div>
       <div className="relative mx-auto grid max-w-7xl grid-cols-3 items-center gap-4 px-4 sm:px-8 lg:px-12">
         <motion.div style={{ y: y1, rotate: r1 }} className="overflow-hidden rounded-3xl shadow-2xl shadow-black/50">
-          <img src={IMAGES.macbook} alt="MacBook — layered parallax" className="aspect-[3/4] w-full object-cover" />
+          <img src={IMAGES.macbook} alt="MacBook — layered parallax" loading="lazy" className="aspect-[3/4] w-full object-cover" />
         </motion.div>
         <motion.div style={{ y: y2 }} className="relative z-10 -mx-6 overflow-hidden rounded-[2rem] border border-white/10 shadow-2xl shadow-black/60 sm:-mx-10">
-          <img src={IMAGES.storefront} alt="Apple devices — parallax edit centre frame" data-testid="parallax-center-image" className="aspect-[3/4] w-full object-cover" />
+          <img src={IMAGES.storefront} alt="Apple devices — parallax edit centre frame" data-testid="parallax-center-image" loading="lazy" className="aspect-[3/4] w-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-ink/60 to-transparent" />
           <div className="absolute bottom-0 p-5 sm:p-7">
             <p className="eyebrow !text-brand">The parallax edit</p>
@@ -205,7 +205,7 @@ function ParallaxEdit() {
           </div>
         </motion.div>
         <motion.div style={{ y: y3, rotate: r3 }} className="overflow-hidden rounded-3xl shadow-2xl shadow-black/50">
-          <img src={IMAGES.watch} alt="Apple Watch — layered parallax" className="aspect-[3/4] w-full object-cover" />
+          <img src={IMAGES.watch} alt="Apple Watch — layered parallax" loading="lazy" className="aspect-[3/4] w-full object-cover" />
         </motion.div>
       </div>
       <div className="relative mx-auto mt-16 max-w-7xl px-4 text-center sm:px-8 lg:px-12">
@@ -272,7 +272,7 @@ function RepairsBand() {
         <div className="lg:col-span-6">
           <Reveal delay={0.15}>
             <div className="relative overflow-hidden rounded-[2rem]">
-              <img src={IMAGES.headphones} alt="Device service and care" className="aspect-[16/10] w-full object-cover" />
+              <img src={IMAGES.headphones} alt="Device service and care" loading="lazy" className="aspect-[16/10] w-full object-cover" />
               <div className="absolute inset-0 bg-gradient-to-tr from-ink/50 to-transparent" />
               <div className="absolute bottom-5 left-5 right-5 flex flex-wrap gap-2">
                 {["Mac", "iPhone", "iPad", "Watch", "Beats"].map((d) => (

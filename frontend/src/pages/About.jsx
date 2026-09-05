@@ -17,13 +17,13 @@ function AboutParallax() {
   return (
     <div ref={ref} data-testid="about-parallax" className="relative">
       <motion.div style={{ y: yMain }} className="relative z-10 overflow-hidden rounded-[2rem] shadow-2xl shadow-ink/20">
-        <img src={IMAGES.imacLineup} alt="Apple Mac family — iMagine range" className="aspect-[4/3] w-full object-cover" />
+        <img src={IMAGES.imacLineup} alt="Apple Mac family — iMagine range" loading="lazy" className="aspect-[4/3] w-full object-cover" />
       </motion.div>
       <motion.div style={{ y: yA, rotate: rA }} className="absolute -right-4 -top-12 z-20 w-2/5 overflow-hidden rounded-2xl border-4 border-white shadow-xl sm:-right-8">
-        <img src={IMAGES.watchUltra} alt="Apple Watch Ultra — iMagine range" className="w-full object-cover" />
+        <img src={IMAGES.watchUltra} alt="Apple Watch Ultra — iMagine range" loading="lazy" className="w-full object-cover" />
       </motion.div>
       <motion.div style={{ y: yB }} className="absolute -bottom-12 -left-4 z-20 w-1/3 overflow-hidden rounded-2xl border-4 border-white shadow-xl sm:-left-8">
-        <img src={IMAGES.iphone16pro} alt="iPhone 16 Pro — iMagine range" className="aspect-[4/5] w-full object-cover" />
+        <img src={IMAGES.iphone16pro} alt="iPhone 16 Pro — iMagine range" loading="lazy" className="aspect-[4/5] w-full object-cover" />
       </motion.div>
     </div>
   );

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, lazy, Suspense } from "react";
 import "@/App.css";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import Lenis from "lenis";
@@ -7,19 +7,26 @@ import Nav from "@/components/Nav";
 import Footer from "@/components/Footer";
 import { AuthProvider } from "@/lib/auth";
 import Home from "@/pages/Home";
-import Shop from "@/pages/Shop";
-import Category from "@/pages/Category";
-import Accessories from "@/pages/Accessories";
-import Repairs from "@/pages/Repairs";
-import About from "@/pages/About";
-import Contact from "@/pages/Contact";
-import ProductQuote from "@/pages/ProductQuote";
-import RepairQuote from "@/pages/RepairQuote";
-import Account from "@/pages/Account";
-import AuthCallback from "@/pages/AuthCallback";
-import Admin from "@/pages/Admin";
-import TradeIn from "@/pages/TradeIn";
-import ResetPassword from "@/pages/ResetPassword";
+
+const Shop = lazy(() => import("@/pages/Shop"));
+const Category = lazy(() => import("@/pages/Category"));
+const Accessories = lazy(() => import("@/pages/Accessories"));
+const Repairs = lazy(() => import("@/pages/Repairs"));
+const About = lazy(() => import("@/pages/About"));
+const Contact = lazy(() => import("@/pages/Contact"));
+const ProductQuote = lazy(() => import("@/pages/ProductQuote"));
+const RepairQuote = lazy(() => import("@/pages/RepairQuote"));
+const Account = lazy(() => import("@/pages/Account"));
+const AuthCallback = lazy(() => import("@/pages/AuthCallback"));
+const Admin = lazy(() => import("@/pages/Admin"));
+const TradeIn = lazy(() => import("@/pages/TradeIn"));
+const ResetPassword = lazy(() => import("@/pages/ResetPassword"));
+
+const PageLoader = () => (
+  <div className="flex min-h-[60vh] items-center justify-center bg-paper" data-testid="page-loader">
+    <div className="h-9 w-9 animate-spin rounded-full border-2 border-ink/10 border-t-brand" />
+  </div>
+);
 
 function ScrollManager() {
   const lenisRef = useRef(null);
@@ -57,7 +64,8 @@ function AppRouter() {
       <ScrollManager />
       <Nav />
       <main>
-        <Routes>
+        <Suspense fallback={<PageLoader />}>
+          <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/shop" element={<Shop />} />
           <Route path="/shop/:slug" element={<Category />} />
@@ -72,7 +80,8 @@ function AppRouter() {
           <Route path="/trade-in" element={<TradeIn />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="*" element={<Home />} />
-        </Routes>
+          </Routes>
+        </Suspense>
       </main>
       <Footer />
     </>

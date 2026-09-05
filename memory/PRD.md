@@ -180,3 +180,8 @@ Build a polished, responsive multi-page Imagine Store Apple reseller website. Pr
 - Backend: ProductQuote model gains is_sale / sale_price / sale_was_price (stored in Mongo); team alert email subject prefixed "SALE — " and body includes sale deal row; customer confirmation email includes the sale deal row.
 - Admin dashboard quote cards show an orange "SALE" tag plus "Sale price X · was Y" line for sale enquiries (older quotes without the field render unchanged).
 - Verified: API submit with sale fields stores them (IMQ-66658F) and both emails accepted (202); browser e2e — home sale card click lands on step 3 with banner+badge, category-only entry starts at model step, Back returns to model step, step-4 summary shows "On sale R26,999".
+
+## Implemented (2026-09-05, update 28 — Admin quote deletion)
+- DELETE /api/admin/quotes/{reference} — admin-only, removes the quote/repair from MongoDB; 403 for non-admins, 404 for unknown references.
+- Admin dashboard quote cards now have a trash icon that turns into a red "Confirm delete" button (auto-resets after 4s) to prevent accidental deletion; card disappears from the list on success.
+- Verified: curl (non-admin 403, admin delete 200, repeat 404) + browser e2e signed in as test admin — delete button, confirm state, card removal all working.

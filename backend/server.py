@@ -506,6 +506,15 @@ async def admin_update_status(reference: str, payload: StatusUpdate, request: Re
     return doc
 
 
+@api_router.delete("/admin/quotes/{reference}")
+async def admin_delete_quote(reference: str, request: Request):
+    await get_admin_user(request)
+    res = await db.quotes.delete_one({"reference": reference.strip().upper()})
+    if res.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Quote not found")
+    return {"message": "Quote deleted", "reference": reference.strip().upper()}
+
+
 class SaleIn(BaseModel):
     name: str
     price: str

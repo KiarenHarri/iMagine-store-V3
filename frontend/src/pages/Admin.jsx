@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { ShieldAlert, RefreshCw, Wrench, PackageSearch, Mail } from "lucide-react";
+import { ShieldAlert, RefreshCw, Wrench, PackageSearch, Mail, Trash2 } from "lucide-react";
 import { useAuth, startGoogleLogin } from "../lib/auth";
 import { MaskedLine, Reveal } from "../components/motion";
 import { STATUS_FLOWS, CANCEL_STATUS } from "../lib/data";
@@ -22,6 +22,22 @@ export default function Admin() {
   const [tab, setTab] = useState("all");
   const [saving, setSaving] = useState("");
   const [quoteForm, setQuoteForm] = useState(null);
+  const [confirmDelete, setConfirmDelete] = useState("");
+
+  const deleteQuote = async (reference) => {
+    setSaving(reference);
+    try {
+      const res = await fetch(`${API}/admin/quotes/${reference}`, { method: "DELETE", credentials: "include" });
+      if (!res.ok) throw new Error();
+      setData((d) => ({ ...d, quotes: d.quotes.filter((q) => q.reference !== reference) }));
+      toast.success(`${reference} deleted`);
+    } catch {
+      toast.error("Delete failed");
+    } finally {
+      setSaving("");
+      setConfirmDelete("");
+    }
+  };
 
   const load = async () => {
     try {
@@ -180,6 +196,30 @@ export default function Admin() {
                             <option key={s} value={s}>{s}</option>
                           ))}
                         </select>
+                        {confirmDelete === q.reference ? (
+                          <button
+                            type="button"
+                            data-testid={`admin-delete-confirm-${q.reference}`}
+                            disabled={saving === q.reference}
+                            onClick={() => deleteQuote(q.reference)}
+                            className="rounded-full bg-red-600 px-4 py-2.5 text-xs font-bold text-white transition-colors duration-200 hover:bg-red-700 disabled:opacity-50"
+                          >
+                            {saving === q.reference ? "Deleting…" : "Confirm delete"}
+                          </button>
+                        ) : (
+                          <button
+                            type="button"
+                            data-testid={`admin-delete-btn-${q.reference}`}
+                            aria-label={`Delete ${q.reference}`}
+                            onClick={() => {
+                              setConfirmDelete(q.reference);
+                              setTimeout(() => setConfirmDelete((c) => (c === q.reference ? "" : c)), 4000);
+                            }}
+                            className="flex h-10 w-10 items-center justify-center rounded-full border border-ink/10 text-ink/40 transition-colors duration-200 hover:border-red-300 hover:text-red-600"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        )}
                       </div>
                     </div>
                     {quoteForm?.reference === q.reference && (

@@ -12,8 +12,29 @@ const LINKS = [
   { to: "/accessories", label: "Accessories" },
   { to: "/about", label: "About" },
   { to: "/contact", label: "Contact" },
-  { to: "/account", label: "Account" },
 ];
+
+const MS_GRADIENT = "linear-gradient(90deg, #F25022 0%, #7FBA00 33%, #00A4EF 66%, #FFB900 100%)";
+
+const MicrosoftMark = ({ size = 5 }) => (
+  <span className="grid shrink-0 grid-cols-2 gap-[1.5px]" aria-hidden="true">
+    {["#F25022", "#7FBA00", "#00A4EF", "#FFB900"].map((c) => (
+      <span key={c} className="rounded-[1px]" style={{ backgroundColor: c, height: size, width: size }} />
+    ))}
+  </span>
+);
+
+const NavLabel = ({ label, mobile = false }) =>
+  label === "Microsoft" ? (
+    <span className="flex items-center gap-1.5">
+      <MicrosoftMark size={mobile ? 7 : 5} />
+      <span className="bg-clip-text text-transparent" style={{ backgroundImage: MS_GRADIENT }}>
+        Microsoft
+      </span>
+    </span>
+  ) : (
+    label
+  );
 
 export default function Nav() {
   const [open, setOpen] = useState(false);
@@ -28,38 +49,38 @@ export default function Nav() {
           </span>
         </Link>
 
-        <nav className="hidden lg:flex items-center gap-7" data-testid="nav-desktop">
+        <nav className="hidden xl:flex items-center gap-0.5" data-testid="nav-desktop">
           {LINKS.map((l) => (
             <NavLink
               key={l.to}
               to={l.to}
               data-testid={`nav-link-${l.label.toLowerCase()}`}
               className={({ isActive }) =>
-                `text-sm font-medium transition-colors duration-200 hover:text-brand ${
-                  isActive ? "text-brand" : "text-ink/70"
+                `flex items-center rounded-full px-3.5 py-2 text-[13px] font-semibold transition-colors duration-200 ${
+                  isActive ? "bg-brand-subtle text-brand" : "text-ink/70 hover:bg-ink/5 hover:text-ink"
                 }`
               }
             >
-              {l.label}
+              <NavLabel label={l.label} />
             </NavLink>
           ))}
         </nav>
 
-        <div className="hidden lg:flex items-center gap-3">
+        <div className="hidden xl:flex items-center gap-2">
           <Link
             to="/quote/repair"
             data-testid="nav-repair-quote-btn"
-            className="rounded-full border border-ink/15 px-4 py-2 text-sm font-semibold text-ink transition-colors duration-200 hover:border-brand hover:text-brand"
+            className="rounded-full border border-ink/15 px-4 py-2 text-[13px] font-semibold text-ink transition-colors duration-200 hover:border-brand hover:text-brand"
           >
             Repair Quote
           </Link>
           <Link
             to="/quote/product"
             data-testid="nav-product-quote-btn"
-            className="group flex items-center gap-1.5 rounded-full bg-brand px-5 py-2 text-sm font-semibold text-white transition-colors duration-200 hover:bg-brand-hover"
+            className="group flex items-center gap-1.5 rounded-full bg-brand px-4 py-2 text-[13px] font-semibold text-white transition-colors duration-200 hover:bg-brand-hover"
           >
             Get a Quote
-            <ArrowUpRight size={15} className="transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+            <ArrowUpRight size={14} className="transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
           </Link>
           {user ? (
             <>
@@ -93,7 +114,7 @@ export default function Nav() {
         <button
           data-testid="nav-mobile-toggle"
           onClick={() => setOpen(!open)}
-          className="lg:hidden rounded-full border border-ink/10 p-2.5 text-ink"
+          className="xl:hidden rounded-full border border-ink/10 p-2.5 text-ink"
           aria-label="Toggle menu"
         >
           {open ? <X size={18} /> : <Menu size={18} />}
@@ -108,7 +129,7 @@ export default function Nav() {
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-            className="overflow-hidden border-t border-black/5 bg-white lg:hidden"
+            className="overflow-hidden border-t border-black/5 bg-white xl:hidden"
           >
             <div className="flex flex-col gap-1 px-6 py-5">
               {LINKS.map((l) => (
@@ -121,7 +142,7 @@ export default function Nav() {
                     `rounded-xl px-3 py-3 font-display text-lg font-bold ${isActive ? "text-brand" : "text-ink"}`
                   }
                 >
-                  {l.label}
+                  <NavLabel label={l.label} mobile />
                 </NavLink>
               ))}
               <div className="mt-3 flex gap-3">

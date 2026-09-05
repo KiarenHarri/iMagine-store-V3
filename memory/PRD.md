@@ -202,3 +202,10 @@ Build a polished, responsive multi-page Imagine Store Apple reseller website. Pr
 - Nav (desktop + mobile) gains "Microsoft" link; footer Company column gains "Microsoft Services".
 - Earlier Microsoft store/catalogue data (products, category, images) was fully reverted from data.js — nothing Microsoft in Shop.
 - Verified in browser: page loads, 5 groups / 22 cards, enquire → contact prefill (subject + message + banner), form submits (IMC-055A7A stored with Microsoft subject), closing CTA + footer link present.
+
+## Implemented (2026-09-05, update 31 — Navbar fit + aesthetic + Microsoft colours)
+- Nav links are now compact pill buttons (13px, rounded-full, hover grey pill, active brand-tinted pill); redundant "Account" link removed (account/sign-in already on the right cluster).
+- Right cluster buttons slimmed (Repair Quote / Get a Quote at 13px, tighter padding) so everything fits.
+- Full nav now shows from xl (1280px) instead of lg — below that the hamburger menu takes over, so nothing is ever cut off.
+- "Microsoft" nav item carries the four Microsoft brand squares (#F25022/#7FBA00/#00A4EF/#FFB900) plus gradient text in those colours, on desktop and mobile menu.
+- Verified at 1280px (all 7 links + CTAs + sign-in fit, no overflow), 1920px, and 768px mobile (menu opens, Microsoft mark renders).

@@ -2,6 +2,7 @@ import asyncio
 import requests
 from fastapi import FastAPI, APIRouter, HTTPException, Request, Response
 from mailer import notify_team, notify_customer, notify_status
+from pdfgen import build_quote_pdf
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -339,6 +340,57 @@ async def admin_update_status(reference: str, payload: StatusUpdate, request: Re
         price=price or None, note=note or None,
     ))
     return doc
+
+
+def owns_quote(doc: dict, user: dict) -> bool:
+    return doc.get("user_id") == user["user_id"] or (doc.get("email") or "").lower() == user["email"].lower()
+
+
+@api_router.post("/quotes/{reference}/accept")
+async def accept_quote(reference: str, request: Request):
+    user = await get_current_user(request)
+    doc = await db.quotes.find_one({"reference": reference.strip().upper()}, {"_id": 0})
+    if not doc or not owns_quote(doc, user):
+        raise HTTPException(status_code=404, detail="Quote not found")
+    if doc["status"] != "Quote sent":
+        raise HTTPException(status_code=400, detail="Only a sent quote can be accepted")
+    new_status = "Confirmed" if doc["type"] == "product" else "Approved — in repair"
+    await db.quotes.update_one(
+        {"reference": doc["reference"]},
+        {"$set": {"status": new_status, "accepted_at": now_iso()}},
+    )
+    rows = [
+        ("Reference", doc["reference"]),
+        ("Customer", doc.get("name", "")),
+        ("Email", doc.get("email", "")),
+        ("Item", doc.get("model") or doc.get("device", "")),
+        ("Quoted price", doc.get("quote_price", "")),
+        ("Note", doc.get("quote_note", "")),
+    ]
+    asyncio.create_task(notify_team(f"Quote accepted — {doc['reference']}", rows))
+    asyncio.create_task(notify_customer(
+        doc["email"], doc.get("name", ""),
+        f"You accepted your quote — {doc['reference']}",
+        doc["reference"],
+        [("Status", new_status), ("Quoted price", doc.get("quote_price", ""))],
+    ))
+    return {"reference": doc["reference"], "status": new_status}
+
+
+@api_router.get("/quotes/{reference}/pdf")
+async def quote_pdf(reference: str, request: Request):
+    user = await get_current_user(request)
+    doc = await db.quotes.find_one({"reference": reference.strip().upper()}, {"_id": 0})
+    if not doc or not owns_quote(doc, user):
+        raise HTTPException(status_code=404, detail="Quote not found")
+    if not doc.get("quote_price"):
+        raise HTTPException(status_code=400, detail="PDF is available once a quote has been sent")
+    pdf_bytes = build_quote_pdf(doc)
+    return Response(
+        content=pdf_bytes,
+        media_type="application/pdf",
+        headers={"Content-Disposition": f'attachment; filename="{doc["reference"]}-quote.pdf"'},
+    )
 
 
 app.include_router(api_router)

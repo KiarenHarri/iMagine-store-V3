@@ -65,6 +65,13 @@ Build a polished, responsive multi-page Imagine Store Apple reseller website. Pr
 - Customers see the quoted price card on their Account page; the status email includes price + note.
 - Verified: PATCH with price/note persists and shows on /quotes/mine; UI editor → send → customer price card renders; emails HTTP 202 routed to the real inbox.
 
+## Implemented (2026-09-05, update 6 — Accept quote, Quote PDF, 3D hero)
+- Customers can accept a sent quote from their Account page (POST /api/quotes/{ref}/accept; ownership-checked by user_id or email; product → Confirmed, repair → Approved — in repair; team + customer emailed).
+- Branded PDF quotations: GET /api/quotes/{ref}/pdf (reportlab, /app/backend/pdfgen.py) — dark header, item details, orange price block, footer; auth + ownership enforced (401/404 verified).
+- Homepage hero iPhone is now a 3D scroll parallax edit: scroll-driven rotateY/rotateX/scale on the frame, orbiting dashed orange ring + glow layer moving at different speeds, on top of existing mouse tilt.
+- Team access: user deferred — ADMIN_EMAILS keeps only test.user@example.com for now.
+- Verified: accept flow (200/400 double-accept/404 ownership), valid %PDF bytes, UI accept → toast + status flip, PDF button, hero scroll frames.
+
 ## Testing notes
 - curl verified: product quote, repair quote, repair status lookup, contact, email validation (422).
 - Auth verified: /auth/me 200 with Bearer + 401 without; quote attaches user_id; /quotes/mine returns user's quotes; logout invalidates Bearer session (401 after); browser test with session cookie loads Account with history, logout returns to sign-in prompt. Full Google OAuth round-trip not exercised (requires a real Google account click-through) — test user was seeded in MongoDB per /app/auth_testing.md.

@@ -11,6 +11,12 @@ function Hero() {
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
   const imgY = useTransform(scrollYProgress, [0, 1], [0, 120]);
   const bgY = useTransform(scrollYProgress, [0, 1], [0, -60]);
+  const sRotY = useTransform(scrollYProgress, [0, 1], [0, -26]);
+  const sRotX = useTransform(scrollYProgress, [0, 1], [0, 14]);
+  const sScale = useTransform(scrollYProgress, [0, 1], [1, 1.07]);
+  const ringY = useTransform(scrollYProgress, [0, 1], [0, -110]);
+  const ringRot = useTransform(scrollYProgress, [0, 1], [0, 160]);
+  const chipY = useTransform(scrollYProgress, [0, 1], [0, -70]);
 
   const mx = useMotionValue(0);
   const my = useMotionValue(0);
@@ -81,7 +87,19 @@ function Hero() {
         </div>
 
         <div className="lg:col-span-5" onMouseMove={onMove} onMouseLeave={() => { mx.set(0); my.set(0); }}>
-          <motion.div style={{ y: imgY }} className="relative">
+          <motion.div
+            style={{ y: imgY, rotateY: sRotY, rotateX: sRotX, scale: sScale, transformPerspective: 1100 }}
+            className="relative will-change-transform"
+            data-testid="hero-3d-frame"
+          >
+            <motion.div
+              style={{ y: ringY, rotate: ringRot }}
+              className="pointer-events-none absolute -inset-8 -z-10 rounded-[3rem] border-2 border-dashed border-brand/30"
+            />
+            <motion.div
+              style={{ y: chipY }}
+              className="pointer-events-none absolute -right-10 -top-10 -z-10 h-40 w-40 rounded-full bg-brand/20 blur-2xl"
+            />
             <motion.div
               initial={{ opacity: 0, scale: 0.94, y: 40 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}

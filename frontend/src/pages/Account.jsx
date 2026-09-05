@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { LogOut, PackageSearch, Wrench, ArrowRight, User as UserIcon } from "lucide-react";
+import { toast } from "sonner";
+import { LogOut, PackageSearch, Wrench, ArrowRight, User as UserIcon, Check, Download } from "lucide-react";
 import { useAuth, startGoogleLogin } from "../lib/auth";
 import { MaskedLine, Reveal } from "../components/motion";
 import { STATUS_FLOWS } from "../lib/data";
@@ -10,6 +11,38 @@ const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 export default function Account() {
   const { user, loading, logout } = useAuth();
   const [quotes, setQuotes] = useState(null);
+  const [busy, setBusy] = useState("");
+
+  const acceptQuote = async (ref) => {
+    setBusy(ref);
+    try {
+      const res = await fetch(`${API}/quotes/${ref}/accept`, { method: "POST", credentials: "include" });
+      if (!res.ok) throw new Error();
+      const { status } = await res.json();
+      setQuotes((qs) => qs.map((q) => (q.reference === ref ? { ...q, status } : q)));
+      toast.success("Quote accepted — the team has been notified.");
+    } catch {
+      toast.error("Could not accept this quote");
+    } finally {
+      setBusy("");
+    }
+  };
+
+  const downloadPdf = async (ref) => {
+    try {
+      const res = await fetch(`${API}/quotes/${ref}/pdf`, { credentials: "include" });
+      if (!res.ok) throw new Error();
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${ref}-quote.pdf`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch {
+      toast.error("Could not download the PDF");
+    }
+  };
 
   useEffect(() => {
     if (!user) return;
@@ -154,6 +187,27 @@ export default function Account() {
                         <p className="font-mono text-[10px] uppercase tracking-[0.25em] text-brand">Quoted price</p>
                         <p className="mt-0.5 font-display text-lg font-extrabold text-ink">{q.quote_price}</p>
                         {q.quote_note && <p className="mt-1 max-w-xs text-xs leading-relaxed text-ink/60">{q.quote_note}</p>}
+                      </div>
+                    )}
+                    {q.quote_price && (
+                      <div className="mt-4 flex flex-wrap gap-3">
+                        {q.status === "Quote sent" && (
+                          <button
+                            data-testid={`accept-quote-${q.reference}`}
+                            onClick={() => acceptQuote(q.reference)}
+                            disabled={busy === q.reference}
+                            className="flex items-center gap-1.5 rounded-full bg-brand px-5 py-2.5 text-xs font-bold uppercase tracking-widest text-white transition-colors duration-300 hover:bg-brand-hover disabled:opacity-50"
+                          >
+                            <Check size={13} /> {busy === q.reference ? "Accepting…" : "Accept quote"}
+                          </button>
+                        )}
+                        <button
+                          data-testid={`download-pdf-${q.reference}`}
+                          onClick={() => downloadPdf(q.reference)}
+                          className="flex items-center gap-1.5 rounded-full border border-ink/15 px-5 py-2.5 text-xs font-bold uppercase tracking-widest text-ink transition-colors duration-300 hover:border-brand hover:text-brand"
+                        >
+                          <Download size={13} /> PDF
+                        </button>
                       </div>
                     )}
                   </div>

@@ -84,6 +84,13 @@ Build a polished, responsive multi-page Imagine Store Apple reseller website. Pr
 - Hero and category landing heroes updated to the matching hero shots.
 - NOTE: iMagine publishes NO real store/team photos publicly — checked the full site. Used their own product imagery instead; real store/team photos can be dropped in when supplied.
 
+## Implemented (2026-09-05, update 9 — Rotating 3D iPhone hero, admin email, old-site links removed, About parallax)
+- Hero static image replaced with a CSS-3D iPhone (/app/frontend/src/components/Phone3D.jsx): full 360° scroll-driven rotation, front face = iOS-style lock screen (9:41, Dynamic Island, iMagine pill), back face = titanium camera photo, side buttons, orbiting dashed ring; mouse tilt layered on top.
+- ayushsukhnandan28@gmail.com added to ADMIN_EMAILS — signing in with that Google account grants the Team console (/admin).
+- Removed all links to the old imaginestore.co.za website (footer + contact page).
+- About page blurry lineup image replaced with a crisp parallax edit: Mac family main frame + floating Watch Ultra and iPhone 16 Pro cards moving at different scroll speeds.
+- Verified: hero front/back faces rotate across scroll frames; About parallax renders; footer/contact website links gone; backend healthy; is_admin true for allowlisted test admin.
+
 ## Testing notes
 - curl verified: product quote, repair quote, repair status lookup, contact, email validation (422).
 - Auth verified: /auth/me 200 with Bearer + 401 without; quote attaches user_id; /quotes/mine returns user's quotes; logout invalidates Bearer session (401 after); browser test with session cookie loads Account with history, logout returns to sign-in prompt. Full Google OAuth round-trip not exercised (requires a real Google account click-through) — test user was seeded in MongoDB per /app/auth_testing.md.

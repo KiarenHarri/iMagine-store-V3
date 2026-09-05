@@ -1,8 +1,33 @@
+import { useRef } from "react";
 import { Link } from "react-router-dom";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { ArrowRight, MapPin } from "lucide-react";
 import { MaskedLine, Reveal } from "../components/motion";
 import Marquee from "../components/Marquee";
 import { BRAND, IMAGES } from "../lib/data";
+
+function AboutParallax() {
+  const ref = useRef(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start end", "end start"] });
+  const yMain = useTransform(scrollYProgress, [0, 1], [50, -50]);
+  const yA = useTransform(scrollYProgress, [0, 1], [110, -90]);
+  const yB = useTransform(scrollYProgress, [0, 1], [-40, 80]);
+  const rA = useTransform(scrollYProgress, [0, 1], [-5, 6]);
+
+  return (
+    <div ref={ref} data-testid="about-parallax" className="relative">
+      <motion.div style={{ y: yMain }} className="relative z-10 overflow-hidden rounded-[2rem] shadow-2xl shadow-ink/20">
+        <img src={IMAGES.imacLineup} alt="Apple Mac family — iMagine range" className="aspect-[4/3] w-full object-cover" />
+      </motion.div>
+      <motion.div style={{ y: yA, rotate: rA }} className="absolute -right-4 -top-12 z-20 w-2/5 overflow-hidden rounded-2xl border-4 border-white shadow-xl sm:-right-8">
+        <img src={IMAGES.watchUltra} alt="Apple Watch Ultra — iMagine range" className="w-full object-cover" />
+      </motion.div>
+      <motion.div style={{ y: yB }} className="absolute -bottom-12 -left-4 z-20 w-1/3 overflow-hidden rounded-2xl border-4 border-white shadow-xl sm:-left-8">
+        <img src={IMAGES.iphone16pro} alt="iPhone 16 Pro — iMagine range" className="aspect-[4/5] w-full object-cover" />
+      </motion.div>
+    </div>
+  );
+}
 
 const VALUES = [
   { n: "01", t: "Accessible", d: "Our Apple Service Centre in Westville, Durban puts certified technicians close by — for Mac, iPhone, iPad, Watch, Beats and accessories." },
@@ -68,10 +93,8 @@ export default function About() {
           </div>
           <div className="lg:col-span-5">
             <Reveal delay={0.15}>
-              <div className="overflow-hidden rounded-[2rem]">
-                <img src={IMAGES.ecosystem} alt="Apple ecosystem on a desk" className="aspect-[4/5] w-full object-cover" />
-              </div>
-              <div className="mt-6 rounded-3xl bg-ink p-7 text-paper grain relative overflow-hidden">
+              <AboutParallax />
+              <div className="mt-24 rounded-3xl bg-ink p-7 text-paper grain relative overflow-hidden">
                 <p className="eyebrow !text-brand">Why choose iMagine</p>
                 <p className="mt-3 text-sm leading-relaxed text-paper/70">
                   An exclusive gateway to the world of Apple — a seamless experience for professionals, educators and anyone looking to enhance their digital lifestyle.

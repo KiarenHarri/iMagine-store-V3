@@ -4,6 +4,7 @@ import { motion, useScroll, useTransform, useMotionValue, useSpring } from "fram
 import { ArrowRight, ArrowUpRight, Wrench, BadgeCheck, MapPin, RotateCcw } from "lucide-react";
 import { MaskedLine, Reveal, ease } from "../components/motion";
 import Marquee from "../components/Marquee";
+import Phone3D from "../components/Phone3D";
 import { categories, chapters, IMAGES, MARQUEE_ITEMS, BRAND } from "../lib/data";
 
 function Hero() {
@@ -11,8 +12,6 @@ function Hero() {
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
   const imgY = useTransform(scrollYProgress, [0, 1], [0, 120]);
   const bgY = useTransform(scrollYProgress, [0, 1], [0, -60]);
-  const sRotY = useTransform(scrollYProgress, [0, 1], [0, -26]);
-  const sRotX = useTransform(scrollYProgress, [0, 1], [0, 14]);
   const sScale = useTransform(scrollYProgress, [0, 1], [1, 1.07]);
   const ringY = useTransform(scrollYProgress, [0, 1], [0, -110]);
   const ringRot = useTransform(scrollYProgress, [0, 1], [0, 160]);
@@ -88,7 +87,7 @@ function Hero() {
 
         <div className="lg:col-span-5" onMouseMove={onMove} onMouseLeave={() => { mx.set(0); my.set(0); }}>
           <motion.div
-            style={{ y: imgY, rotateY: sRotY, rotateX: sRotX, scale: sScale, transformPerspective: 1100 }}
+            style={{ y: imgY, scale: sScale }}
             className="relative will-change-transform"
             data-testid="hero-3d-frame"
           >
@@ -105,10 +104,9 @@ function Hero() {
               animate={{ opacity: 1, scale: 1, y: 0 }}
               transition={{ duration: 1.1, delay: 0.35, ease }}
               style={{ rotateX: rx, rotateY: ry, transformPerspective: 900 }}
-              className="relative overflow-hidden rounded-[2rem] shadow-2xl shadow-ink/20"
+              className="relative"
             >
-              <img src={IMAGES.hero} alt="iPhone Pro — product photography" data-testid="hero-image" className="aspect-[4/5] w-full object-cover" />
-              <div className="absolute inset-0 bg-gradient-to-t from-ink/30 via-transparent to-transparent" />
+              <Phone3D progress={scrollYProgress} />
             </motion.div>
             <motion.div
               initial={{ opacity: 0, y: 20 }}

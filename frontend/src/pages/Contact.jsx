@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { MapPin, Facebook, Globe, Phone, Mail, Clock, Send, CheckCircle2 } from "lucide-react";
+import { MapPin, Facebook, Phone, Mail, Clock, Send, CheckCircle2 } from "lucide-react";
 import { MaskedLine, Reveal } from "../components/motion";
 import { submitContact } from "../lib/api";
 import { BRAND } from "../lib/data";
@@ -78,9 +78,6 @@ export default function Contact() {
               <div className="flex flex-wrap gap-3">
                 <a href={BRAND.facebook} target="_blank" rel="noopener noreferrer" data-testid="contact-facebook-link" className="flex items-center gap-2 rounded-full border border-ink/15 px-5 py-2.5 text-xs font-semibold text-ink transition-colors duration-200 hover:border-brand hover:text-brand">
                   <Facebook size={14} /> facebook.com/imaginestoreza
-                </a>
-                <a href={BRAND.website} target="_blank" rel="noopener noreferrer" data-testid="contact-website-link" className="flex items-center gap-2 rounded-full border border-ink/15 px-5 py-2.5 text-xs font-semibold text-ink transition-colors duration-200 hover:border-brand hover:text-brand">
-                  <Globe size={14} /> imaginestore.co.za
                 </a>
               </div>
             </div>

@@ -167,7 +167,12 @@ export default function Admin() {
                         <div>
                           <p className="font-mono text-xs tracking-[0.2em] text-brand">{q.reference}</p>
                           <p className="mt-1 flex flex-wrap items-center gap-2 font-display text-base font-bold text-ink">
-                            {q.type === "repair" ? `${q.device} — ${q.issue}` : `${q.model || q.category}${q.storage ? ` · ${q.storage}` : ""}`}
+                            {q.type === "repair" ? `${q.device} — ${q.issue}` : `${q.model || q.category}${q.color ? ` · ${q.color}` : ""}${q.storage ? ` · ${q.storage}` : ""}`}
+                            {q.condition === "pre-owned" && (
+                              <span data-testid={`admin-preowned-tag-${q.reference}`} className="rounded-full bg-ink px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.15em] text-white">
+                                Pre-owned
+                              </span>
+                            )}
                             {q.is_sale && (
                               <span data-testid={`admin-sale-tag-${q.reference}`} className="rounded-full bg-brand px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.15em] text-white">
                                 Sale

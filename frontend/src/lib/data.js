@@ -159,3 +159,43 @@ export const CONDITION_MULTIPLIERS = [
   { id: "fair", label: "Fair", desc: "Visible wear or ageing battery", m: 0.7 },
   { id: "damaged", label: "Damaged", desc: "Cracks, faults or heavy wear", m: 0.4 },
 ];
+
+const C = (name, hex) => ({ name, hex });
+
+// iPhone X through iPhone 17 Pro Max — model-specific colours and storage (per Apple specs).
+export const IPHONE_MODELS = [
+  { name: "iPhone 17 Pro Max", storage: ["256GB", "512GB", "1TB", "2TB"], colors: [C("Silver", "#E3E4E6"), C("Cosmic Orange", "#C75B1E"), C("Deep Blue", "#31435A")] },
+  { name: "iPhone 17 Pro", storage: ["256GB", "512GB", "1TB"], colors: [C("Silver", "#E3E4E6"), C("Cosmic Orange", "#C75B1E"), C("Deep Blue", "#31435A")] },
+  { name: "iPhone Air", storage: ["256GB", "512GB", "1TB"], colors: [C("Sky Blue", "#A7C5E3"), C("Light Gold", "#E8DCC8"), C("Cloud White", "#F2F1EC"), C("Space Black", "#3B3B3D")] },
+  { name: "iPhone 17", storage: ["256GB", "512GB"], colors: [C("Black", "#3C3C3D"), C("White", "#F5F5F0"), C("Mist Blue", "#A9BFD3"), C("Sage", "#B7BFA5"), C("Lavender", "#C5B8D4")] },
+  { name: "iPhone 16e", storage: ["128GB", "256GB", "512GB"], colors: [C("Black", "#3C3C3D"), C("White", "#F5F5F0")] },
+  { name: "iPhone 16 Pro Max", storage: ["256GB", "512GB", "1TB"], colors: [C("Black Titanium", "#3F3F42"), C("White Titanium", "#E8E8E3"), C("Natural Titanium", "#B8B3A8"), C("Desert Titanium", "#BFA48F")] },
+  { name: "iPhone 16 Pro", storage: ["128GB", "256GB", "512GB", "1TB"], colors: [C("Black Titanium", "#3F3F42"), C("White Titanium", "#E8E8E3"), C("Natural Titanium", "#B8B3A8"), C("Desert Titanium", "#BFA48F")] },
+  { name: "iPhone 16 Plus", storage: ["128GB", "256GB", "512GB"], colors: [C("Black", "#3C3C3D"), C("White", "#F5F5F0"), C("Pink", "#E8AEBF"), C("Teal", "#6D9E9B"), C("Ultramarine", "#4A5E9E")] },
+  { name: "iPhone 16", storage: ["128GB", "256GB", "512GB"], colors: [C("Black", "#3C3C3D"), C("White", "#F5F5F0"), C("Pink", "#E8AEBF"), C("Teal", "#6D9E9B"), C("Ultramarine", "#4A5E9E")] },
+  { name: "iPhone 15 Pro Max", storage: ["256GB", "512GB", "1TB"], colors: [C("Black Titanium", "#3F3F42"), C("White Titanium", "#E8E8E3"), C("Blue Titanium", "#3E4A5C"), C("Natural Titanium", "#B8B3A8")] },
+  { name: "iPhone 15 Pro", storage: ["128GB", "256GB", "512GB", "1TB"], colors: [C("Black Titanium", "#3F3F42"), C("White Titanium", "#E8E8E3"), C("Blue Titanium", "#3E4A5C"), C("Natural Titanium", "#B8B3A8")] },
+  { name: "iPhone 15 Plus", storage: ["128GB", "256GB", "512GB"], colors: [C("Black", "#3C4043"), C("Blue", "#A7BDD1"), C("Green", "#C9D6C0"), C("Yellow", "#E8D9A8"), C("Pink", "#E3B7C4")] },
+  { name: "iPhone 15", storage: ["128GB", "256GB", "512GB"], colors: [C("Black", "#3C4043"), C("Blue", "#A7BDD1"), C("Green", "#C9D6C0"), C("Yellow", "#E8D9A8"), C("Pink", "#E3B7C4")] },
+  { name: "iPhone 14 Pro Max", storage: ["128GB", "256GB", "512GB", "1TB"], colors: [C("Deep Purple", "#5A5566"), C("Gold", "#E9DCC5"), C("Silver", "#E3E4E6"), C("Space Black", "#3A3A3C")] },
+  { name: "iPhone 14 Pro", storage: ["128GB", "256GB", "512GB", "1TB"], colors: [C("Deep Purple", "#5A5566"), C("Gold", "#E9DCC5"), C("Silver", "#E3E4E6"), C("Space Black", "#3A3A3C")] },
+  { name: "iPhone 14 Plus", storage: ["128GB", "256GB", "512GB"], colors: [C("Midnight", "#31353B"), C("Purple", "#B8B5D1"), C("Starlight", "#F0E8DB"), C("(PRODUCT)RED", "#C81E2B"), C("Blue", "#A2B9CE"), C("Yellow", "#F2E3A1")] },
+  { name: "iPhone 14", storage: ["128GB", "256GB", "512GB"], colors: [C("Midnight", "#31353B"), C("Purple", "#B8B5D1"), C("Starlight", "#F0E8DB"), C("(PRODUCT)RED", "#C81E2B"), C("Blue", "#A2B9CE"), C("Yellow", "#F2E3A1")] },
+  { name: "iPhone 13 Pro Max", storage: ["128GB", "256GB", "512GB", "1TB"], colors: [C("Sierra Blue", "#9FB4C7"), C("Silver", "#E3E4E6"), C("Gold", "#E9DCC5"), C("Graphite", "#54524E"), C("Alpine Green", "#57624E")] },
+  { name: "iPhone 13 Pro", storage: ["128GB", "256GB", "512GB", "1TB"], colors: [C("Sierra Blue", "#9FB4C7"), C("Silver", "#E3E4E6"), C("Gold", "#E9DCC5"), C("Graphite", "#54524E"), C("Alpine Green", "#57624E")] },
+  { name: "iPhone 13", storage: ["128GB", "256GB", "512GB"], colors: [C("Midnight", "#31353B"), C("Starlight", "#F0E8DB"), C("Blue", "#44789A"), C("Pink", "#E8C3C9"), C("Green", "#3E5240"), C("(PRODUCT)RED", "#C81E2B")] },
+  { name: "iPhone 13 mini", storage: ["128GB", "256GB", "512GB"], colors: [C("Midnight", "#31353B"), C("Starlight", "#F0E8DB"), C("Blue", "#44789A"), C("Pink", "#E8C3C9"), C("Green", "#3E5240"), C("(PRODUCT)RED", "#C81E2B")] },
+  { name: "iPhone 12 Pro Max", storage: ["128GB", "256GB", "512GB"], colors: [C("Silver", "#E3E4E6"), C("Graphite", "#54524E"), C("Gold", "#E9DCC5"), C("Pacific Blue", "#2F4858")] },
+  { name: "iPhone 12 Pro", storage: ["128GB", "256GB", "512GB"], colors: [C("Silver", "#E3E4E6"), C("Graphite", "#54524E"), C("Gold", "#E9DCC5"), C("Pacific Blue", "#2F4858")] },
+  { name: "iPhone 12", storage: ["64GB", "128GB", "256GB"], colors: [C("Black", "#2A2A2A"), C("White", "#F5F3EE"), C("(PRODUCT)RED", "#C81E2B"), C("Green", "#CBDCCE"), C("Blue", "#2E3A55"), C("Purple", "#B7AEC9")] },
+  { name: "iPhone 12 mini", storage: ["64GB", "128GB", "256GB"], colors: [C("Black", "#2A2A2A"), C("White", "#F5F3EE"), C("(PRODUCT)RED", "#C81E2B"), C("Green", "#CBDCCE"), C("Blue", "#2E3A55"), C("Purple", "#B7AEC9")] },
+  { name: "iPhone 11 Pro Max", storage: ["64GB", "256GB", "512GB"], colors: [C("Midnight Green", "#39443A"), C("Silver", "#E3E4E6"), C("Space Gray", "#4A4B4F"), C("Gold", "#E9DCC5")] },
+  { name: "iPhone 11 Pro", storage: ["64GB", "256GB", "512GB"], colors: [C("Midnight Green", "#39443A"), C("Silver", "#E3E4E6"), C("Space Gray", "#4A4B4F"), C("Gold", "#E9DCC5")] },
+  { name: "iPhone 11", storage: ["64GB", "128GB", "256GB"], colors: [C("Black", "#2A2A2A"), C("Green", "#A9C1A8"), C("Yellow", "#E8D58A"), C("Purple", "#C3B5CD"), C("(PRODUCT)RED", "#C81E2B"), C("White", "#F5F3EE")] },
+  { name: "iPhone XS Max", storage: ["64GB", "256GB", "512GB"], colors: [C("Gold", "#E9DCC5"), C("Silver", "#E3E4E6"), C("Space Gray", "#4A4B4F")] },
+  { name: "iPhone XS", storage: ["64GB", "256GB", "512GB"], colors: [C("Gold", "#E9DCC5"), C("Silver", "#E3E4E6"), C("Space Gray", "#4A4B4F")] },
+  { name: "iPhone XR", storage: ["64GB", "128GB", "256GB"], colors: [C("Black", "#2A2A2A"), C("White", "#F5F3EE"), C("(PRODUCT)RED", "#C81E2B"), C("Yellow", "#E8CE5C"), C("Blue", "#5A8FBF"), C("Coral", "#E07B5A")] },
+  { name: "iPhone X", storage: ["64GB", "256GB"], colors: [C("Silver", "#E3E4E6"), C("Space Gray", "#4A4B4F")] },
+];
+
+export const OLDER_IPHONE = "iPhone 8 or older";

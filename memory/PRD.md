@@ -185,3 +185,12 @@ Build a polished, responsive multi-page Imagine Store Apple reseller website. Pr
 - DELETE /api/admin/quotes/{reference} — admin-only, removes the quote/repair from MongoDB; 403 for non-admins, 404 for unknown references.
 - Admin dashboard quote cards now have a trash icon that turns into a red "Confirm delete" button (auto-resets after 4s) to prevent accidental deletion; card disappears from the list on success.
 - Verified: curl (non-admin 403, admin delete 200, repeat 404) + browser e2e signed in as test admin — delete button, confirm state, card removal all working.
+
+## Implemented (2026-09-05, update 29 — iPhone X→17 Pro Max picker with colours & storage)
+- data.js: new IPHONE_MODELS catalogue — 32 models from iPhone X to iPhone 17 Pro Max, each with its real colour list (name + hex) and storage options per Apple specs. OLDER_IPHONE = "iPhone 8 or older" sentinel.
+- Quote wizard iPhone step: New/Pre-owned toggle at top (same model list both ways); picking a model reveals visual colour swatch circles (real colour names, selected colour labelled) and that model's storage pills (+ "Not sure yet"). Continue stays disabled until model + colour + storage chosen.
+- "iPhone 8 or older" card reveals three required free-text fields (model, colour, storage); submitted as the model/storage values with colour.
+- "Pre-Owned iPhone" shop card now lands on the model step with the Pre-owned toggle pre-selected (instead of skipping ahead with a generic model).
+- iPhone entries with a specific model param (shop cards, sale links) start at the model step with that model pre-selected so colour/storage are always captured; other categories unchanged (still skip to extras).
+- Backend: ProductQuote gains color + condition fields (stored in Mongo, shown in team + customer emails); admin cards show colour and a "Pre-owned" badge.
+- Verified in browser: 33 model cards, per-model swatches/storage, validation gating, older-iPhone fields, summary "iPhone 7 Plus · Pre-owned · Rose Gold · 128GB"; API test IMQ-5CED31 stored color+condition.

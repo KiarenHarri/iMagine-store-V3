@@ -4,23 +4,30 @@ import { toast } from "sonner";
 import { WizardShell, OptionCard, SuccessPanel, fieldCls } from "../components/Wizard";
 import { submitProductQuote } from "../lib/api";
 import { useAuth } from "../lib/auth";
-import { categories, products, accessories } from "../lib/data";
+import { categories, products, accessories, IPHONE_MODELS, OLDER_IPHONE } from "../lib/data";
 
 const STORAGE = ["128GB", "256GB", "512GB", "1TB", "Not sure yet"];
 const ADDONS = ["AirPods", "AppleCare-style cover", "Case & screen protector", "MagSafe charger", "Magic Keyboard", "Apple Pencil"];
 
 export default function ProductQuote() {
   const [params] = useSearchParams();
-  const prefilled = Boolean(params.get("cat") && params.get("model"));
+  const rawModel = params.get("model") || "";
+  const preOwnedCard = rawModel === "Pre-Owned iPhone";
+  const prefilled = Boolean(params.get("cat") && rawModel && !preOwnedCard);
   const [step, setStep] = useState(() => {
-    if (params.get("cat") && params.get("model")) return 3;
+    if (params.get("cat") === "iphone") return 2;
+    if (params.get("cat") && rawModel && !preOwnedCard) return 3;
     if (params.get("cat")) return 2;
     return 1;
   });
   const [form, setForm] = useState({
     category: params.get("cat") || "",
-    model: params.get("model") || "",
+    model: preOwnedCard ? "" : rawModel,
     storage: "",
+    color: "",
+    condition: preOwnedCard ? "pre-owned" : params.get("cat") === "iphone" ? "new" : "",
+    custom_model: "",
+    custom_storage: "",
     trade_in: params.get("tradein") === "1",
     accessories: [],
     name: "",
@@ -48,8 +55,21 @@ export default function ProductQuote() {
   const models = useMemo(() => {
     if (!form.category) return [];
     if (form.category === "accessories") return accessories.map((a) => a.name);
+    if (form.category === "iphone") return IPHONE_MODELS.map((m) => m.name);
     return products.filter((p) => p.category === form.category).map((p) => p.name);
   }, [form.category]);
+
+  const iphoneSpec = form.category === "iphone" ? IPHONE_MODELS.find((m) => m.name === form.model) : null;
+  const olderIphone = form.category === "iphone" && form.model === OLDER_IPHONE;
+
+  const modelStepOk = (() => {
+    if (form.category === "iphone") {
+      if (iphoneSpec) return Boolean(form.color && form.storage);
+      if (olderIphone) return Boolean(form.custom_model.trim() && form.color.trim() && form.custom_storage.trim());
+      return false;
+    }
+    return !!form.model;
+  })();
 
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
   const toggleAddon = (a) =>
@@ -78,7 +98,7 @@ export default function ProductQuote() {
 
   const canNext =
     (step === 1 && !!form.category) ||
-    (step === 2 && !!form.model) ||
+    (step === 2 && modelStepOk) ||
     step === 3 ||
     (step === 4 && form.name.trim() && /\S+@\S+\.\S+/.test(form.email) && !sending);
 
@@ -86,7 +106,14 @@ export default function ProductQuote() {
     if (step < 4) return setStep(step + 1);
     setSending(true);
     try {
-      const { data } = await submitProductQuote(form);
+      const payload = { ...form };
+      if (olderIphone) {
+        payload.model = form.custom_model.trim();
+        payload.storage = form.custom_storage.trim();
+      }
+      delete payload.custom_model;
+      delete payload.custom_storage;
+      const { data } = await submitProductQuote(payload);
       setDone(data.reference);
     } catch {
       toast.error("Could not submit your quote. Please try again.");
@@ -138,13 +165,103 @@ export default function ProductQuote() {
 
         {step === 2 && (
           <div data-testid="pq-step-model">
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+            {form.category === "iphone" && (
+              <div className="mb-6 flex gap-2" data-testid="pq-condition-toggle">
+                {[
+                  ["new", "New"],
+                  ["pre-owned", "Pre-owned"],
+                ].map(([id, label]) => (
+                  <button
+                    key={id}
+                    type="button"
+                    data-testid={`pq-condition-${id}`}
+                    onClick={() => set("condition", id)}
+                    className={`rounded-full px-6 py-2.5 text-sm font-semibold transition-colors duration-200 ${
+                      form.condition === id ? "bg-ink text-white" : "border border-ink/10 bg-white text-ink/70 hover:border-ink hover:text-ink"
+                    }`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+            )}
+            <div className={`grid grid-cols-1 gap-3 sm:grid-cols-2 ${form.category === "iphone" ? "lg:grid-cols-3" : ""}`}>
               {models.map((m) => (
-                <OptionCard key={m} testId={`pq-model-${m.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`} title={m} selected={form.model === m} onClick={() => set("model", m)} />
+                <OptionCard
+                  key={m}
+                  testId={`pq-model-${m.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
+                  title={m}
+                  selected={form.model === m}
+                  onClick={() => setForm((f) => ({ ...f, model: m, color: "", storage: "", custom_model: "", custom_storage: "" }))}
+                />
               ))}
-              <OptionCard testId="pq-model-other" title="Something else / not sure" desc="Tell us in the notes at the end." selected={form.model === "Other"} onClick={() => set("model", "Other")} />
+              {form.category === "iphone" ? (
+                <OptionCard
+                  testId="pq-model-older"
+                  title={OLDER_IPHONE}
+                  desc="Tell us the exact model, colour and storage."
+                  selected={olderIphone}
+                  onClick={() => setForm((f) => ({ ...f, model: OLDER_IPHONE, color: "", storage: "" }))}
+                />
+              ) : (
+                <OptionCard testId="pq-model-other" title="Something else / not sure" desc="Tell us in the notes at the end." selected={form.model === "Other"} onClick={() => set("model", "Other")} />
+              )}
             </div>
-            {form.category !== "accessories" && (
+
+            {iphoneSpec && (
+              <>
+                <div className="mt-8">
+                  <p className="eyebrow mb-3">Colour</p>
+                  <div className="flex flex-wrap gap-3" data-testid="pq-color-options">
+                    {iphoneSpec.colors.map((c) => (
+                      <button
+                        key={c.name}
+                        type="button"
+                        title={c.name}
+                        aria-label={c.name}
+                        data-testid={`pq-color-${c.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
+                        onClick={() => set("color", c.name)}
+                        className={`h-10 w-10 rounded-full border border-ink/15 transition-transform duration-200 ${
+                          form.color === c.name ? "scale-110 ring-2 ring-brand ring-offset-2 ring-offset-paper" : "hover:scale-105"
+                        }`}
+                        style={{ backgroundColor: c.hex }}
+                      />
+                    ))}
+                  </div>
+                  <p className="mt-2.5 text-xs font-semibold text-ink/60" data-testid="pq-color-label">
+                    {form.color || "Pick a colour"}
+                  </p>
+                </div>
+                <div className="mt-8">
+                  <p className="eyebrow mb-3">Storage</p>
+                  <div className="flex flex-wrap gap-2" data-testid="pq-storage-options">
+                    {[...iphoneSpec.storage, "Not sure yet"].map((s) => (
+                      <button
+                        key={s}
+                        type="button"
+                        data-testid={`pq-storage-${s.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
+                        onClick={() => set("storage", s)}
+                        className={`rounded-full px-5 py-2.5 text-sm font-semibold transition-colors duration-200 ${
+                          form.storage === s ? "bg-brand text-white" : "border border-ink/10 bg-white text-ink/70 hover:border-brand hover:text-brand"
+                        }`}
+                      >
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </>
+            )}
+
+            {olderIphone && (
+              <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-3" data-testid="pq-older-fields">
+                <input data-testid="pq-custom-model-input" value={form.custom_model} onChange={(e) => set("custom_model", e.target.value)} placeholder="Model (e.g. iPhone 7 Plus) *" className={fieldCls} />
+                <input data-testid="pq-custom-color-input" value={form.color} onChange={(e) => set("color", e.target.value)} placeholder="Colour *" className={fieldCls} />
+                <input data-testid="pq-custom-storage-input" value={form.custom_storage} onChange={(e) => set("custom_storage", e.target.value)} placeholder="Storage (e.g. 128GB) *" className={fieldCls} />
+              </div>
+            )}
+
+            {form.category !== "accessories" && form.category !== "iphone" && (
               <div className="mt-8">
                 <p className="eyebrow mb-3">Storage preference</p>
                 <div className="flex flex-wrap gap-2" data-testid="pq-storage-options">
@@ -210,7 +327,7 @@ export default function ProductQuote() {
             <div className="rounded-2xl bg-ink p-5 text-paper sm:col-span-2">
               <p className="eyebrow !text-brand">Summary</p>
               <p className="mt-2 text-sm" data-testid="pq-summary">
-                {form.model || "—"} {form.storage ? `· ${form.storage}` : ""} {form.is_sale ? `· On sale ${form.sale_price || ""}` : ""} {form.trade_in ? "· Trade-in" : ""}
+                {(olderIphone ? form.custom_model || OLDER_IPHONE : form.model) || "—"}{form.condition === "pre-owned" ? " · Pre-owned" : ""}{form.color ? ` · ${form.color}` : ""}{(olderIphone ? form.custom_storage : form.storage) ? ` · ${olderIphone ? form.custom_storage : form.storage}` : ""} {form.is_sale ? `· On sale ${form.sale_price || ""}` : ""} {form.trade_in ? "· Trade-in" : ""}
                 {form.accessories.length ? ` · +${form.accessories.length} accessory${form.accessories.length > 1 ? "ies" : ""}` : ""}
               </p>
               <p className="mt-1 text-xs text-paper/50">Pricing &amp; availability will be confirmed by the team — nothing is billed online.</p>

@@ -39,6 +39,8 @@ class ProductQuote(BaseModel):
     category: str
     model: str = ""
     storage: str = ""
+    color: str = ""
+    condition: str = ""
     trade_in: bool = False
     accessories: List[str] = []
     name: str
@@ -100,6 +102,8 @@ async def create_product_quote(q: ProductQuote, request: Request):
         ("Reference", doc["reference"]),
         ("Category", q.category),
         ("Model", q.model),
+        ("Condition", q.condition or "—"),
+        ("Colour", q.color or "—"),
         ("Storage", q.storage),
         ("Sale enquiry", f"Yes — {q.sale_price} (was {q.sale_was_price})" if q.is_sale else "No"),
         ("Trade-in", "Yes" if q.trade_in else "No"),
@@ -115,7 +119,10 @@ async def create_product_quote(q: ProductQuote, request: Request):
         q.email, q.name,
         f"Your iMagine Store quote request — {doc['reference']}",
         doc["reference"],
-        [("Model", q.model or q.category), ("Storage", q.storage)]
+        [("Model", q.model or q.category)]
+        + ([("Condition", q.condition)] if q.condition else [])
+        + ([("Colour", q.color)] if q.color else [])
+        + [("Storage", q.storage)]
         + ([("Sale deal", f"{q.sale_price} (was {q.sale_was_price})")] if q.is_sale else [])
         + [("Trade-in", "Yes" if q.trade_in else "No")],
     ))

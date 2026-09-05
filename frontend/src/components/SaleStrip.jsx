@@ -42,8 +42,8 @@ export default function SaleStrip({ dark = false }) {
                 }`}
               >
                 {s.image && (
-                  <div className="overflow-hidden">
-                    <img src={s.image} alt={s.name} className="aspect-[16/9] w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" />
+                  <div className="overflow-hidden bg-white">
+                    <img src={s.image} alt={s.name} className="aspect-square w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105" />
                   </div>
                 )}
                 <div className="flex flex-1 flex-col p-6">

@@ -128,6 +128,9 @@ Build a polished, responsive multi-page Imagine Store Apple reseller website. Pr
 - Admin Sales list shows every sale (including future/past) with Live now / Scheduled / Ended chips and the schedule window; new GET /api/admin/sales/all for the unfiltered view.
 - Verified: scheduled (tomorrow) and expired (yesterday) sales hidden from public /sales and the stats count, visible in admin with correct chips; user's own "iphone 17 pro" sale (with uploaded photo) shows Live now.
 
+## Implemented (2026-09-05, update 17 — Square sale images)
+- Deal cards render sale photos in a square frame (aspect-square) so 500×500 uploads fit edge-to-edge without cropping; verified with the live iphone 17 pro sale photo.
+
 ## Testing notes
 - curl verified: product quote, repair quote, repair status lookup, contact, email validation (422).
 - Auth verified: /auth/me 200 with Bearer + 401 without; quote attaches user_id; /quotes/mine returns user's quotes; logout invalidates Bearer session (401 after); browser test with session cookie loads Account with history, logout returns to sign-in prompt. Full Google OAuth round-trip not exercised (requires a real Google account click-through) — test user was seeded in MongoDB per /app/auth_testing.md.

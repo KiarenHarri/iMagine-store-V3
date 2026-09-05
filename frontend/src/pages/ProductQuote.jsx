@@ -11,7 +11,12 @@ const ADDONS = ["AirPods", "AppleCare-style cover", "Case & screen protector", "
 
 export default function ProductQuote() {
   const [params] = useSearchParams();
-  const [step, setStep] = useState(1);
+  const prefilled = Boolean(params.get("cat") && params.get("model"));
+  const [step, setStep] = useState(() => {
+    if (params.get("cat") && params.get("model")) return 3;
+    if (params.get("cat")) return 2;
+    return 1;
+  });
   const [form, setForm] = useState({
     category: params.get("cat") || "",
     model: params.get("model") || "",
@@ -21,7 +26,10 @@ export default function ProductQuote() {
     name: "",
     email: "",
     phone: "",
-    notes: "",
+    notes: params.get("notes") || "",
+    is_sale: params.get("sale") === "1",
+    sale_price: params.get("price") || "",
+    sale_was_price: params.get("was") || "",
   });
   const [done, setDone] = useState(null);
   const [sending, setSending] = useState(false);
@@ -46,6 +54,27 @@ export default function ProductQuote() {
   const set = (k, v) => setForm((f) => ({ ...f, [k]: v }));
   const toggleAddon = (a) =>
     set("accessories", form.accessories.includes(a) ? form.accessories.filter((x) => x !== a) : [...form.accessories, a]);
+
+  const categoryName = categories.find((c) => c.slug === form.category)?.name || form.category;
+
+  const summaryBanner = prefilled && form.model && step >= 3 ? (
+    <div data-testid="pq-prefill-summary" className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-brand/25 bg-brand-subtle px-5 py-4">
+      <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
+        <p className="font-display text-sm font-bold text-ink">
+          {categoryName} · {form.model}
+        </p>
+        {form.is_sale && (
+          <span data-testid="pq-sale-badge" className="flex items-center gap-2 rounded-full bg-brand px-3 py-1 text-[11px] font-bold uppercase tracking-[0.15em] text-white">
+            On sale{form.sale_price ? ` · ${form.sale_price}` : ""}
+            {form.sale_was_price && <span className="font-normal normal-case tracking-normal line-through opacity-70">{form.sale_was_price}</span>}
+          </span>
+        )}
+      </div>
+      <button type="button" data-testid="pq-change-device-btn" onClick={() => setStep(2)} className="text-xs font-semibold text-brand transition-colors hover:text-brand-hover">
+        Change device
+      </button>
+    </div>
+  ) : null;
 
   const canNext =
     (step === 1 && !!form.category) ||
@@ -140,6 +169,7 @@ export default function ProductQuote() {
 
         {step === 3 && (
           <div data-testid="pq-step-extras">
+            {summaryBanner}
             <div className="rounded-2xl border border-ink/10 bg-white p-6">
               <div className="flex items-center justify-between gap-4">
                 <div>
@@ -172,6 +202,7 @@ export default function ProductQuote() {
 
         {step === 4 && (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2" data-testid="pq-step-contact">
+            {summaryBanner && <div className="sm:col-span-2 -mb-2">{summaryBanner}</div>}
             <input data-testid="pq-name-input" value={form.name} onChange={(e) => set("name", e.target.value)} placeholder="Full name *" className={fieldCls} />
             <input data-testid="pq-email-input" type="email" value={form.email} onChange={(e) => set("email", e.target.value)} placeholder="Email address *" className={fieldCls} />
             <input data-testid="pq-phone-input" value={form.phone} onChange={(e) => set("phone", e.target.value)} placeholder="Phone (optional)" className={fieldCls} />
@@ -179,7 +210,7 @@ export default function ProductQuote() {
             <div className="rounded-2xl bg-ink p-5 text-paper sm:col-span-2">
               <p className="eyebrow !text-brand">Summary</p>
               <p className="mt-2 text-sm" data-testid="pq-summary">
-                {form.model || "—"} {form.storage ? `· ${form.storage}` : ""} {form.trade_in ? "· Trade-in" : ""}
+                {form.model || "—"} {form.storage ? `· ${form.storage}` : ""} {form.is_sale ? `· On sale ${form.sale_price || ""}` : ""} {form.trade_in ? "· Trade-in" : ""}
                 {form.accessories.length ? ` · +${form.accessories.length} accessory${form.accessories.length > 1 ? "ies" : ""}` : ""}
               </p>
               <p className="mt-1 text-xs text-paper/50">Pricing &amp; availability will be confirmed by the team — nothing is billed online.</p>

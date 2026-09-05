@@ -45,6 +45,9 @@ class ProductQuote(BaseModel):
     email: EmailStr
     phone: str = ""
     notes: str = ""
+    is_sale: bool = False
+    sale_price: str = ""
+    sale_was_price: str = ""
 
 
 class RepairQuote(BaseModel):
@@ -98,6 +101,7 @@ async def create_product_quote(q: ProductQuote, request: Request):
         ("Category", q.category),
         ("Model", q.model),
         ("Storage", q.storage),
+        ("Sale enquiry", f"Yes — {q.sale_price} (was {q.sale_was_price})" if q.is_sale else "No"),
         ("Trade-in", "Yes" if q.trade_in else "No"),
         ("Accessories", ", ".join(q.accessories)),
         ("Name", q.name),
@@ -105,12 +109,15 @@ async def create_product_quote(q: ProductQuote, request: Request):
         ("Phone", q.phone),
         ("Notes", q.notes),
     ]
-    asyncio.create_task(notify_team(f"New product quote — {doc['reference']}", rows))
+    subject = f"{'SALE — ' if q.is_sale else ''}New product quote — {doc['reference']}"
+    asyncio.create_task(notify_team(subject, rows))
     asyncio.create_task(notify_customer(
         q.email, q.name,
         f"Your iMagine Store quote request — {doc['reference']}",
         doc["reference"],
-        [("Model", q.model or q.category), ("Storage", q.storage), ("Trade-in", "Yes" if q.trade_in else "No")],
+        [("Model", q.model or q.category), ("Storage", q.storage)]
+        + ([("Sale deal", f"{q.sale_price} (was {q.sale_was_price})")] if q.is_sale else [])
+        + [("Trade-in", "Yes" if q.trade_in else "No")],
     ))
     return {"reference": doc["reference"], "message": "Product quote request received"}
 

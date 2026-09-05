@@ -172,3 +172,11 @@ Build a polished, responsive multi-page Imagine Store Apple reseller website. Pr
 - curl verified: product quote, repair quote, repair status lookup, contact, email validation (422).
 - Auth verified: /auth/me 200 with Bearer + 401 without; quote attaches user_id; /quotes/mine returns user's quotes; logout invalidates Bearer session (401 after); browser test with session cookie loads Account with history, logout returns to sign-in prompt. Full Google OAuth round-trip not exercised (requires a real Google account click-through) — test user was seeded in MongoDB per /app/auth_testing.md.
 - Screenshot verified: home hero/marquee/parallax/repairs band, shop filters, full product wizard flow (reference IMQ-0091BD returned), account page.
+
+## Implemented (2026-09-05, update 27 — Prefilled quote wizard + sale enquiries)
+- Quote wizard now prefills from entry links: ?cat=&model= starts at the Extras & trade-in step (step 3); ?cat= only starts at the model step (step 2); blank links unchanged.
+- Prefilled wizard shows a compact summary banner (category · model, plus ON SALE badge with sale price + struck-through was-price when applicable) on the extras and details steps, with a "Change device" button that jumps back to the model step. Back button still walks through model/category steps.
+- SaleStrip "Grab this deal" links now build /quote/product?cat=&model=&sale=1&price=&was= via catalogue name matching (products + accessories, case-insensitive); unmatched sale names fall back to model+sale params with a notes prefill so no info is lost.
+- Backend: ProductQuote model gains is_sale / sale_price / sale_was_price (stored in Mongo); team alert email subject prefixed "SALE — " and body includes sale deal row; customer confirmation email includes the sale deal row.
+- Admin dashboard quote cards show an orange "SALE" tag plus "Sale price X · was Y" line for sale enquiries (older quotes without the field render unchanged).
+- Verified: API submit with sale fields stores them (IMQ-66658F) and both emails accepted (202); browser e2e — home sale card click lands on step 3 with banner+badge, category-only entry starts at model step, Back returns to model step, step-4 summary shows "On sale R26,999".

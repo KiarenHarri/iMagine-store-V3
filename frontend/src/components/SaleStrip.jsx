@@ -2,8 +2,29 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { ArrowRight, Tag } from "lucide-react";
 import { Reveal } from "./motion";
+import { products, accessories } from "../lib/data";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+
+const findCategory = (name) => {
+  const n = name.toLowerCase();
+  const p = products.find((x) => x.name.toLowerCase() === n || n.includes(x.name.toLowerCase()));
+  if (p) return p.category;
+  if (accessories.some((a) => a.name.toLowerCase() === n || n.includes(a.name.toLowerCase()))) return "accessories";
+  return "";
+};
+
+const saleQuoteLink = (s) => {
+  const cat = findCategory(s.name);
+  const qp = new URLSearchParams();
+  if (cat) qp.set("cat", cat);
+  qp.set("model", s.name);
+  qp.set("sale", "1");
+  if (s.price) qp.set("price", s.price);
+  if (s.was_price) qp.set("was", s.was_price);
+  if (!cat) qp.set("notes", `Sale enquiry: ${s.name}${s.price ? ` — ${s.price}` : ""}`);
+  return `/quote/product?${qp.toString()}`;
+};
 
 export default function SaleStrip({ dark = false }) {
   const [sales, setSales] = useState(null);
@@ -56,7 +77,7 @@ export default function SaleStrip({ dark = false }) {
                     )}
                   </div>
                   <Link
-                    to={`/quote/product?model=${encodeURIComponent(s.name)}`}
+                    to={saleQuoteLink(s)}
                     data-testid={`sale-quote-${s.id}`}
                     className="group/link mt-4 inline-flex w-fit items-center gap-1.5 rounded-full bg-brand px-4 py-2 text-xs font-semibold text-white transition-colors duration-300 hover:bg-brand-hover"
                   >

@@ -150,9 +150,19 @@ export default function Admin() {
                         </span>
                         <div>
                           <p className="font-mono text-xs tracking-[0.2em] text-brand">{q.reference}</p>
-                          <p className="mt-1 font-display text-base font-bold text-ink">
+                          <p className="mt-1 flex flex-wrap items-center gap-2 font-display text-base font-bold text-ink">
                             {q.type === "repair" ? `${q.device} — ${q.issue}` : `${q.model || q.category}${q.storage ? ` · ${q.storage}` : ""}`}
+                            {q.is_sale && (
+                              <span data-testid={`admin-sale-tag-${q.reference}`} className="rounded-full bg-brand px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-[0.15em] text-white">
+                                Sale
+                              </span>
+                            )}
                           </p>
+                          {q.is_sale && q.sale_price && (
+                            <p className="mt-0.5 text-xs font-semibold text-brand" data-testid={`admin-sale-price-${q.reference}`}>
+                              Sale price {q.sale_price}{q.sale_was_price ? ` · was ${q.sale_was_price}` : ""}
+                            </p>
+                          )}
                           <p className="mt-0.5 text-xs text-mute">
                             {q.name} · {q.email}{q.phone ? ` · ${q.phone}` : ""} · {new Date(q.created_at).toLocaleDateString("en-ZA", { day: "numeric", month: "short" })}
                           </p>

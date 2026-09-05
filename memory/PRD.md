@@ -140,6 +140,9 @@ Build a polished, responsive multi-page Imagine Store Apple reseller website. Pr
 - Retuned scroll mapping to two full turns (720°) so the back face with the Apple logo appears early in the scroll while the phone is fully in frame.
 - Verified: front/edge/back frames all render cleanly on scroll; back shows photo + Apple logo + tinted frame.
 
+## Implemented (2026-09-05, update 20 — Hero phone reverted to clean version)
+- Removed the thick 3D edge strips and heavy multiply tint (user feedback: looked worse). Back to the clean two-face phone: front lock screen + real titanium photo back with Apple logo overlay, colour-matched frame border and side buttons, soft-light colour tint, swatches + spin + sound retained, glitch-free wrappers kept (preserve-3d fix from update 19 retained).
+
 ## Testing notes
 - curl verified: product quote, repair quote, repair status lookup, contact, email validation (422).
 - Auth verified: /auth/me 200 with Bearer + 401 without; quote attaches user_id; /quotes/mine returns user's quotes; logout invalidates Bearer session (401 after); browser test with session cookie loads Account with history, logout returns to sign-in prompt. Full Google OAuth round-trip not exercised (requires a real Google account click-through) — test user was seeded in MongoDB per /app/auth_testing.md.

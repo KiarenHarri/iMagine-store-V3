@@ -268,7 +268,7 @@ async def exchange_session(payload: SessionExchange, response: Response):
         path="/",
         max_age=7 * 24 * 3600,
     )
-    return user
+    return {**user, "is_admin": email.lower() in ADMIN_EMAILS}
 
 
 @api_router.get("/auth/me")

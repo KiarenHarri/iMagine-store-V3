@@ -23,7 +23,7 @@ export default function AuthCallback() {
         if (!res.ok) throw new Error("Session exchange failed");
         const user = await res.json();
         setUser(user);
-        navigate("/account", { replace: true, state: { user } });
+        navigate(user.is_admin ? "/admin" : "/account", { replace: true, state: { user } });
       } catch {
         navigate("/", { replace: true });
       }

@@ -105,6 +105,10 @@ Build a polished, responsive multi-page Imagine Store Apple reseller website. Pr
 - Sign-out now also revokes the Google grant for the signed-in email (GSI revoke + disableAutoSelect, loaded with the platform's Google client ID) — so the next "Continue with Google" must show the account picker instead of silently re-signing the last account. Combined with the prompt=select_account hint from update 11.
 - Verified in browser: logout clears session and shows the sign-in prompt, GSI library loads and revoke executes without console errors. Final chooser behavior needs one real-account check by the user.
 
+## Implemented (2026-09-05, update 13 — Kiaren admin + admin landing)
+- kiarenh666@gmail.com added to ADMIN_EMAILS; /auth/session now returns is_admin; after Google sign-in, admins land directly on /admin (all quotes/repairs/messages), customers on /account.
+- RCA on persistent auto sign-in: the hosted auth page (auth.emergentagent.com) uses its own platform session (Supabase) in the browser — while signed into the Emergent platform, that session short-circuits Google entirely, which no app code can clear cross-origin. Our side is fully clean (session deleted, Google grant revoked, auto-select disabled). To see the picker: use a browser profile not signed into the Emergent platform (e.g. incognito).
+
 ## Testing notes
 - curl verified: product quote, repair quote, repair status lookup, contact, email validation (422).
 - Auth verified: /auth/me 200 with Bearer + 401 without; quote attaches user_id; /quotes/mine returns user's quotes; logout invalidates Bearer session (401 after); browser test with session cookie loads Account with history, logout returns to sign-in prompt. Full Google OAuth round-trip not exercised (requires a real Google account click-through) — test user was seeded in MongoDB per /app/auth_testing.md.

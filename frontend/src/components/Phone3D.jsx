@@ -1,21 +1,20 @@
 import { useState } from "react";
 import { motion, useTransform, useMotionValue, animate } from "framer-motion";
+import { IMAGES } from "../lib/data";
 
 const COLORS = [
-  { id: "natural", label: "Natural Titanium", body: "linear-gradient(160deg,#ddd7cb 0%,#c3bcae 45%,#a89f8f 100%)", module: "linear-gradient(160deg,#cfc8ba,#b0a795)", swatch: "#c3bcae", wallpaper: "from-[#17171a] via-[#2b2620] to-brand/50", text: "text-white" },
-  { id: "blue", label: "Blue Titanium", body: "linear-gradient(160deg,#4d607a 0%,#39485e 45%,#26303f 100%)", module: "linear-gradient(160deg,#42546c,#2e3a4b)", swatch: "#39485e", wallpaper: "from-[#10151d] via-[#1c2735] to-brand/40", text: "text-white" },
-  { id: "white", label: "White Titanium", body: "linear-gradient(160deg,#f4f2ee 0%,#e3e0d9 45%,#cfccc2 100%)", module: "linear-gradient(160deg,#e9e6df,#d4d1c7)", swatch: "#e3e0d9", wallpaper: "from-[#1a1a1e] via-[#2e2e33] to-brand/45", text: "text-white" },
-  { id: "black", label: "Black Titanium", body: "linear-gradient(160deg,#3c3c42 0%,#2b2b30 45%,#19191d 100%)", module: "linear-gradient(160deg,#343439,#232327)", swatch: "#2b2b30", wallpaper: "from-[#0f0f12] via-[#1d1d22] to-brand/45", text: "text-white" },
+  { id: "natural", label: "Natural Titanium", frame: "#9a9184", frameDark: "#6e675c", tint: "rgba(196,189,175,0.38)", swatch: "#c3bcae", wallpaper: "from-[#17171a] via-[#2b2620] to-brand/50" },
+  { id: "blue", label: "Blue Titanium", frame: "#33445a", frameDark: "#22303f", tint: "rgba(51,68,90,0.55)", swatch: "#39485e", wallpaper: "from-[#10151d] via-[#1c2735] to-brand/40" },
+  { id: "white", label: "White Titanium", frame: "#c9c6bc", frameDark: "#a09d93", tint: "rgba(235,232,224,0.45)", swatch: "#e3e0d9", wallpaper: "from-[#1a1a1e] via-[#2e2e33] to-brand/45" },
+  { id: "black", label: "Black Titanium", frame: "#1d1d21", frameDark: "#101013", tint: "rgba(24,24,28,0.5)", swatch: "#2b2b30", wallpaper: "from-[#0f0f12] via-[#1d1d22] to-brand/45" },
 ];
 
-const Lens = ({ className }) => (
-  <span
-    className={`absolute h-[26%] w-[44%] rounded-full ${className}`}
-    style={{
-      background: "radial-gradient(circle at 35% 30%, #4a5568 0%, #1a202c 45%, #05070a 100%)",
-      boxShadow: "0 0 0 3px rgba(0,0,0,0.35), inset 0 0 6px rgba(255,255,255,0.15)",
-    }}
-  />
+const DEPTH = 8;
+
+const AppleLogo = ({ className }) => (
+  <svg viewBox="0 0 384 512" className={className} fill="currentColor" aria-hidden="true">
+    <path d="M318.7 268.7c-.2-36.7 16.4-64.4 50-84.8-18.8-26.9-47.2-41.7-84.7-44.6-35.5-2.8-74.3 20.7-88.5 20.7-15 0-49.4-19.7-76.4-19.7C63.3 141.2 4 184.8 4 273.5q0 39.3 14.4 81.2c12.8 36.7 59 126.7 107.2 125.2 25.2-.6 43-17.9 75.8-17.9 31.8 0 48.3 17.9 76.4 17.9 48.6-.7 90.4-82.5 102.6-119.3-65.2-30.7-61.7-90-61.7-91.9zm-56.6-164.2c27.3-32.4 24.8-61.9 24-72.5-24.1 1.4-52 16.4-67.9 34.9-17.5 19.8-27.8 44.3-25.6 71.9 26.1 2 49.9-11.4 69.5-34.3z" />
+  </svg>
 );
 
 const playSpinSound = () => {
@@ -57,7 +56,7 @@ const playSpinSound = () => {
 export default function Phone3D({ progress }) {
   const [color, setColor] = useState(COLORS[0]);
   const spin = useMotionValue(0);
-  const scrollRot = useTransform(progress, [0, 1], [-22, 338]);
+  const scrollRot = useTransform(progress, [0, 1], [-22, 698]);
   const rotY = useTransform([scrollRot, spin], ([a, b]) => a + b);
   const float = useTransform(progress, [0, 1], [10, -70]);
 
@@ -68,16 +67,43 @@ export default function Phone3D({ progress }) {
     animate(spin, spin.get() + 360, { duration: 1.1, ease: [0.16, 1, 0.3, 1] });
   };
 
+  const edgeV = {
+    position: "absolute",
+    top: 12,
+    bottom: 12,
+    width: DEPTH * 2,
+    background: `linear-gradient(90deg, ${color.frameDark}, ${color.frame}, ${color.frameDark})`,
+    transition: "background 0.5s",
+  };
+  const edgeH = {
+    position: "absolute",
+    left: 12,
+    right: 12,
+    height: DEPTH * 2,
+    background: `linear-gradient(180deg, ${color.frameDark}, ${color.frame}, ${color.frameDark})`,
+    transition: "background 0.5s",
+  };
+
   return (
     <div className="relative mx-auto w-52 sm:w-60 lg:w-64">
-      <div style={{ perspective: 1200 }} data-testid="hero-iphone-3d">
+      <div style={{ perspective: 1400 }} data-testid="hero-iphone-3d">
         <motion.div
           style={{ rotateY: rotY, y: float, transformStyle: "preserve-3d" }}
           className="relative aspect-[9/19] w-full will-change-transform"
         >
+          <div style={{ ...edgeV, left: -DEPTH, transform: "rotateY(90deg)", borderRadius: 8 }}>
+            <span className="absolute left-1/2 top-14 h-9 w-[3px] -translate-x-1/2 rounded-full bg-black/40" />
+            <span className="absolute left-1/2 top-28 h-12 w-[3px] -translate-x-1/2 rounded-full bg-black/40" />
+          </div>
+          <div style={{ ...edgeV, right: -DEPTH, transform: "rotateY(90deg)", borderRadius: 8 }}>
+            <span className="absolute left-1/2 top-24 h-14 w-[3px] -translate-x-1/2 rounded-full bg-black/40" />
+          </div>
+          <div style={{ ...edgeH, top: -DEPTH, transform: "rotateX(90deg)", borderRadius: 8 }} />
+          <div style={{ ...edgeH, bottom: -DEPTH, transform: "rotateX(90deg)", borderRadius: 8 }} />
+
           <div
-            className="absolute inset-0 overflow-hidden rounded-[2.8rem] border-[5px] border-[#2b2b30] bg-black shadow-2xl shadow-ink/40"
-            style={{ backfaceVisibility: "hidden" }}
+            className="absolute inset-0 overflow-hidden rounded-[2.8rem] border-[5px] bg-black shadow-2xl shadow-ink/40"
+            style={{ backfaceVisibility: "hidden", transform: `translateZ(${DEPTH}px)`, borderColor: color.frame, transition: "border-color 0.5s" }}
           >
             <div className={`absolute inset-0 bg-gradient-to-br transition-colors duration-500 ${color.wallpaper}`} />
             <div className="absolute left-1/2 top-2.5 h-[22px] w-24 -translate-x-1/2 rounded-full bg-black ring-1 ring-white/10" />
@@ -89,29 +115,20 @@ export default function Phone3D({ progress }) {
                 <span className="text-[11px] font-semibold text-white/90">iMagine Store</span>
               </div>
             </div>
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-white/15" />
+            <div className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-transparent via-white/[0.03] to-white/10" />
           </div>
+
           <div
-            className="absolute inset-0 overflow-hidden rounded-[2.8rem] border-[5px] border-[#2b2b30] shadow-2xl shadow-ink/40 transition-all duration-500"
-            style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)", background: color.body }}
+            className="absolute inset-0 overflow-hidden rounded-[2.8rem] border-[5px] shadow-2xl shadow-ink/40"
+            style={{ backfaceVisibility: "hidden", transform: `rotateY(180deg) translateZ(${DEPTH}px)`, borderColor: color.frame, transition: "border-color 0.5s" }}
           >
-            <div
-              className="absolute left-[8%] top-[5%] aspect-square w-[42%] rounded-[30%] transition-all duration-500"
-              style={{ background: color.module, boxShadow: "0 4px 14px rgba(0,0,0,0.35)" }}
-            >
-              <Lens className="left-[6%] top-[6%]" />
-              <Lens className="right-[6%] top-[22%]" />
-              <Lens className="bottom-[6%] left-[6%]" />
-              <span className="absolute bottom-[12%] right-[16%] h-[10%] w-[18%] rounded-full bg-[#f5e9c8]/90 shadow" />
+            <img src={IMAGES.iphone15pro} alt="iPhone titanium back with camera system" className="h-full w-full object-cover" />
+            <div className="absolute inset-0 transition-colors duration-500" style={{ background: color.tint, mixBlendMode: "multiply" }} />
+            <div className="absolute inset-0 flex items-center justify-center">
+              <AppleLogo className="h-10 w-10 text-white/60 drop-shadow-[0_1px_2px_rgba(0,0,0,0.4)] sm:h-12 sm:w-12" />
             </div>
-            <p className="absolute bottom-[7%] left-1/2 -translate-x-1/2 font-mono text-[9px] uppercase tracking-[0.35em] text-white/40">
-              {color.label}
-            </p>
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-transparent via-white/5 to-white/20" />
           </div>
-          <div className="absolute -left-[7px] top-20 h-10 w-[3px] rounded-full bg-[#3a3a3f]" />
-          <div className="absolute -left-[7px] top-32 h-14 w-[3px] rounded-full bg-[#3a3a3f]" />
-          <div className="absolute -right-[7px] top-24 h-16 w-[3px] rounded-full bg-[#3a3a3f]" />
         </motion.div>
         <div className="mx-auto mt-8 h-5 w-3/4 rounded-[50%] bg-ink/15 blur-xl" />
       </div>

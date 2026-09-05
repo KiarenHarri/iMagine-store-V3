@@ -88,7 +88,7 @@ function Hero() {
 
         <div className="lg:col-span-5" onMouseMove={onMove} onMouseLeave={() => { mx.set(0); my.set(0); }}>
           <motion.div
-            style={{ y: imgY, scale: sScale }}
+            style={{ y: imgY, scale: sScale, transformStyle: "preserve-3d" }}
             className="relative will-change-transform"
             data-testid="hero-3d-frame"
           >
@@ -104,7 +104,7 @@ function Hero() {
               initial={{ opacity: 0, scale: 0.94, y: 40 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               transition={{ duration: 1.1, delay: 0.35, ease }}
-              style={{ rotateX: rx, rotateY: ry, transformPerspective: 900 }}
+              style={{ rotateX: rx, rotateY: ry, transformPerspective: 900, transformStyle: "preserve-3d" }}
               className="relative"
             >
               <Phone3D progress={scrollYProgress} />

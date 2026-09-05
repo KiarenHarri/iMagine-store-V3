@@ -134,6 +134,12 @@ Build a polished, responsive multi-page Imagine Store Apple reseller website. Pr
 ## Implemented (2026-09-05, update 18 — Real contact details)
 - Contact page placeholders replaced with owner-provided details: phone +27 83 777 3051 (tappable tel:), email seni@imaginestore.co.za (mailto:), trading hours Mon–Fri 09:00–16:30, Sat & Sun closed. Phone + email also added to the footer. Stored centrally in BRAND (data.js).
 
+## Implemented (2026-09-05, update 19 — True 3D hero phone + real back)
+- Hero phone rebuilt as a genuine 3D object: titanium frame edges on all four sides (thickness visible during rotation), side buttons on the frame, photographic titanium back tinted per colour mode, Apple logo centered on the back.
+- Fixed mid-rotation rendering glitch (blank slab) by adding preserve-3d through the wrapper chain; softened front glare.
+- Retuned scroll mapping to two full turns (720°) so the back face with the Apple logo appears early in the scroll while the phone is fully in frame.
+- Verified: front/edge/back frames all render cleanly on scroll; back shows photo + Apple logo + tinted frame.
+
 ## Testing notes
 - curl verified: product quote, repair quote, repair status lookup, contact, email validation (422).
 - Auth verified: /auth/me 200 with Bearer + 401 without; quote attaches user_id; /quotes/mine returns user's quotes; logout invalidates Bearer session (401 after); browser test with session cookie loads Account with history, logout returns to sign-in prompt. Full Google OAuth round-trip not exercised (requires a real Google account click-through) — test user was seeded in MongoDB per /app/auth_testing.md.

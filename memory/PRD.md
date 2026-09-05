@@ -109,6 +109,13 @@ Build a polished, responsive multi-page Imagine Store Apple reseller website. Pr
 - kiarenh666@gmail.com added to ADMIN_EMAILS; /auth/session now returns is_admin; after Google sign-in, admins land directly on /admin (all quotes/repairs/messages), customers on /account.
 - RCA on persistent auto sign-in: the hosted auth page (auth.emergentagent.com) uses its own platform session (Supabase) in the browser — while signed into the Emergent platform, that session short-circuits Google entirely, which no app code can clear cross-origin. Our side is fully clean (session deleted, Google grant revoked, auto-select disabled). To see the picker: use a browser profile not signed into the Emergent platform (e.g. incognito).
 
+## Implemented (2026-09-05, update 14 — Email & password login)
+- POST /api/auth/register + /api/auth/login: bcrypt password hashing, email normalized/lowercased, unique-email enforcement, 8-char minimum, issues the same session_token cookie as Google auth so Account/quotes/admin work identically for both login types.
+- Brute-force protection: login_attempts per email, 5 failures → 15-minute lockout (429). Indexes on users.email (unique) + login_attempts.
+- Sign-in card on the Account page redesigned: Sign in / Create account tabs + email & password form, Google button below. Admins land on /admin either way.
+- Verified: register (400 dup / 400 short pw), login sets cookie + /me works, 5×wrong → 429 lockout, UI register → auto sign-in → logout → re-login all in browser.
+- Test accounts: shopper@test.com / TestPass123, uitest@example.com / UiTestPass9.
+
 ## Testing notes
 - curl verified: product quote, repair quote, repair status lookup, contact, email validation (422).
 - Auth verified: /auth/me 200 with Bearer + 401 without; quote attaches user_id; /quotes/mine returns user's quotes; logout invalidates Bearer session (401 after); browser test with session cookie loads Account with history, logout returns to sign-in prompt. Full Google OAuth round-trip not exercised (requires a real Google account click-through) — test user was seeded in MongoDB per /app/auth_testing.md.

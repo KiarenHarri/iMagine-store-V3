@@ -1,12 +1,135 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { LogOut, PackageSearch, Wrench, ArrowRight, User as UserIcon, Check, Download, X } from "lucide-react";
-import { useAuth, startGoogleLogin } from "../lib/auth";
+import { useAuth, startGoogleLogin, passwordAuth, formatApiError } from "../lib/auth";
 import { MaskedLine, Reveal } from "../components/motion";
 import { STATUS_FLOWS } from "../lib/data";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+
+const authInputCls =
+  "w-full rounded-2xl border border-white/10 bg-white/5 px-5 py-3.5 text-sm text-paper placeholder:text-paper/40 outline-none transition-colors focus:border-brand";
+
+function SignInPanel() {
+  const { setUser } = useAuth();
+  const navigate = useNavigate();
+  const [mode, setMode] = useState("login");
+  const [form, setForm] = useState({ name: "", email: "", password: "" });
+  const [error, setError] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  const submit = async (e) => {
+    e.preventDefault();
+    setBusy(true);
+    setError("");
+    try {
+      const payload = mode === "register" ? form : { email: form.email, password: form.password };
+      const data = await passwordAuth(mode, payload);
+      setUser(data);
+      toast.success(mode === "register" ? "Account created — welcome!" : "Welcome back!");
+      navigate(data.is_admin ? "/admin" : "/account", { replace: true });
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div data-testid="account-signin" className="bg-paper">
+      <div className="mx-auto max-w-xl px-4 py-16 sm:px-8 lg:py-24">
+        <div className="text-center">
+          <MaskedLine delay={0.1}>
+            <span className="eyebrow">Your account</span>
+          </MaskedLine>
+          <h1 className="mt-4 font-display text-4xl font-extrabold tracking-tight text-ink sm:text-5xl">
+            <MaskedLine delay={0.2}>Sign in to</MaskedLine>
+            <MaskedLine delay={0.32}>
+              <span className="text-brand">iMagine.</span>
+            </MaskedLine>
+          </h1>
+        </div>
+
+        <div className="mt-10 rounded-3xl bg-ink p-7 text-paper grain relative overflow-hidden sm:p-9" data-testid="signin-card">
+          <div className="flex rounded-full border border-white/10 p-1" data-testid="signin-tabs">
+            {[
+              { id: "login", label: "Sign in" },
+              { id: "register", label: "Create account" },
+            ].map((t) => (
+              <button
+                key={t.id}
+                data-testid={`signin-tab-${t.id}`}
+                onClick={() => { setMode(t.id); setError(""); }}
+                className={`flex-1 rounded-full py-2.5 text-sm font-semibold transition-colors duration-200 ${
+                  mode === t.id ? "bg-brand text-white" : "text-paper/60 hover:text-paper"
+                }`}
+              >
+                {t.label}
+              </button>
+            ))}
+          </div>
+
+          <form onSubmit={submit} className="mt-6 space-y-3" data-testid="password-auth-form">
+            {mode === "register" && (
+              <input
+                data-testid="signin-name-input"
+                required
+                value={form.name}
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                placeholder="Full name"
+                className={authInputCls}
+              />
+            )}
+            <input
+              data-testid="signin-email-input"
+              required
+              type="email"
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
+              placeholder="Email address"
+              className={authInputCls}
+            />
+            <input
+              data-testid="signin-password-input"
+              required
+              type="password"
+              minLength={8}
+              value={form.password}
+              onChange={(e) => setForm({ ...form, password: e.target.value })}
+              placeholder={mode === "register" ? "Password (8+ characters)" : "Password"}
+              className={authInputCls}
+            />
+            {error && <p data-testid="signin-error" className="text-sm text-red-400">{error}</p>}
+            <button
+              type="submit"
+              data-testid="signin-submit-btn"
+              disabled={busy}
+              className="w-full rounded-full bg-brand py-3.5 text-sm font-semibold text-white transition-colors duration-300 hover:bg-brand-hover disabled:opacity-50"
+            >
+              {busy ? "One moment…" : mode === "register" ? "Create my account" : "Sign in"}
+            </button>
+          </form>
+
+          <div className="my-6 flex items-center gap-4">
+            <span className="h-px flex-1 bg-white/10" />
+            <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-paper/40">or</span>
+            <span className="h-px flex-1 bg-white/10" />
+          </div>
+
+          <button
+            onClick={startGoogleLogin}
+            data-testid="google-signin-btn"
+            className="flex w-full items-center justify-center gap-3 rounded-full border border-white/15 py-3.5 text-sm font-semibold transition-colors duration-300 hover:border-brand hover:text-brand"
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M21.35 11.1h-9.17v2.73h6.51c-.33 3.81-3.5 5.44-6.5 5.44C8.36 19.27 5 16.25 5 12c0-4.1 3.2-7.27 7.2-7.27 3.09 0 4.9 1.97 4.9 1.97L19 4.72S16.56 2 12.1 2C6.42 2 2.03 6.8 2.03 12c0 5.05 4.13 10 10.22 10 5.35 0 9.25-3.67 9.25-9.09 0-1.15-.15-1.81-.15-1.81Z"/></svg>
+            Continue with Google
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function Account() {
   const { user, loading, logout } = useAuth();
@@ -81,32 +204,7 @@ export default function Account() {
   }
 
   if (!user) {
-    return (
-      <div data-testid="account-signin" className="bg-paper">
-        <div className="mx-auto max-w-xl px-4 py-24 text-center sm:px-8">
-          <MaskedLine delay={0.1}>
-            <span className="eyebrow">Your account</span>
-          </MaskedLine>
-          <h1 className="mt-4 font-display text-4xl font-extrabold tracking-tight text-ink sm:text-5xl">
-            <MaskedLine delay={0.2}>Sign in to</MaskedLine>
-            <MaskedLine delay={0.32}>
-              <span className="text-brand">iMagine.</span>
-            </MaskedLine>
-          </h1>
-          <p className="mx-auto mt-5 max-w-sm text-sm leading-relaxed text-ink/60">
-            Track your quotes and repair tickets in one place. Sign in securely with your Google account.
-          </p>
-          <button
-            onClick={startGoogleLogin}
-            data-testid="google-signin-btn"
-            className="mt-8 inline-flex items-center gap-3 rounded-full bg-ink px-7 py-3.5 text-sm font-semibold text-white transition-colors duration-300 hover:bg-brand"
-          >
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M21.35 11.1h-9.17v2.73h6.51c-.33 3.81-3.5 5.44-6.5 5.44C8.36 19.27 5 16.25 5 12c0-4.1 3.2-7.27 7.2-7.27 3.09 0 4.9 1.97 4.9 1.97L19 4.72S16.56 2 12.1 2C6.42 2 2.03 6.8 2.03 12c0 5.05 4.13 10 10.22 10 5.35 0 9.25-3.67 9.25-9.09 0-1.15-.15-1.81-.15-1.81Z"/></svg>
-            Continue with Google
-          </button>
-        </div>
-      </div>
-    );
+    return <SignInPanel />;
   }
 
   return (

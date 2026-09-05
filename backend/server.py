@@ -1,4 +1,5 @@
 import asyncio
+import bcrypt
 import requests
 from fastapi import FastAPI, APIRouter, HTTPException, Request, Response
 from mailer import notify_team, notify_customer, notify_status
@@ -194,6 +195,72 @@ class SessionExchange(BaseModel):
     session_id: str
 
 
+class RegisterIn(BaseModel):
+    name: str
+    email: EmailStr
+    password: str
+
+
+class LoginIn(BaseModel):
+    email: EmailStr
+    password: str
+
+
+def hash_password(password: str) -> str:
+    return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+
+
+def verify_password(plain: str, hashed: str) -> bool:
+    return bcrypt.checkpw(plain.encode("utf-8"), hashed.encode("utf-8"))
+
+
+async def create_session_for(user: dict, response: Response) -> dict:
+    token = "sess_" + uuid.uuid4().hex
+    await db.user_sessions.insert_one({
+        "user_id": user["user_id"],
+        "session_token": token,
+        "expires_at": datetime.now(timezone.utc) + timedelta(days=7),
+        "created_at": datetime.now(timezone.utc),
+    })
+    response.set_cookie(
+        key="session_token",
+        value=token,
+        httponly=True,
+        secure=True,
+        samesite="none",
+        path="/",
+        max_age=7 * 24 * 3600,
+    )
+    return {**user, "is_admin": user["email"].lower() in ADMIN_EMAILS}
+
+
+async def check_lockout(identifier: str) -> None:
+    doc = await db.login_attempts.find_one({"identifier": identifier})
+    if not doc or doc.get("count", 0) < 5:
+        return
+    locked = doc.get("locked_until")
+    if isinstance(locked, str):
+        locked = datetime.fromisoformat(locked)
+    if locked and locked.tzinfo is None:
+        locked = locked.replace(tzinfo=timezone.utc)
+    if locked and locked > datetime.now(timezone.utc):
+        raise HTTPException(status_code=429, detail="Too many failed attempts — try again in 15 minutes")
+
+
+async def record_failed_login(identifier: str) -> None:
+    doc = await db.login_attempts.find_one_and_update(
+        {"identifier": identifier},
+        {"$inc": {"count": 1}, "$setOnInsert": {"first_attempt": now_iso()}},
+        upsert=True,
+        return_document=True,
+    )
+    if doc and doc.get("count", 0) >= 5:
+        await db.login_attempts.update_one(
+            {"identifier": identifier},
+            {"$set": {"locked_until": datetime.now(timezone.utc) + timedelta(minutes=15)}},
+        )
+
+
 async def get_current_user(request: Request):
     token = request.cookies.get("session_token")
     auth = request.headers.get("Authorization")
@@ -269,6 +336,48 @@ async def exchange_session(payload: SessionExchange, response: Response):
         max_age=7 * 24 * 3600,
     )
     return {**user, "is_admin": email.lower() in ADMIN_EMAILS}
+
+
+@api_router.post("/auth/register")
+async def register(payload: RegisterIn, response: Response):
+    email = payload.email.lower().strip()
+    name = payload.name.strip()
+    if len(payload.password) < 8:
+        raise HTTPException(status_code=400, detail="Password must be at least 8 characters")
+    if not name:
+        raise HTTPException(status_code=400, detail="Name is required")
+    existing = await db.users.find_one({"email": email})
+    if existing:
+        raise HTTPException(status_code=400, detail="This email is already registered — sign in instead")
+    user = {
+        "user_id": f"user_{uuid.uuid4().hex[:12]}",
+        "email": email,
+        "name": name,
+        "picture": "",
+        "password_hash": hash_password(payload.password),
+        "auth_provider": "password",
+        "created_at": now_iso(),
+    }
+    await db.users.insert_one({**user})
+    user.pop("password_hash", None)
+    return await create_session_for(user, response)
+
+
+@api_router.post("/auth/login")
+async def password_login(payload: LoginIn, request: Request, response: Response):
+    email = payload.email.lower().strip()
+    identifier = email
+    await check_lockout(identifier)
+    user = await db.users.find_one({"email": email}, {"_id": 0})
+    if not user or not user.get("password_hash"):
+        await record_failed_login(identifier)
+        raise HTTPException(status_code=401, detail="Invalid email or password")
+    if not verify_password(payload.password, user["password_hash"]):
+        await record_failed_login(identifier)
+        raise HTTPException(status_code=401, detail="Invalid email or password")
+    await db.login_attempts.delete_many({"identifier": identifier})
+    user.pop("password_hash", None)
+    return await create_session_for(user, response)
 
 
 @api_router.get("/auth/me")
@@ -428,6 +537,15 @@ app.add_middleware(
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
+
+
+@app.on_event("startup")
+async def create_indexes():
+    try:
+        await db.users.create_index("email", unique=True)
+    except Exception:
+        pass
+    await db.login_attempts.create_index("identifier")
 
 
 @app.on_event("shutdown")

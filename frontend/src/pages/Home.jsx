@@ -200,8 +200,7 @@ function ParallaxEdit() {
           <img src={IMAGES.storefront} alt="Apple devices — parallax edit centre frame" data-testid="parallax-center-image" loading="lazy" className="aspect-[3/4] w-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-ink/60 to-transparent" />
           <div className="absolute bottom-0 p-5 sm:p-7">
-            <p className="eyebrow !text-brand">The parallax edit</p>
-            <p className="mt-2 font-display text-lg font-bold leading-snug sm:text-2xl">Every device, staged like a studio shot.</p>
+            <p className="font-display text-lg font-bold leading-snug sm:text-2xl">Every device, staged like a studio shot.</p>
           </div>
         </motion.div>
         <motion.div style={{ y: y3, rotate: r3 }} className="overflow-hidden rounded-3xl shadow-2xl shadow-black/50">

@@ -209,3 +209,6 @@ Build a polished, responsive multi-page Imagine Store Apple reseller website. Pr
 - Full nav now shows from xl (1280px) instead of lg — below that the hamburger menu takes over, so nothing is ever cut off.
 - "Microsoft" nav item carries the four Microsoft brand squares (#F25022/#7FBA00/#00A4EF/#FFB900) plus gradient text in those colours, on desktop and mobile menu.
 - Verified at 1280px (all 7 links + CTAs + sign-in fit, no overflow), 1920px, and 768px mobile (menu opens, Microsoft mark renders).
+
+## Implemented (2026-09-05, update 32 — Removed "The parallax edit" labels)
+- Removed the "The parallax edit" eyebrow label from the Home layered-image section and the Repairs blueprint section; animations/effects unchanged. Verified in browser: neither page shows the label, both sections render cleanly.

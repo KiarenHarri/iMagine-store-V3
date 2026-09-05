@@ -107,8 +107,7 @@ function BlueprintEdit() {
       <div className="relative mx-auto max-w-5xl px-4 sm:px-8">
         <Reveal>
           <div className="text-center">
-            <p className="eyebrow !text-white/60">The parallax edit</p>
-            <h2 className="mt-3 font-display text-2xl font-bold tracking-tight text-white sm:text-3xl lg:text-4xl">
+            <h2 className="font-display text-2xl font-bold tracking-tight text-white sm:text-3xl lg:text-4xl">
               Every repair, down to the millimetre.
             </h2>
             <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-white/60 sm:text-base">

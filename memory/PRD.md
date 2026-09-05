@@ -78,6 +78,12 @@ Build a polished, responsive multi-page Imagine Store Apple reseller website. Pr
 - Entry links added on Shop hero and wizard step 3.
 - Verified: decline 200/400/404 via curl + cancelled tracker render; estimator range math (iPhone 13/14, Good → R 4 300–R 7 700); wizard prefill confirmed.
 
+## Implemented (2026-09-05, update 8 — Product-matched imagery + iMagine's own assets)
+- Every product card now shows a photo matching its name, each visually verified: iPhone 16 Pro (titanium studio shot), iPhone 16 (blue dual-cam), iPhone 15 Pro (renamed from "iPhone 15" so the Pro photo matches), Pre-Owned iPhone (iPhone 14 Pro dark shot), MacBook Air (midnight M4), Mac mini (M4 with display), iPad Pro (with Magic Keyboard), iPad Air (with Pencil), iPad, iPad mini (handheld), Watch Series 10, Watch SE, AirPods Pro 2 (2026 studio shot).
+- Apple Watch Ultra 2 and iMac cards + About page now use iMagine's OWN published device imagery from imaginestore.co.za (their Watch Ultra render, Mac family lineup, ecosystem lineup).
+- Hero and category landing heroes updated to the matching hero shots.
+- NOTE: iMagine publishes NO real store/team photos publicly — checked the full site. Used their own product imagery instead; real store/team photos can be dropped in when supplied.
+
 ## Testing notes
 - curl verified: product quote, repair quote, repair status lookup, contact, email validation (422).
 - Auth verified: /auth/me 200 with Bearer + 401 without; quote attaches user_id; /quotes/mine returns user's quotes; logout invalidates Bearer session (401 after); browser test with session cookie loads Account with history, logout returns to sign-in prompt. Full Google OAuth round-trip not exercised (requires a real Google account click-through) — test user was seeded in MongoDB per /app/auth_testing.md.

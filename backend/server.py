@@ -505,11 +505,27 @@ class SaleIn(BaseModel):
     was_price: str = ""
     description: str = ""
     image: str = ""
+    starts_at: str = ""
+    ends_at: str = ""
+
+
+def sale_window_query() -> dict:
+    now = now_iso()
+    return {"$and": [
+        {"$or": [{"starts_at": ""}, {"starts_at": {"$lte": now}}, {"starts_at": {"$exists": False}}]},
+        {"$or": [{"ends_at": ""}, {"ends_at": {"$gte": now}}, {"ends_at": {"$exists": False}}]},
+    ]}
 
 
 @api_router.get("/sales")
 async def list_sales():
-    return await db.sales.find({}, {"_id": 0}).sort("created_at", -1).to_list(50)
+    return await db.sales.find(sale_window_query(), {"_id": 0}).sort("created_at", -1).to_list(50)
+
+
+@api_router.get("/admin/sales/all")
+async def list_all_sales(request: Request):
+    await get_admin_user(request)
+    return await db.sales.find({}, {"_id": 0}).sort("created_at", -1).to_list(100)
 
 
 @api_router.post("/admin/sales")
@@ -548,7 +564,7 @@ async def admin_stats(request: Request):
     pending_repairs = await db.quotes.count_documents({"type": "repair", "status": {"$nin": ["Completed", "Cancelled"]}})
     quoted = await db.quotes.count_documents({"status": {"$in": ["Quote sent", "Confirmed", "Approved — in repair", "Completed"]}})
     accepted = await db.quotes.count_documents({"status": {"$in": ["Confirmed", "Approved — in repair", "Completed"]}})
-    active_sales = await db.sales.count_documents({})
+    active_sales = await db.sales.count_documents(sale_window_query())
     total = await db.quotes.count_documents({})
     return {
         "new_this_week": new_week,

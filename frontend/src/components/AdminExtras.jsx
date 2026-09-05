@@ -37,13 +37,23 @@ export function StatsStrip() {
 }
 
 export function SalesPanel() {
+  const salePhase = (s) => {
+    const now = new Date().toISOString();
+    if (s.ends_at && s.ends_at < now) return { t: "Ended", cls: "bg-red-50 text-red-500 border-red-200" };
+    if (s.starts_at && s.starts_at > now) return { t: "Scheduled", cls: "bg-brand-subtle text-brand border-brand/30" };
+    return { t: "Live now", cls: "bg-green-50 text-green-600 border-green-200" };
+  };
+
+  const fmtDate = (iso) =>
+    iso ? new Date(iso).toLocaleString("en-ZA", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) : "";
+
   const [sales, setSales] = useState(null);
-  const [form, setForm] = useState({ name: "", price: "", was_price: "", description: "", image: "" });
+  const [form, setForm] = useState({ name: "", price: "", was_price: "", description: "", image: "", starts_at: "", ends_at: "" });
   const [preview, setPreview] = useState("");
   const [busy, setBusy] = useState(false);
 
   const load = () =>
-    fetch(`${API}/sales`)
+    fetch(`${API}/admin/sales/all`, { credentials: "include" })
       .then((r) => (r.ok ? r.json() : []))
       .then(setSales)
       .catch(() => setSales([]));
@@ -71,11 +81,16 @@ export function SalesPanel() {
     e.preventDefault();
     setBusy(true);
     try {
+      const payload = {
+        ...form,
+        starts_at: form.starts_at ? new Date(form.starts_at).toISOString() : "",
+        ends_at: form.ends_at ? new Date(form.ends_at).toISOString() : "",
+      };
       const res = await fetch(`${API}/admin/sales`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify(form),
+        body: JSON.stringify(payload),
       });
       if (!res.ok) {
         const d = await res.json().catch(() => ({}));
@@ -116,6 +131,16 @@ export function SalesPanel() {
             <input data-testid="sale-was-input" value={form.was_price} onChange={(e) => setForm({ ...form, was_price: e.target.value })} placeholder="Was: R 21 999" className={inputCls} />
           </div>
           <input data-testid="sale-desc-input" value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} placeholder="Short description (optional)" className={`${inputCls} sm:col-span-2`} />
+          <div className="grid grid-cols-2 gap-3 sm:col-span-2">
+            <label className="block">
+              <span className="mb-1.5 block font-mono text-[10px] uppercase tracking-[0.2em] text-mute">Starts (optional)</span>
+              <input data-testid="sale-starts-input" type="datetime-local" value={form.starts_at} onChange={(e) => setForm({ ...form, starts_at: e.target.value })} className={inputCls} />
+            </label>
+            <label className="block">
+              <span className="mb-1.5 block font-mono text-[10px] uppercase tracking-[0.2em] text-mute">Ends (optional)</span>
+              <input data-testid="sale-ends-input" type="datetime-local" value={form.ends_at} onChange={(e) => setForm({ ...form, ends_at: e.target.value })} className={inputCls} />
+            </label>
+          </div>
           <label data-testid="sale-image-label" className="flex cursor-pointer items-center gap-3 rounded-2xl border border-dashed border-ink/20 bg-paper px-5 py-3 text-sm text-ink/60 transition-colors hover:border-brand sm:col-span-2">
             <ImagePlus size={17} className="text-brand" />
             {preview ? "Photo attached — click to change" : "Add a photo of the item (under 3MB)"}
@@ -142,7 +167,16 @@ export function SalesPanel() {
                 <span className="font-bold text-brand">{s.price}</span>
                 {s.was_price && <span className="ml-2 text-mute line-through">{s.was_price}</span>}
               </p>
+              {(s.starts_at || s.ends_at) && (
+                <p className="mt-1 text-xs text-mute">
+                  {s.starts_at ? `From ${fmtDate(s.starts_at)}` : "Starts immediately"}
+                  {s.ends_at ? ` · until ${fmtDate(s.ends_at)}` : ""}
+                </p>
+              )}
             </div>
+            <span data-testid={`sale-phase-${s.id}`} className={`shrink-0 rounded-full border px-3 py-1 text-[11px] font-bold uppercase tracking-wider ${salePhase(s).cls}`}>
+              {salePhase(s).t}
+            </span>
             <button data-testid={`sale-delete-${s.id}`} onClick={() => removeSale(s.id)} className="rounded-full border border-red-200 p-2.5 text-red-500 transition-colors hover:border-red-400 hover:bg-red-50" aria-label="Remove sale">
               <Trash2 size={15} />
             </button>

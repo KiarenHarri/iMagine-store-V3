@@ -123,6 +123,11 @@ Build a polished, responsive multi-page Imagine Store Apple reseller website. Pr
 - Sales manager: admins create sales (name, now/was prices, description, photo upload up to 3MB stored inline) in the new Sales tab; live sales render as a "This week's deals" strip on Home and Shop with strikethrough pricing and a "Grab this deal" button that prefills the quote wizard.
 - Verified: reset flow end-to-end (issue → reset → reuse blocked → login with new password); stats values; sale create/list/delete + 403 for non-admin; forgot UI; sale strip + iPhone 17 grid in browser.
 
+## Implemented (2026-09-05, update 16 — Sale scheduling)
+- Sales now carry optional start/end date-times (datetime-local pickers in the Sales tab); the public deals strip and the "active sales" stat only count sales inside their window, so deals publish and expire automatically.
+- Admin Sales list shows every sale (including future/past) with Live now / Scheduled / Ended chips and the schedule window; new GET /api/admin/sales/all for the unfiltered view.
+- Verified: scheduled (tomorrow) and expired (yesterday) sales hidden from public /sales and the stats count, visible in admin with correct chips; user's own "iphone 17 pro" sale (with uploaded photo) shows Live now.
+
 ## Testing notes
 - curl verified: product quote, repair quote, repair status lookup, contact, email validation (422).
 - Auth verified: /auth/me 200 with Bearer + 401 without; quote attaches user_id; /quotes/mine returns user's quotes; logout invalidates Bearer session (401 after); browser test with session cookie loads Account with history, logout returns to sign-in prompt. Full Google OAuth round-trip not exercised (requires a real Google account click-through) — test user was seeded in MongoDB per /app/auth_testing.md.

@@ -224,3 +224,6 @@ Build a polished, responsive multi-page Imagine Store Apple reseller website. Pr
 - Prefill summary banner now also shows on the model step (step 2) so an iPhone sale deal is visibly marked while picking colour/storage; the "Change device" button hides when already on that step.
 - Admin dashboard: new "Sale quotes" tab showing only sale enquiries (with SALE tag + prices); "Product quotes" tab now shows only normal (non-sale) enquiries, so the two never mix.
 - Verified in browser: sale badge clears when switching from MacBook pro deal to MacBook Air (summary shows plain "MacBook Air"); iPhone sale badge shows at step 2 and clears when switching to iPhone 13; admin Sale quotes tab shows only the sale quote, Product quotes only the normal one (seeded IMQ-E5F23E sale + IMQ-C9F5BF normal for the check).
+
+## Implemented (2026-09-06, update 35 — Sale state restores when re-selecting the deal)
+- Switching away from a sale device clears the sale flag; switching back to the exact sale device (same category + model as the deal link) now restores the ON SALE badge with its prices. Verified in browser: badge shows initially, clears on iPhone 13, restores on iPhone 17 Pro ("ON SALE · R23000 R28000"), persists through extras step.

@@ -75,8 +75,13 @@ export default function ProductQuote() {
   const toggleAddon = (a) =>
     set("accessories", form.accessories.includes(a) ? form.accessories.filter((x) => x !== a) : [...form.accessories, a]);
 
-  // Changing the device turns a sale deal back into a normal enquiry
+  // Changing the device turns a sale deal back into a normal enquiry; re-selecting the deal restores it
   const clearSale = { is_sale: false, sale_price: "", sale_was_price: "" };
+  const saleOn = params.get("sale") === "1";
+  const saleFor = (m, cat) =>
+    saleOn && m === rawModel && cat === (params.get("cat") || "")
+      ? { is_sale: true, sale_price: params.get("price") || "", sale_was_price: params.get("was") || "" }
+      : clearSale;
 
   const categoryName = categories.find((c) => c.slug === form.category)?.name || form.category;
 
@@ -198,7 +203,7 @@ export default function ProductQuote() {
                   testId={`pq-model-${m.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
                   title={m}
                   selected={form.model === m}
-                  onClick={() => setForm((f) => ({ ...f, model: m, color: "", storage: "", custom_model: "", custom_storage: "", ...(m !== rawModel ? clearSale : {}) }))}
+                  onClick={() => setForm((f) => ({ ...f, model: m, color: "", storage: "", custom_model: "", custom_storage: "", ...saleFor(m, f.category) }))}
                 />
               ))}
               {form.category === "iphone" ? (

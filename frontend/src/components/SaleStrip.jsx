@@ -22,6 +22,7 @@ const saleQuoteLink = (s) => {
   qp.set("sale", "1");
   if (s.price) qp.set("price", s.price);
   if (s.was_price) qp.set("was", s.was_price);
+  if (s.description) qp.set("desc", s.description);
   if (!cat) qp.set("notes", `Sale enquiry: ${s.name}${s.price ? ` — ${s.price}` : ""}`);
   return `/quote/product?${qp.toString()}`;
 };

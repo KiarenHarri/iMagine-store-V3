@@ -14,14 +14,16 @@ export default function ProductQuote() {
   const rawModel = params.get("model") || "";
   const preOwnedCard = rawModel === "Pre-Owned iPhone";
   const prefilled = Boolean(params.get("cat") && rawModel && !preOwnedCard);
+  const saleFlow = params.get("sale") === "1";
   const [step, setStep] = useState(() => {
+    if (saleFlow) return 1;
     if (params.get("cat") === "iphone") return 2;
     if (params.get("cat") && rawModel && !preOwnedCard) return 3;
     if (params.get("cat")) return 2;
     return 1;
   });
   const [form, setForm] = useState({
-    category: params.get("cat") || "",
+    category: params.get("cat") || (saleFlow ? "sale" : ""),
     model: preOwnedCard ? "" : rawModel,
     storage: "",
     color: "",
@@ -34,9 +36,10 @@ export default function ProductQuote() {
     email: "",
     phone: "",
     notes: params.get("notes") || "",
-    is_sale: params.get("sale") === "1",
+    is_sale: saleFlow,
     sale_price: params.get("price") || "",
     sale_was_price: params.get("was") || "",
+    sale_desc: params.get("desc") || "",
   });
   const [done, setDone] = useState(null);
   const [sending, setSending] = useState(false);
@@ -77,11 +80,16 @@ export default function ProductQuote() {
 
   // Changing the device turns a sale deal back into a normal enquiry; re-selecting the deal restores it
   const clearSale = { is_sale: false, sale_price: "", sale_was_price: "" };
-  const saleOn = params.get("sale") === "1";
   const saleFor = (m, cat) =>
-    saleOn && m === rawModel && cat === (params.get("cat") || "")
+    saleFlow && m === rawModel && cat === (params.get("cat") || "")
       ? { is_sale: true, sale_price: params.get("price") || "", sale_was_price: params.get("was") || "" }
       : clearSale;
+
+  // Sale deals run their own 3-step flow: deal → extras → details (no device selection)
+  const extrasStep = saleFlow ? 2 : 3;
+  const contactStep = saleFlow ? 3 : 4;
+  const saleSpec = saleFlow ? IPHONE_MODELS.find((m) => m.name.toLowerCase() === form.model.toLowerCase()) : null;
+  const dealColors = saleSpec ? saleSpec.colors : null;
 
   const categoryName = categories.find((c) => c.slug === form.category)?.name || form.category;
 
@@ -98,7 +106,7 @@ export default function ProductQuote() {
           </span>
         )}
       </div>
-      {step !== 2 && (
+      {step !== 2 && !saleFlow && (
         <button type="button" data-testid="pq-change-device-btn" onClick={() => setStep(2)} className="text-xs font-semibold text-brand transition-colors hover:text-brand-hover">
           Change device
         </button>
@@ -107,13 +115,14 @@ export default function ProductQuote() {
   ) : null;
 
   const canNext =
-    (step === 1 && !!form.category) ||
-    (step === 2 && modelStepOk) ||
-    step === 3 ||
-    (step === 4 && form.name.trim() && /\S+@\S+\.\S+/.test(form.email) && !sending);
+    (!saleFlow && step === 1 && !!form.category) ||
+    (saleFlow && step === 1 && (dealColors ? Boolean(form.color) : true)) ||
+    (!saleFlow && step === 2 && modelStepOk) ||
+    step === extrasStep ||
+    (step === contactStep && form.name.trim() && /\S+@\S+\.\S+/.test(form.email) && !sending);
 
   const next = async () => {
-    if (step < 4) return setStep(step + 1);
+    if (step < contactStep) return setStep(step + 1);
     setSending(true);
     try {
       const payload = { ...form };
@@ -121,8 +130,12 @@ export default function ProductQuote() {
         payload.model = form.custom_model.trim();
         payload.storage = form.custom_storage.trim();
       }
+      if (payload.sale_desc && !payload.notes) {
+        payload.notes = `Sale description: ${payload.sale_desc}`;
+      }
       delete payload.custom_model;
       delete payload.custom_storage;
+      delete payload.sale_desc;
       const { data } = await submitProductQuote(payload);
       setDone(data.reference);
     } catch {
@@ -150,15 +163,61 @@ export default function ProductQuote() {
       <WizardShell
         testId="product-wizard"
         step={step}
-        total={4}
-        title="Product quote wizard"
-        subtitle={["What are you after?", "Pick your model.", "Extras & trade-in.", "Where do we send the quote?"][step - 1]}
+        total={saleFlow ? 3 : 4}
+        title={saleFlow ? "Sale quote" : "Product quote wizard"}
+        subtitle={
+          (saleFlow
+            ? ["Your deal.", "Extras & trade-in.", "Where do we send the quote?"]
+            : ["What are you after?", "Pick your model.", "Extras & trade-in.", "Where do we send the quote?"])[step - 1]
+        }
         onBack={() => setStep(step - 1)}
         onNext={next}
         nextDisabled={!canNext}
-        nextLabel={step === 4 ? (sending ? "Submitting…" : "Submit quote request") : "Continue"}
+        nextLabel={step === contactStep ? (sending ? "Submitting…" : "Submit quote request") : "Continue"}
       >
-        {step === 1 && (
+        {saleFlow && step === 1 && (
+          <div data-testid="pq-step-deal">
+            <div className="rounded-3xl border border-brand/25 bg-brand-subtle p-6 sm:p-8">
+              <p className="eyebrow !text-brand">On sale now</p>
+              <h3 className="mt-2 font-display text-2xl font-extrabold text-ink" data-testid="pq-deal-name">{form.model}</h3>
+              <div className="mt-3 flex items-baseline gap-3">
+                <span className="font-display text-3xl font-extrabold text-brand" data-testid="pq-deal-price">{form.sale_price}</span>
+                {form.sale_was_price && <span className="text-base text-mute line-through">{form.sale_was_price}</span>}
+              </div>
+              {form.sale_desc && <p className="mt-3 text-sm leading-relaxed text-ink/60" data-testid="pq-deal-desc">{form.sale_desc}</p>}
+              <p className="mt-4 text-xs font-semibold text-ink/50">Deal details come straight from this sale — just pick your colour below.</p>
+            </div>
+            {dealColors ? (
+              <div className="mt-8">
+                <p className="eyebrow mb-3">Colour</p>
+                <div className="flex flex-wrap gap-3" data-testid="pq-color-options">
+                  {dealColors.map((c) => (
+                    <button
+                      key={c.name}
+                      type="button"
+                      title={c.name}
+                      aria-label={c.name}
+                      data-testid={`pq-color-${c.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
+                      onClick={() => set("color", c.name)}
+                      className={`h-10 w-10 rounded-full border border-ink/15 transition-transform duration-200 ${
+                        form.color === c.name ? "scale-110 ring-2 ring-brand ring-offset-2 ring-offset-paper" : "hover:scale-105"
+                      }`}
+                      style={{ backgroundColor: c.hex }}
+                    />
+                  ))}
+                </div>
+                <p className="mt-2.5 text-xs font-semibold text-ink/60" data-testid="pq-color-label">{form.color || "Pick a colour"}</p>
+              </div>
+            ) : (
+              <div className="mt-8">
+                <p className="eyebrow mb-3">Colour preference (optional)</p>
+                <input data-testid="pq-deal-color-input" value={form.color} onChange={(e) => set("color", e.target.value)} placeholder="e.g. Space Gray" className={fieldCls} />
+              </div>
+            )}
+          </div>
+        )}
+
+        {!saleFlow && step === 1 && (
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2" data-testid="pq-step-category">
             {categories.map((c) => (
               <OptionCard
@@ -173,7 +232,7 @@ export default function ProductQuote() {
           </div>
         )}
 
-        {step === 2 && (
+        {!saleFlow && step === 2 && (
           <div data-testid="pq-step-model">
             {summaryBanner}
             {form.category === "iphone" && (
@@ -295,7 +354,7 @@ export default function ProductQuote() {
           </div>
         )}
 
-        {step === 3 && (
+        {step === extrasStep && (
           <div data-testid="pq-step-extras">
             {summaryBanner}
             <div className="rounded-2xl border border-ink/10 bg-white p-6">
@@ -328,7 +387,7 @@ export default function ProductQuote() {
           </div>
         )}
 
-        {step === 4 && (
+        {step === contactStep && (
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2" data-testid="pq-step-contact">
             {summaryBanner && <div className="sm:col-span-2 -mb-2">{summaryBanner}</div>}
             <input data-testid="pq-name-input" value={form.name} onChange={(e) => set("name", e.target.value)} placeholder="Full name *" className={fieldCls} />

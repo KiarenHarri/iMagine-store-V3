@@ -227,3 +227,9 @@ Build a polished, responsive multi-page Imagine Store Apple reseller website. Pr
 
 ## Implemented (2026-09-06, update 35 — Sale state restores when re-selecting the deal)
 - Switching away from a sale device clears the sale flag; switching back to the exact sale device (same category + model as the deal link) now restores the ON SALE badge with its prices. Verified in browser: badge shows initially, clears on iPhone 13, restores on iPhone 17 Pro ("ON SALE · R23000 R28000"), persists through extras step.
+
+## Implemented (2026-09-06, update 36 — Sale deals are their own special quote)
+- "Grab this deal" now opens a dedicated 3-step Sale Quote flow ("Your deal." → "Extras & trade-in." → "Where do we send the quote?") — no category/device selection at all, Back never reaches the device grids.
+- Deal step shows a sale card built from the sale itself: name, sale price, struck-through was-price and the sale description (SaleStrip now passes desc). Customer only picks a colour: real swatches when the sale matches a known iPhone (case-insensitive), otherwise an optional colour text field.
+- Sale description is included in the submission notes so the team sees it ("Sale description: ...").
+- Verified in browser: iPhone deal (3 swatches, colour required, summary "iphone 17 pro · Silver · On sale R23000"); MacBook deal clicked from the live homepage sale strip, description shown, submitted end-to-end (IMQ-9812FC stored with is_sale, prices, colour, description in notes); normal quote flow regression passed (4 steps, no sale badge).

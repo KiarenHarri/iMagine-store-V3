@@ -75,9 +75,12 @@ export default function ProductQuote() {
   const toggleAddon = (a) =>
     set("accessories", form.accessories.includes(a) ? form.accessories.filter((x) => x !== a) : [...form.accessories, a]);
 
+  // Changing the device turns a sale deal back into a normal enquiry
+  const clearSale = { is_sale: false, sale_price: "", sale_was_price: "" };
+
   const categoryName = categories.find((c) => c.slug === form.category)?.name || form.category;
 
-  const summaryBanner = prefilled && form.model && step >= 3 ? (
+  const summaryBanner = prefilled && form.model && step >= 2 ? (
     <div data-testid="pq-prefill-summary" className="mb-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-brand/25 bg-brand-subtle px-5 py-4">
       <div className="flex flex-wrap items-center gap-x-3 gap-y-2">
         <p className="font-display text-sm font-bold text-ink">
@@ -90,9 +93,11 @@ export default function ProductQuote() {
           </span>
         )}
       </div>
-      <button type="button" data-testid="pq-change-device-btn" onClick={() => setStep(2)} className="text-xs font-semibold text-brand transition-colors hover:text-brand-hover">
-        Change device
-      </button>
+      {step !== 2 && (
+        <button type="button" data-testid="pq-change-device-btn" onClick={() => setStep(2)} className="text-xs font-semibold text-brand transition-colors hover:text-brand-hover">
+          Change device
+        </button>
+      )}
     </div>
   ) : null;
 
@@ -157,7 +162,7 @@ export default function ProductQuote() {
                 title={c.name}
                 desc={c.tagline}
                 selected={form.category === c.slug}
-                onClick={() => setForm((f) => ({ ...f, category: c.slug, model: "" }))}
+                onClick={() => setForm((f) => ({ ...f, category: c.slug, model: "", ...clearSale }))}
               />
             ))}
           </div>
@@ -165,6 +170,7 @@ export default function ProductQuote() {
 
         {step === 2 && (
           <div data-testid="pq-step-model">
+            {summaryBanner}
             {form.category === "iphone" && (
               <div className="mb-6 flex gap-2" data-testid="pq-condition-toggle">
                 {[
@@ -192,7 +198,7 @@ export default function ProductQuote() {
                   testId={`pq-model-${m.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`}
                   title={m}
                   selected={form.model === m}
-                  onClick={() => setForm((f) => ({ ...f, model: m, color: "", storage: "", custom_model: "", custom_storage: "" }))}
+                  onClick={() => setForm((f) => ({ ...f, model: m, color: "", storage: "", custom_model: "", custom_storage: "", ...(m !== rawModel ? clearSale : {}) }))}
                 />
               ))}
               {form.category === "iphone" ? (
@@ -201,10 +207,10 @@ export default function ProductQuote() {
                   title={OLDER_IPHONE}
                   desc="Tell us the exact model, colour and storage."
                   selected={olderIphone}
-                  onClick={() => setForm((f) => ({ ...f, model: OLDER_IPHONE, color: "", storage: "" }))}
+                  onClick={() => setForm((f) => ({ ...f, model: OLDER_IPHONE, color: "", storage: "", ...clearSale }))}
                 />
               ) : (
-                <OptionCard testId="pq-model-other" title="Something else / not sure" desc="Tell us in the notes at the end." selected={form.model === "Other"} onClick={() => set("model", "Other")} />
+                <OptionCard testId="pq-model-other" title="Something else / not sure" desc="Tell us in the notes at the end." selected={form.model === "Other"} onClick={() => setForm((f) => ({ ...f, model: "Other", ...clearSale }))} />
               )}
             </div>
 

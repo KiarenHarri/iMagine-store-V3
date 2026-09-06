@@ -218,3 +218,9 @@ Build a polished, responsive multi-page Imagine Store Apple reseller website. Pr
 - Per-category accent colours (Cloud=blue #0078D4, AI=purple #5C2D91, Data=green #107C10, Business Apps=red #D83B01, Integration=gold #8A6D00) on eyebrow labels, icon tiles, card accent bars and Enquire links.
 - Added a full-width image band ("One Westville team for your Apple and Microsoft worlds.") with navy overlay before the closing CTA; CTA buttons in Microsoft blue; closing headline has four-colour gradient text.
 - Verified at 1920/768/390px: all 5 groups and 22 cards render, no horizontal overflow, hero + band images load, closing CTA reachable, enquire→contact prefill still works (Microsoft Fabric subject verified).
+
+## Implemented (2026-09-06, update 34 — Sale quotes separated from normal enquiries)
+- Bug fix: changing the device after clicking a sale deal kept the ON SALE flag/pricing on a different product. Now picking any other category or model clears the sale state — only the actual sale item shows "On sale"; everything else is a normal price-on-request enquiry.
+- Prefill summary banner now also shows on the model step (step 2) so an iPhone sale deal is visibly marked while picking colour/storage; the "Change device" button hides when already on that step.
+- Admin dashboard: new "Sale quotes" tab showing only sale enquiries (with SALE tag + prices); "Product quotes" tab now shows only normal (non-sale) enquiries, so the two never mix.
+- Verified in browser: sale badge clears when switching from MacBook pro deal to MacBook Air (summary shows plain "MacBook Air"); iPhone sale badge shows at step 2 and clears when switching to iPhone 13; admin Sale quotes tab shows only the sale quote, Product quotes only the normal one (seeded IMQ-E5F23E sale + IMQ-C9F5BF normal for the check).

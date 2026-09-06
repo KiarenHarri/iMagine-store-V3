@@ -11,6 +11,7 @@ const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 const TABS = [
   { id: "all", label: "All" },
   { id: "product", label: "Product quotes" },
+  { id: "sale", label: "Sale quotes" },
   { id: "repair", label: "Repairs" },
   { id: "contact", label: "Messages" },
   { id: "sales", label: "Sales" },
@@ -111,7 +112,12 @@ export default function Admin() {
     );
   }
 
-  const quotes = (data?.quotes || []).filter((q) => tab === "all" || q.type === tab);
+  const quotes = (data?.quotes || []).filter((q) => {
+    if (tab === "all") return true;
+    if (tab === "sale") return q.type === "product" && q.is_sale;
+    if (tab === "product") return q.type === "product" && !q.is_sale;
+    return q.type === tab;
+  });
   const messages = tab === "all" || tab === "contact" ? data?.messages || [] : [];
 
   return (

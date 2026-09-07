@@ -261,3 +261,8 @@ Build a polished, responsive multi-page Imagine Store Apple reseller website. Pr
 - All password creation now requires: 8+ chars, uppercase, lowercase, number, special character (max 72 for bcrypt). Shared backend validator returns a specific message listing exactly what's missing. Applied to: customer registration, password reset, and Team-tab admin creation.
 - Live checklist UI (PasswordChecklist component) on the register form, reset-password form, and Team tab password field — rules tick green as you type; submit/add buttons stay disabled until all rules pass.
 - Verified: API rejects "password"/"Password1" with precise messages, accepts "Password1!" (register + login work); browser shows 1/5 rules green for weak input with disabled submit, 5/5 with enabled submit for strong input. Test account cleaned up.
+
+## Implemented (2026-09-07, update 42 — Strength meter, forgot-password check, code map)
+- Password strength meter: coloured 5-segment bar + label (Very weak → Strong) above the rules checklist, live as you type; shared across register, reset-password and Team-tab forms (PasswordChecklist.jsx).
+- Forgot password: feature already existed — made the sign-in link bolder/more visible and re-verified the full flow end-to-end (request → 1h token → weak passwords rejected → strong reset → old password dead, new works → "Check your inbox" UI).
+- Code organization: rewrote /app/README.md as a labeled code map in plain language — FRONTEND (/frontend), BACKEND (/backend), DATABASE (MongoDB collections), config files, and how requests flow. No code moved (safe before deployment).

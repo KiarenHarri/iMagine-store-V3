@@ -159,7 +159,7 @@ function SignInPanel() {
             />
             {mode === "register" && <PasswordChecklist password={form.password} />}
             {mode === "login" && (
-              <button type="button" data-testid="forgot-link" onClick={() => { setMode("forgot"); setError(""); }} className="text-xs font-semibold text-paper/50 transition-colors hover:text-brand">
+              <button type="button" data-testid="forgot-link" onClick={() => { setMode("forgot"); setError(""); }} className="text-xs font-bold text-paper/70 transition-colors hover:text-brand">
                 Forgot password?
               </button>
             )}

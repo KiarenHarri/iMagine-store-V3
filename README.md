@@ -60,7 +60,16 @@ The server. The frontend never touches the database directly — it always asks 
 
 | File | What it is |
 |---|---|
-| `server.py` | All API endpoints: quotes, contact, auth (Google + email/password), admin (statuses, sales, team), PDFs, stats |
+| `server.py` | Entry point — builds the app and mounts the routes (start here) |
+| `config.py` | Environment settings + constants (owner emails, status flows) |
+| `database.py` | The MongoDB connection + the admin-membership check |
+| `models.py` | The shape of every API request (quotes, sales, admins…) |
+| `security.py` | Password hashing, strength rules, brute-force lockout |
+| `auth.py` | Sign-in: Google exchange, email+password, sessions, reset links, access guards |
+| `routes/public.py` | Health check + the live sales shown on the site |
+| `routes/quotes.py` | Product/repair quotes, customer accept/decline, PDF downloads |
+| `routes/contact.py` | Contact form submissions |
+| `routes/admin.py` | Team console APIs: statuses, deletes, admins, sales, stats |
 | `mailer.py` | Sends the emails (team alerts, customer confirmations, password resets) |
 | `pdfgen.py` | Generates the branded downloadable quote PDFs |
 | `requirements.txt` | The Python packages the backend needs |

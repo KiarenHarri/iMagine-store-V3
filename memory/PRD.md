@@ -266,3 +266,9 @@ Build a polished, responsive multi-page Imagine Store Apple reseller website. Pr
 - Password strength meter: coloured 5-segment bar + label (Very weak → Strong) above the rules checklist, live as you type; shared across register, reset-password and Team-tab forms (PasswordChecklist.jsx).
 - Forgot password: feature already existed — made the sign-in link bolder/more visible and re-verified the full flow end-to-end (request → 1h token → weak passwords rejected → strong reset → old password dead, new works → "Check your inbox" UI).
 - Code organization: rewrote /app/README.md as a labeled code map in plain language — FRONTEND (/frontend), BACKEND (/backend), DATABASE (MongoDB collections), config files, and how requests flow. No code moved (safe before deployment).
+
+## Implemented (2026-09-07, update 43 — Backend restructure + labeled code map)
+- server.py (807-line monolith) split into labeled modules: config.py (env/constants), database.py (Mongo + admin check), models.py (Pydantic shapes), security.py (hashing/strength/lockout), auth.py (sessions + sign-in routes + guards), routes/{public,quotes,contact,admin}.py. server.py is now a thin entrypoint exposing app (supervisor unchanged: uvicorn server:app).
+- Behavior preserved verbatim — full API regression passed: health, product/repair quote submit, repair status, contact, register/login/me, my quotes, admin submissions/stats/admins, public sales; frontend smoke (sale strip + phone colours) fine.
+- README.md code map updated to the new backend layout.
+- INCIDENT HANDLED: during live Team-tab use, both owner accounts (ayushsukhnandan28, kiarenh666) had been removed as admins by the owner-added test admin (imaginetestadmin@gmail.com). Both owners were restored (admin_removals cleared). Active admins now: ayush, kiarenh666, test.user (test), imaginetestadmin.

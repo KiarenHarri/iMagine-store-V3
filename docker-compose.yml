@@ -1,0 +1,33 @@
+# iMagine Store — the whole website in one command:  docker compose up -d --build
+# Before starting:
+#   1. cp backend/.env.example backend/.env   and fill in your values
+#   2. set your real domain in Caddyfile
+# The database is MongoDB Atlas (cloud) — see README, so no database container is needed.
+
+services:
+  backend:
+    build: ./backend
+    env_file: ./backend/.env
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+
+  # Caddy gives the site automatic free HTTPS (Let's Encrypt) for your domain.
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+    depends_on:
+      - frontend
+
+volumes:
+  caddy_data:

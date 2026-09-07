@@ -2,7 +2,97 @@
 
 How the website is organised, in plain language. Three parts: **Frontend** (what visitors see), **Backend** (the server that does the work), **Database** (where everything is stored).
 
-## Run it yourself (self-hosting)
+## Put it live on the internet (xneelo Cloud)
+
+xneelo's ordinary **web hosting plans cannot run this website** — they only support PHP/MySQL, with no Python and no MongoDB. **xneelo Cloud** (self-managed server) can run everything, and this repo ships with Docker packaging so the whole site starts with one command.
+
+### What you need
+1. An **xneelo Cloud server** — Ubuntu 24.04 LTS (smallest size is fine to start)
+2. Your **domain's DNS** pointing at the server: `A` records for `yourdomain.co.za` and `www.yourdomain.co.za` → the server's IP (done wherever your domain is registered)
+3. A **free MongoDB Atlas** database (5-minute setup below) — this is where all website data lives
+4. This code **on GitHub** (use the "Save to Github" button)
+
+### Step 1 — Create the free database (MongoDB Atlas, ~5 minutes)
+1. Go to [mongodb.com/atlas](https://mongodb.com/atlas) → sign up free → create an **M0 (Free)** cluster
+2. **Database → Database Users** → add a user with a strong password (save it)
+3. **Database → Network Access** → Add IP Address → **Allow access from anywhere** (safe — the database still requires the password)
+4. **Connect → Drivers** → copy the connection string, it looks like `mongodb+srv://user:<password>@cluster0.xxxxx.mongodb.net/...`
+5. Replace `<password>` with the real password — that whole string is your `MONGO_URL`
+
+### Step 2 — Install the website on the server (~10 minutes)
+SSH into the server from your computer (`ssh root@SERVER-IP` — the IP is in the xneelo dashboard), then:
+
+```bash
+# 1. Install Docker
+curl -fsSL https://get.docker.com | sh
+
+# 2. Get the code from your GitHub repo
+git clone https://github.com/YOUR-USERNAME/YOUR-REPO.git imagine-store
+cd imagine-store
+
+# 3. Configure it
+cp backend/.env.example backend/.env
+nano backend/.env     # paste your MONGO_URL from Atlas, set your domain, add email keys
+nano Caddyfile        # replace yourdomain.co.za with your real domain
+
+# 4. Start everything — frontend + backend + automatic free HTTPS
+docker compose up -d --build
+```
+
+Open `https://yourdomain.co.za` — done. The HTTPS certificate is created automatically the first time the domain loads (~1 minute; your DNS must already point at the server first).
+
+| Everyday command (run inside `imagine-store/`) | What it does |
+|---|---|
+| `docker compose logs -f` | Watch live logs (Ctrl+C to stop watching) |
+| `git pull && docker compose up -d --build` | Update the website after pushing new code to GitHub |
+| `docker compose restart` | Restart after changing `backend/.env` |
+| `docker compose down` / `docker compose up -d` | Stop / start the website |
+
+**Note:** sign-in only works over `https://` (secure cookies) — Caddy sets this up for you.
+
+### Alternative: manual setup without Docker
+
+```bash
+# 1. Install Node 20, Python 3.11+, nginx
+curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+apt install -y nodejs python3-venv nginx
+
+# 2. Get the code and configure (same as Docker steps 2-3 above)
+git clone https://github.com/YOUR-USERNAME/YOUR-REPO.git imagine-store
+cd imagine-store
+cp backend/.env.example backend/.env && nano backend/.env
+
+# 3. Backend (keep this running — use systemd or tmux for permanence)
+cd backend
+python3 -m venv venv
+venv/bin/pip install -r requirements.prod.txt
+venv/bin/uvicorn server:app --host 127.0.0.1 --port 8001
+
+# 4. Frontend (in a second terminal)
+cd frontend && npm install -g yarn
+yarn install && REACT_APP_BACKEND_URL="" yarn build
+
+# 5. nginx: serve frontend/build and proxy /api to 127.0.0.1:8001
+#    (copy the proxy rules from frontend/nginx.conf into your nginx site config)
+
+# 6. Free HTTPS certificate
+apt install -y certbot python3-certbot-nginx
+certbot --nginx -d yourdomain.co.za -d www.yourdomain.co.za
+```
+
+### The files that make deployment work
+
+| File | What it is |
+|---|---|
+| `docker-compose.yml` | Starts all 3 parts (backend, frontend, HTTPS) together |
+| `backend/Dockerfile` + `backend/requirements.prod.txt` | Backend container, minimal portable dependencies |
+| `frontend/Dockerfile` + `frontend/nginx.conf` | Builds the React site, serves it, forwards `/api` to the backend |
+| `Caddyfile` | Your domain + automatic free HTTPS |
+| `backend/.env.example` | Settings template — copy to `backend/.env` and fill in |
+
+---
+
+## Run it yourself for development (self-hosting)
 
 The project is fully self-contained — no platform-specific services required.
 

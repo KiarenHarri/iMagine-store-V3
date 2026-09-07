@@ -1,0 +1,6 @@
+# Replace both names below with your real domain (keep the comma).
+# Caddy automatically creates free HTTPS certificates the first time someone
+# visits — your domain's DNS must already point at this server.
+yourdomain.co.za, www.yourdomain.co.za {
+	reverse_proxy frontend:80
+}

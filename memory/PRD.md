@@ -272,3 +272,12 @@ Build a polished, responsive multi-page Imagine Store Apple reseller website. Pr
 - Behavior preserved verbatim — full API regression passed: health, product/repair quote submit, repair status, contact, register/login/me, my quotes, admin submissions/stats/admins, public sales; frontend smoke (sale strip + phone colours) fine.
 - README.md code map updated to the new backend layout.
 - INCIDENT HANDLED: during live Team-tab use, both owner accounts (ayushsukhnandan28, kiarenh666) had been removed as admins by the owner-added test admin (imaginetestadmin@gmail.com). Both owners were restored (admin_removals cleared). Active admins now: ayush, kiarenh666, test.user (test), imaginetestadmin.
+
+## Implemented (2026-09-07, update 44 — De-Emergent / standalone portable code)
+- Google sign-in is now standalone OAuth 2.0 (authorization-code flow with state cookie, prompt=select_account) via GET /api/auth/google + /api/auth/google/callback, configured by GOOGLE_CLIENT_ID/SECRET/REDIRECT_URI + FRONTEND_URL env. The Emergent hosted-auth exchange endpoint (/api/auth/session) is REMOVED; AuthCallback.jsx and unused platform testid constants deleted; auth.jsx no longer references Emergent URLs or client IDs. Without Google creds, the button lands back on /account with a friendly "use email and password" message (email/password auth fully works regardless).
+- Email now sends directly via Resend API (RESEND_API_KEY + EMAIL_FROM env) — Emergent email proxy removed from mailer.py; safety scanner and all notification functions unchanged.
+- index.html: removed Emergent preview script + PostHog analytics block.
+- backend/.env: EMERGENT_EMAIL_KEY removed; new keys added (empty until user fills them). CORS_ORIGINS/FRONTEND_URL still point at the preview until the user's own domain exists.
+- README.md gained a "Run it yourself" self-hosting section: run commands, full env var table, Google Cloud setup steps.
+- Verified: backend restarts clean, health/sales/auth routes work, /api/auth/session 404s, google endpoint 307-redirects, no emergent/posthog strings in served page, Google button degrades gracefully.
+- NOTE: emails will NOT send until the user sets RESEND_API_KEY; Google sign-in inactive until Google creds set.

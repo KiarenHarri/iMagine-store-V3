@@ -17,7 +17,6 @@ const Contact = lazy(() => import("@/pages/Contact"));
 const ProductQuote = lazy(() => import("@/pages/ProductQuote"));
 const RepairQuote = lazy(() => import("@/pages/RepairQuote"));
 const Account = lazy(() => import("@/pages/Account"));
-const AuthCallback = lazy(() => import("@/pages/AuthCallback"));
 const Admin = lazy(() => import("@/pages/Admin"));
 const TradeIn = lazy(() => import("@/pages/TradeIn"));
 const ResetPassword = lazy(() => import("@/pages/ResetPassword"));
@@ -55,10 +54,6 @@ function ScrollManager() {
 }
 
 function AppRouter() {
-  const location = useLocation();
-  if (location.hash?.includes("session_id=")) {
-    return <AuthCallback />;
-  }
   return (
     <>
       <ScrollManager />

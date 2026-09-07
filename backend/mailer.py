@@ -11,9 +11,9 @@ from dotenv import load_dotenv
 load_dotenv()
 logger = logging.getLogger(__name__)
 
-# Emergent managed email proxy. CONSTANT — never read from os.environ.
-EMAIL_BASE_URL = "https://integrations.emergentagent.com"
-EMAIL_KEY = os.environ["EMERGENT_EMAIL_KEY"]
+# EMAIL — transactional email via Resend (https://resend.com). Create a free key and verify your domain.
+RESEND_API_KEY = os.environ.get("RESEND_API_KEY", "")
+EMAIL_FROM = os.environ.get("EMAIL_FROM", "")
 EMAIL_FROM_NAME = os.environ["EMAIL_FROM_NAME"]
 EMAIL_REPLY_TO = os.environ.get("EMAIL_REPLY_TO")
 
@@ -92,14 +92,16 @@ def _assert_safe_email(subject: str, html: str) -> None:
 
 async def send_email(*, to: str, subject: str, html: str, reply_to: str | None = None) -> str | None:
     _assert_safe_email(subject, html)
-    payload = {"to": [to], "subject": subject, "html": html, "from_name": EMAIL_FROM_NAME}
+    if not RESEND_API_KEY or not EMAIL_FROM:
+        raise RuntimeError("Email is not configured — set RESEND_API_KEY and EMAIL_FROM in the environment")
+    payload = {"from": EMAIL_FROM, "to": [to], "subject": subject, "html": html}
     if reply_to or EMAIL_REPLY_TO:
-        payload["contact_email"] = reply_to or EMAIL_REPLY_TO
+        payload["reply_to"] = reply_to or EMAIL_REPLY_TO
     try:
         async with httpx.AsyncClient(timeout=30) as client:
             resp = await client.post(
-                f"{EMAIL_BASE_URL}/api/v1/email/send",
-                headers={"X-Email-Key": EMAIL_KEY},
+                "https://api.resend.com/emails",
+                headers={"Authorization": f"Bearer {RESEND_API_KEY}"},
                 json=payload,
             )
         resp.raise_for_status()

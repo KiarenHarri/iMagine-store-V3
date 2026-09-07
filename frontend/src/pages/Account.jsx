@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { LogOut, PackageSearch, Wrench, ArrowRight, User as UserIcon, Check, Download, X } from "lucide-react";
 import { useAuth, startGoogleLogin, passwordAuth, formatApiError } from "../lib/auth";
@@ -15,9 +15,14 @@ const authInputCls =
 function SignInPanel() {
   const { setUser } = useAuth();
   const navigate = useNavigate();
+  const [params] = useSearchParams();
   const [mode, setMode] = useState("login");
   const [form, setForm] = useState({ name: "", email: "", password: "" });
-  const [error, setError] = useState("");
+  const [error, setError] = useState(() =>
+    params.get("auth_error") === "google-not-configured"
+      ? "Google sign-in isn't set up yet — please use email and password."
+      : ""
+  );
   const [busy, setBusy] = useState(false);
 
   const submit = async (e) => {

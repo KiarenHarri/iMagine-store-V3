@@ -2,6 +2,58 @@
 
 How the website is organised, in plain language. Three parts: **Frontend** (what visitors see), **Backend** (the server that does the work), **Database** (where everything is stored).
 
+## Run it yourself (self-hosting)
+
+The project is fully self-contained — no platform-specific services required.
+
+```bash
+# Backend (Python 3.11+)
+cd backend
+pip install -r requirements.txt
+uvicorn server:app --host 0.0.0.0 --port 8001
+
+# Frontend (Node 18+)
+cd frontend
+yarn install
+yarn start          # development
+yarn build          # production bundle in build/
+```
+
+Prerequisites: a MongoDB instance (`MONGO_URL`), and the environment variables below.
+
+### Environment variables
+
+**`backend/.env`**
+
+| Key | Purpose |
+|---|---|
+| `MONGO_URL` / `DB_NAME` | MongoDB connection |
+| `CORS_ORIGINS` | Comma-separated allowed frontend origins |
+| `FRONTEND_URL` | Public site URL (used for OAuth + email links) |
+| `RESEND_API_KEY` | Transactional email ([resend.com](https://resend.com), free tier) |
+| `EMAIL_FROM` | Sender, e.g. `iMagine Store <noreply@yourdomain.co.za>` |
+| `EMAIL_FROM_NAME` / `EMAIL_REPLY_TO` / `TEAM_NOTIFY_EMAIL` | Email display + team inbox |
+| `ADMIN_EMAILS` | Comma-separated built-in owner accounts |
+| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` / `GOOGLE_REDIRECT_URI` | Google OAuth (see setup below) |
+
+**`frontend/.env`**
+
+| Key | Purpose |
+|---|---|
+| `REACT_APP_BACKEND_URL` | Public URL of the backend (no trailing slash) |
+
+### Google sign-in setup (Google Cloud Console, ~10 minutes)
+
+1. console.cloud.google.com → create a project (e.g. "iMagine Store")
+2. APIs & Services → OAuth consent screen → External → fill in your brand details
+3. Credentials → Create OAuth client ID → Web application
+4. Add authorized redirect URI: `https://yourdomain.co.za/api/auth/google/callback`
+5. Copy the client ID/secret into `backend/.env` and set `GOOGLE_REDIRECT_URI` to the same callback URL
+
+Until these are set, email + password sign-in works fully (create admin logins from the Team tab).
+
+---
+
 ```
 Visitor's browser
       │

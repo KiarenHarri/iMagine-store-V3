@@ -1,17 +1,19 @@
-# AUTH — sessions, Google sign-in exchange, email/password login, password reset, access guards.
+# AUTH — sessions, Google OAuth 2.0, email/password login, password reset, access guards.
 import asyncio
 import os
 import secrets
 import uuid
 from datetime import datetime, timezone, timedelta
 from typing import Optional
+from urllib.parse import urlencode
 
 import requests
 from fastapi import APIRouter, HTTPException, Request, Response
+from fastapi.responses import RedirectResponse
 
 from database import db, is_admin_email
 from mailer import send_password_reset
-from models import ForgotIn, LoginIn, RegisterIn, ResetIn, SessionExchange
+from models import ForgotIn, LoginIn, RegisterIn, ResetIn
 from security import (
     check_lockout,
     hash_password,
@@ -22,6 +24,11 @@ from security import (
 from utils import now_iso
 
 router = APIRouter()
+
+GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "")
+GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", "")
+GOOGLE_REDIRECT_URI = os.environ.get("GOOGLE_REDIRECT_URI", "")
+FRONTEND_URL = os.environ.get("FRONTEND_URL", "http://localhost:3000")
 
 
 async def create_session_for(user: dict, response: Response) -> dict:
@@ -85,19 +92,54 @@ def owns_quote(doc: dict, user: dict) -> bool:
     return doc.get("user_id") == user["user_id"] or (doc.get("email") or "").lower() == user["email"].lower()
 
 
-@router.post("/auth/session")
-async def exchange_session(payload: SessionExchange, response: Response):
-    res = await asyncio.to_thread(
-        lambda: requests.get(
-            "https://demobackend.emergentagent.com/auth/v1/env/oauth/session-data",
-            headers={"X-Session-ID": payload.session_id},
+@router.get("/auth/google")
+async def google_login():
+    if not (GOOGLE_CLIENT_ID and GOOGLE_REDIRECT_URI):
+        return RedirectResponse(f"{FRONTEND_URL}/account?auth_error=google-not-configured")
+    state = secrets.token_urlsafe(16)
+    params = urlencode({
+        "client_id": GOOGLE_CLIENT_ID,
+        "redirect_uri": GOOGLE_REDIRECT_URI,
+        "response_type": "code",
+        "scope": "openid email profile",
+        "prompt": "select_account",
+        "state": state,
+    })
+    resp = RedirectResponse(f"https://accounts.google.com/o/oauth2/v2/auth?{params}")
+    resp.set_cookie("oauth_state", state, httponly=True, secure=True, samesite="lax", max_age=600, path="/")
+    return resp
+
+
+@router.get("/auth/google/callback")
+async def google_callback(request: Request):
+    if request.query_params.get("state") != request.cookies.get("oauth_state"):
+        raise HTTPException(status_code=400, detail="Invalid sign-in state — please try again")
+    code = request.query_params.get("code", "")
+    token_res = await asyncio.to_thread(
+        lambda: requests.post(
+            "https://oauth2.googleapis.com/token",
+            data={
+                "code": code,
+                "client_id": GOOGLE_CLIENT_ID,
+                "client_secret": GOOGLE_CLIENT_SECRET,
+                "redirect_uri": GOOGLE_REDIRECT_URI,
+                "grant_type": "authorization_code",
+            },
             timeout=15,
         )
     )
-    data = res.json()
-    if "session_token" not in data:
-        raise HTTPException(status_code=401, detail="Invalid session_id")
-    email = data["email"]
+    tokens = token_res.json()
+    if "access_token" not in tokens:
+        raise HTTPException(status_code=401, detail="Google sign-in failed")
+    info_res = await asyncio.to_thread(
+        lambda: requests.get(
+            "https://openidconnect.googleapis.com/v1/userinfo",
+            headers={"Authorization": f"Bearer {tokens['access_token']}"},
+            timeout=15,
+        )
+    )
+    data = info_res.json()
+    email = data["email"].lower().strip()
     user = await db.users.find_one({"email": email}, {"_id": 0})
     if not user:
         user = {
@@ -114,22 +156,25 @@ async def exchange_session(payload: SessionExchange, response: Response):
             {"$set": {"name": data.get("name", ""), "picture": data.get("picture", "")}},
         )
         user.update({"name": data.get("name", ""), "picture": data.get("picture", "")})
+    token = "sess_" + uuid.uuid4().hex
     await db.user_sessions.insert_one({
         "user_id": user["user_id"],
-        "session_token": data["session_token"],
+        "session_token": token,
         "expires_at": datetime.now(timezone.utc) + timedelta(days=7),
         "created_at": datetime.now(timezone.utc),
     })
-    response.set_cookie(
+    resp = RedirectResponse(f"{FRONTEND_URL}/account")
+    resp.set_cookie(
         key="session_token",
-        value=data["session_token"],
+        value=token,
         httponly=True,
         secure=True,
         samesite="none",
         path="/",
         max_age=7 * 24 * 3600,
     )
-    return {**user, "is_admin": await is_admin_email(email)}
+    resp.delete_cookie("oauth_state", path="/")
+    return resp
 
 
 @router.post("/auth/register")

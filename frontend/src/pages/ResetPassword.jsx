@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { CheckCircle2, KeyRound } from "lucide-react";
 import { MaskedLine } from "../components/motion";
 import { formatApiError } from "../lib/auth";
+import PasswordChecklist, { passwordValid } from "../components/PasswordChecklist";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -75,9 +76,10 @@ export default function ResetPassword() {
                 minLength={8}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="New password (8+ characters)"
+                placeholder="New password (8+ chars, capital, number, symbol)"
                 className="w-full rounded-2xl border border-white/10 bg-white/5 px-5 py-3.5 text-sm text-paper placeholder:text-paper/40 outline-none transition-colors focus:border-brand"
               />
+              <PasswordChecklist password={password} />
               <input
                 data-testid="reset-confirm-input"
                 required
@@ -92,7 +94,7 @@ export default function ResetPassword() {
               <button
                 type="submit"
                 data-testid="reset-submit-btn"
-                disabled={busy}
+                disabled={busy || !passwordValid(password) || password !== confirm}
                 className="w-full rounded-full bg-brand py-3.5 text-sm font-semibold text-white transition-colors duration-300 hover:bg-brand-hover disabled:opacity-50"
               >
                 {busy ? "Updating…" : "Set new password"}

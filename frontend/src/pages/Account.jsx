@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { LogOut, PackageSearch, Wrench, ArrowRight, User as UserIcon, Check, Download, X } from "lucide-react";
 import { useAuth, startGoogleLogin, passwordAuth, formatApiError } from "../lib/auth";
+import PasswordChecklist, { passwordValid } from "../components/PasswordChecklist";
 import { MaskedLine, Reveal } from "../components/motion";
 import { STATUS_FLOWS } from "../lib/data";
 
@@ -153,9 +154,10 @@ function SignInPanel() {
               minLength={8}
               value={form.password}
               onChange={(e) => setForm({ ...form, password: e.target.value })}
-              placeholder={mode === "register" ? "Password (8+ characters)" : "Password"}
+              placeholder={mode === "register" ? "Password (8+ chars, capital, number, symbol)" : "Password"}
               className={authInputCls}
             />
+            {mode === "register" && <PasswordChecklist password={form.password} />}
             {mode === "login" && (
               <button type="button" data-testid="forgot-link" onClick={() => { setMode("forgot"); setError(""); }} className="text-xs font-semibold text-paper/50 transition-colors hover:text-brand">
                 Forgot password?
@@ -165,7 +167,7 @@ function SignInPanel() {
             <button
               type="submit"
               data-testid="signin-submit-btn"
-              disabled={busy}
+              disabled={busy || (mode === "register" && !passwordValid(form.password))}
               className="w-full rounded-full bg-brand py-3.5 text-sm font-semibold text-white transition-colors duration-300 hover:bg-brand-hover disabled:opacity-50"
             >
               {busy ? "One moment…" : mode === "register" ? "Create my account" : "Sign in"}

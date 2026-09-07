@@ -3,6 +3,7 @@ import base64
 import secrets
 import bcrypt
 import requests
+import re
 from fastapi import FastAPI, APIRouter, HTTPException, Request, Response
 from mailer import notify_team, notify_customer, notify_status, send_password_reset
 from pdfgen import build_quote_pdf
@@ -234,11 +235,29 @@ class LoginIn(BaseModel):
 
 
 def hash_password(password: str) -> str:
-    return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+    return bcrypt.hashpw(password.encode("utf-8")[:72], bcrypt.gensalt()).decode("utf-8")
 
 
 def verify_password(plain: str, hashed: str) -> bool:
-    return bcrypt.checkpw(plain.encode("utf-8"), hashed.encode("utf-8"))
+    return bcrypt.checkpw(plain.encode("utf-8")[:72], hashed.encode("utf-8"))
+
+
+def validate_password_strength(password: str) -> None:
+    problems = []
+    if len(password) < 8:
+        problems.append("at least 8 characters")
+    if not re.search(r"[A-Z]", password):
+        problems.append("an uppercase letter")
+    if not re.search(r"[a-z]", password):
+        problems.append("a lowercase letter")
+    if not re.search(r"\d", password):
+        problems.append("a number")
+    if not re.search(r"[^A-Za-z0-9]", password):
+        problems.append("a special character")
+    if len(password.encode("utf-8")) > 72:
+        problems.append("at most 72 characters")
+    if problems:
+        raise HTTPException(status_code=400, detail="Password needs " + ", ".join(problems))
 
 
 async def create_session_for(user: dict, response: Response) -> dict:
@@ -369,8 +388,7 @@ async def exchange_session(payload: SessionExchange, response: Response):
 async def register(payload: RegisterIn, response: Response):
     email = payload.email.lower().strip()
     name = payload.name.strip()
-    if len(payload.password) < 8:
-        raise HTTPException(status_code=400, detail="Password must be at least 8 characters")
+    validate_password_strength(payload.password)
     if not name:
         raise HTTPException(status_code=400, detail="Name is required")
     existing = await db.users.find_one({"email": email})
@@ -436,8 +454,7 @@ async def forgot_password(payload: ForgotIn):
 
 @api_router.post("/auth/reset-password")
 async def reset_password(payload: ResetIn):
-    if len(payload.password) < 8:
-        raise HTTPException(status_code=400, detail="Password must be at least 8 characters")
+    validate_password_strength(payload.password)
     doc = await db.password_reset_tokens.find_one({"token": payload.token})
     if not doc or doc.get("used"):
         raise HTTPException(status_code=400, detail="This reset link is invalid or has already been used")
@@ -555,8 +572,7 @@ async def add_admin(payload: AdminEmailIn, request: Request):
 
     # Optional: create/update an email+password login so this admin doesn't need Google
     if payload.password:
-        if len(payload.password) < 8:
-            raise HTTPException(status_code=400, detail="Password must be at least 8 characters")
+        validate_password_strength(payload.password)
         existing_user = await db.users.find_one({"email": email}, {"_id": 0})
         if existing_user:
             await db.users.update_one({"email": email}, {"$set": {"password_hash": hash_password(payload.password)}})

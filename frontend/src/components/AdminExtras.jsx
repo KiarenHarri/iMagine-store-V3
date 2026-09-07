@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { TrendingUp, Tag, Trash2, ImagePlus, Wrench, Percent, Inbox, UserPlus, ShieldCheck } from "lucide-react";
+import PasswordChecklist, { passwordValid } from "./PasswordChecklist";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -97,13 +98,14 @@ export function TeamPanel() {
           <button
             type="button"
             data-testid="team-add-btn"
-            disabled={busy || !/\S+@\S+\.\S+/.test(email) || (password.length > 0 && password.length < 8)}
+            disabled={busy || !/\S+@\S+\.\S+/.test(email) || (password.length > 0 && !passwordValid(password))}
             onClick={add}
             className="flex items-center justify-center gap-2 rounded-full bg-brand px-6 py-3.5 text-sm font-semibold text-white transition-colors duration-300 hover:bg-brand-hover disabled:cursor-not-allowed disabled:opacity-40"
           >
             <UserPlus size={15} /> {busy ? "Adding…" : "Add admin"}
           </button>
         </div>
+        <PasswordChecklist password={password} />
         <p className="text-xs text-mute">Leave the password blank for Google sign-in, or set one so they can log in with email + password instead.</p>
       </div>
 

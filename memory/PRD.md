@@ -256,3 +256,8 @@ Build a polished, responsive multi-page Imagine Store Apple reseller website. Pr
 - Team tab admins can now be added with email + password (no Google needed): POST /admin/admins accepts optional password/name — creates the password account (bcrypt) or sets a password on an existing account, then grants admin. Password min 8 chars. TeamPanel UI gained an optional password field with hint text.
 - Verified: created teammate-test@example.com with password via API, logged in via /auth/login (is_admin: true), accessed admin data (200), short password rejected (400), removal revoked access (403), cleaned up.
 - Note: owner (kiarenh666) used the Team tab live and removed the test admin mid-session — feature confirmed working in real use; test.user@example.com was restored (admin_removals entry cleared).
+
+## Implemented (2026-09-07, update 41 — Password strength rules)
+- All password creation now requires: 8+ chars, uppercase, lowercase, number, special character (max 72 for bcrypt). Shared backend validator returns a specific message listing exactly what's missing. Applied to: customer registration, password reset, and Team-tab admin creation.
+- Live checklist UI (PasswordChecklist component) on the register form, reset-password form, and Team tab password field — rules tick green as you type; submit/add buttons stay disabled until all rules pass.
+- Verified: API rejects "password"/"Password1" with precise messages, accepts "Password1!" (register + login work); browser shows 1/5 rules green for weak input with disabled submit, 5/5 with enabled submit for strong input. Test account cleaned up.

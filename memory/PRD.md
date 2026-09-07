@@ -281,3 +281,9 @@ Build a polished, responsive multi-page Imagine Store Apple reseller website. Pr
 - README.md gained a "Run it yourself" self-hosting section: run commands, full env var table, Google Cloud setup steps.
 - Verified: backend restarts clean, health/sales/auth routes work, /api/auth/session 404s, google endpoint 307-redirects, no emergent/posthog strings in served page, Google button degrades gracefully.
 - NOTE: emails will NOT send until the user sets RESEND_API_KEY; Google sign-in inactive until Google creds set.
+
+## Implemented (2026-09-07, update 45 — codebase slimmed to 27 files)
+- Frontend: 78 → 19 source files. Deleted the entire unused shadcn ui/ folder (45 files, only sonner was used — inlined), dead hooks/utils, App.css. Merged: Nav+Footer → components/Layout.jsx; motion+Marquee+PasswordChecklist+ProductCard+SaleStrip+Wizard+Toaster → components/Shared.jsx; api.js+auth.jsx → lib/client.jsx; About+Contact → pages/Info.jsx; ResetPassword → pages/Account.jsx; AdminExtras → pages/Admin.jsx.
+- Backend: 14 → 8 files. config.py merged into database.py; security.py merged into auth.py; routes/* merged into routes.py. server.py stays the thin entrypoint (uvicorn server:app unchanged).
+- Final layout: FRONTEND 19 files (index.js, App.js, index.css, lib/{data.js, client.jsx}, components/{Layout, Phone3D, Shared}, 11 pages), BACKEND 8 files (server, database, models, auth, routes, mailer, pdfgen, utils). Every file has a plain-language header comment. README file map updated.
+- Verified: yarn build compiles clean; all 12 routes render (home/shop/category/accessories/repairs/about/contact/quote×2/trade-in/account/reset-password); phone colours + live clock work; nav/footer/toaster mounted; backend API regression (quotes, admin stats, auth/me, sales) passed.

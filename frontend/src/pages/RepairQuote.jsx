@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { WizardShell, OptionCard, SuccessPanel, fieldCls } from "../components/Wizard";
-import { submitRepairQuote } from "../lib/api";
-import { useAuth } from "../lib/auth";
+import { WizardShell, OptionCard, SuccessPanel, fieldCls } from "../components/Shared";
+import { submitRepairQuote } from "../lib/client";
+import { useAuth } from "../lib/client";
 import { repairDevices } from "../lib/data";
 
 const ISSUES = ["Cracked / damaged screen", "Battery draining fast", "Won't turn on", "Liquid damage", "Software / slow performance", "Camera or speaker fault", "Something else"];

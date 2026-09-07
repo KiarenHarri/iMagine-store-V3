@@ -1,9 +1,7 @@
 import { useParams, Link, Navigate } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
-import { MaskedLine, Reveal } from "../components/motion";
-import ProductCard from "../components/ProductCard";
-import Marquee from "../components/Marquee";
+import { Marquee, MaskedLine, ProductCard, Reveal } from "../components/Shared";
 import { categories, products } from "../lib/data";
 
 export default function Category() {

@@ -79,51 +79,46 @@ Visitor's browser
 
 ## 1. FRONTEND — `/app/frontend` (JavaScript / React)
 
-Everything the visitor sees and clicks.
+Everything the visitor sees and clicks. 19 source files, each labeled at the top.
 
 | File / folder | What it is |
 |---|---|
+| `src/index.js` | Boot file — mounts the app |
 | `src/App.js` | The router — decides which page shows for each web address |
+| `src/index.css` | All global styles and the brand theme |
+| `src/lib/data.js` | The product catalogue data, images, iPhone model/colour lists |
+| `src/lib/client.jsx` | API calls + sign-in state (auth) for the whole frontend |
+| `src/components/Layout.jsx` | Navbar + footer (every page) |
+| `src/components/Phone3D.jsx` | The animated 3D iPhone with live clock and colour switcher |
+| `src/components/Shared.jsx` | Shared building blocks: motion helpers, marquee, product/sale cards, wizard parts, password meter, toasts |
 | `src/pages/Home.jsx` | Homepage (hero, 3D phone, sale strip, chapters) |
-| `src/pages/Shop.jsx`, `Category.jsx` | Product catalogue and per-category pages |
+| `src/pages/Shop.jsx` | Product catalogue grid |
+| `src/pages/Category.jsx` | Per-category product pages |
+| `src/pages/Accessories.jsx` | Accessories page |
+| `src/pages/Repairs.jsx` | Repairs page with the blueprint parallax art |
 | `src/pages/ProductQuote.jsx` | The product/sale quote wizard (incl. iPhone colour & storage picker) |
 | `src/pages/RepairQuote.jsx` | The repair quote wizard |
-| `src/pages/Repairs.jsx` | Repairs page with the blueprint parallax art |
 | `src/pages/TradeIn.jsx` | Trade-in value calculator |
-| `src/pages/Account.jsx` | Sign in / register / forgot password |
-| `src/pages/ResetPassword.jsx` | "Set new password" page from email links |
-| `src/pages/Admin.jsx` | Team console (quotes, statuses, messages) |
-| `src/pages/About.jsx`, `Contact.jsx`, `Accessories.jsx` | Content pages |
-| `src/components/Nav.jsx`, `Footer.jsx` | Navbar and footer on every page |
-| `src/components/Phone3D.jsx` | The animated 3D iPhone with live clock and colour switcher |
-| `src/components/SaleStrip.jsx` | Sale cards with live countdown |
-| `src/components/AdminExtras.jsx` | Admin stats, sales manager, Team (admin) panel |
-| `src/components/PasswordChecklist.jsx` | Password strength meter + rules checklist |
-| `src/components/Wizard.jsx`, `motion.jsx`, `Marquee.jsx`, `ProductCard.jsx` | Shared building blocks |
-| `src/lib/data.js` | The product catalogue data, images, iPhone model/colour lists |
-| `src/lib/auth.jsx` | Sign-in state and login/logout helpers |
-| `src/lib/api.js` | The functions the pages use to talk to the backend |
+| `src/pages/Info.jsx` | About + Contact pages |
+| `src/pages/Account.jsx` | Sign in / register / forgot password + reset password page |
+| `src/pages/Admin.jsx` | Team console (quotes, statuses, sales, team, messages, stats) |
 | `public/assets/` | Logo and blueprint images |
 | `public/index.html` | The single HTML shell everything loads into |
 
 ## 2. BACKEND — `/app/backend` (Python / FastAPI)
 
-The server. The frontend never touches the database directly — it always asks the backend.
+The server. 8 files, each labeled at the top. The frontend never touches the database directly.
 
 | File | What it is |
 |---|---|
 | `server.py` | Entry point — builds the app and mounts the routes (start here) |
-| `config.py` | Environment settings + constants (owner emails, status flows) |
-| `database.py` | The MongoDB connection + the admin-membership check |
+| `database.py` | Environment settings + MongoDB connection + admin-membership check |
 | `models.py` | The shape of every API request (quotes, sales, admins…) |
-| `security.py` | Password hashing, strength rules, brute-force lockout |
-| `auth.py` | Sign-in: Google exchange, email+password, sessions, reset links, access guards |
-| `routes/public.py` | Health check + the live sales shown on the site |
-| `routes/quotes.py` | Product/repair quotes, customer accept/decline, PDF downloads |
-| `routes/contact.py` | Contact form submissions |
-| `routes/admin.py` | Team console APIs: statuses, deletes, admins, sales, stats |
+| `auth.py` | Sign-in & security: Google OAuth, email+password, sessions, reset links, password rules, lockout |
+| `routes.py` | All endpoints: public, quotes, contact, admin |
 | `mailer.py` | Sends the emails (team alerts, customer confirmations, password resets) |
 | `pdfgen.py` | Generates the branded downloadable quote PDFs |
+| `utils.py` | Small helpers (reference codes, timestamps, sale window) |
 | `requirements.txt` | The Python packages the backend needs |
 
 ## 3. DATABASE — MongoDB

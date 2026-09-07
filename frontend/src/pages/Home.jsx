@@ -2,10 +2,8 @@ import { useRef } from "react";
 import { Link } from "react-router-dom";
 import { motion, useScroll, useTransform, useMotionValue, useSpring } from "framer-motion";
 import { ArrowRight, ArrowUpRight, Wrench, BadgeCheck, MapPin, RotateCcw } from "lucide-react";
-import { MaskedLine, Reveal, ease } from "../components/motion";
-import Marquee from "../components/Marquee";
+import { ease, Marquee, MaskedLine, Reveal, SaleStrip } from "../components/Shared";
 import Phone3D from "../components/Phone3D";
-import SaleStrip from "../components/SaleStrip";
 import { categories, chapters, IMAGES, MARQUEE_ITEMS, BRAND } from "../lib/data";
 
 function Hero() {

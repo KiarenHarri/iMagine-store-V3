@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
-import { WizardShell, OptionCard, SuccessPanel, fieldCls } from "../components/Wizard";
-import { submitProductQuote } from "../lib/api";
-import { useAuth } from "../lib/auth";
+import { WizardShell, OptionCard, SuccessPanel, fieldCls } from "../components/Shared";
+import { submitProductQuote } from "../lib/client";
+import { useAuth } from "../lib/client";
 import { categories, products, accessories, IPHONE_MODELS, OLDER_IPHONE } from "../lib/data";
 
 const STORAGE = ["128GB", "256GB", "512GB", "1TB", "Not sure yet"];

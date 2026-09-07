@@ -1,8 +1,7 @@
 import { Link } from "react-router-dom";
 import { ArrowUpRight, ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
-import { MaskedLine, Reveal } from "../components/motion";
-import Marquee from "../components/Marquee";
+import { Marquee, MaskedLine, Reveal } from "../components/Shared";
 import { accessories } from "../lib/data";
 
 export default function Accessories() {

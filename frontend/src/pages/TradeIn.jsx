@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowRight, RotateCcw, Info } from "lucide-react";
-import { MaskedLine, Reveal, ease } from "../components/motion";
+import { MaskedLine, Reveal, ease } from "../components/Shared";
 import { TRADE_IN, CONDITION_MULTIPLIERS } from "../lib/data";
 
 const money = (n) => `R ${(Math.round(n / 100) * 100).toLocaleString("en-ZA")}`;

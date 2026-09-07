@@ -1,25 +1,23 @@
 import { useEffect, useRef, lazy, Suspense } from "react";
-import "@/App.css";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import Lenis from "lenis";
-import { Toaster } from "@/components/ui/sonner";
-import Nav from "@/components/Nav";
-import Footer from "@/components/Footer";
-import { AuthProvider } from "@/lib/auth";
+import { Toaster } from "@/components/Shared";
+import { Nav, Footer } from "@/components/Layout";
+import { AuthProvider } from "@/lib/client";
 import Home from "@/pages/Home";
 
 const Shop = lazy(() => import("@/pages/Shop"));
 const Category = lazy(() => import("@/pages/Category"));
 const Accessories = lazy(() => import("@/pages/Accessories"));
 const Repairs = lazy(() => import("@/pages/Repairs"));
-const About = lazy(() => import("@/pages/About"));
-const Contact = lazy(() => import("@/pages/Contact"));
+const About = lazy(() => import("@/pages/Info").then((m) => ({ default: m.About })));
+const Contact = lazy(() => import("@/pages/Info").then((m) => ({ default: m.Contact })));
 const ProductQuote = lazy(() => import("@/pages/ProductQuote"));
 const RepairQuote = lazy(() => import("@/pages/RepairQuote"));
 const Account = lazy(() => import("@/pages/Account"));
 const Admin = lazy(() => import("@/pages/Admin"));
 const TradeIn = lazy(() => import("@/pages/TradeIn"));
-const ResetPassword = lazy(() => import("@/pages/ResetPassword"));
+const ResetPassword = lazy(() => import("@/pages/Account").then((m) => ({ default: m.ResetPassword })));
 
 const PageLoader = () => (
   <div className="flex min-h-[60vh] items-center justify-center bg-paper" data-testid="page-loader">

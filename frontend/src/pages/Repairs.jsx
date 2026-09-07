@@ -2,9 +2,8 @@ import { useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { motion, useScroll, useTransform, useMotionValue, useSpring } from "framer-motion";
 import { ArrowRight, Wrench, BadgeCheck, Search, Building2, GraduationCap, Clock } from "lucide-react";
-import { MaskedLine, Reveal } from "../components/motion";
-import Marquee from "../components/Marquee";
-import { lookupRepair } from "../lib/api";
+import { Marquee, MaskedLine, Reveal } from "../components/Shared";
+import { lookupRepair } from "../lib/client";
 import { repairServices, repairDevices, BRAND, IMAGES } from "../lib/data";
 
 function StatusLookup() {

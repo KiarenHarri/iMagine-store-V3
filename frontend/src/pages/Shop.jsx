@@ -2,9 +2,7 @@ import { useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { Search } from "lucide-react";
 import { motion } from "framer-motion";
-import { Reveal } from "../components/motion";
-import ProductCard from "../components/ProductCard";
-import SaleStrip from "../components/SaleStrip";
+import { ProductCard, Reveal, SaleStrip } from "../components/Shared";
 import { products, categories } from "../lib/data";
 
 const PILLS = [{ slug: "all", name: "All" }, ...categories.filter((c) => c.slug !== "accessories")];

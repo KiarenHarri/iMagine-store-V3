@@ -83,3 +83,7 @@ html.lenis, html.lenis body { height: auto; }
         border-left-color: inherit; border-right-color: inherit; border-top-color: inherit; border-bottom-color: inherit;
     }
 }
+
+.App {
+  min-height: 100vh;
+}

@@ -1,32 +1,28 @@
-# BACKEND ENTRYPOINT — builds the FastAPI app, mounts the route modules, CORS, startup/shutdown.
+# BACKEND ENTRYPOINT — builds the FastAPI app, mounts the routers, CORS, startup/shutdown.
 # Code map for the whole project: /app/README.md
 #
-# Layout:
-#   config.py        environment + constants
-#   database.py      MongoDB connection + admin check
-#   models.py        request/response shapes
-#   security.py      password hashing, strength rules, lockout
-#   auth.py          sessions + sign-in routes + access guards
-#   routes/          public, quotes, contact, admin endpoints
-#   mailer.py        outgoing email   ·   pdfgen.py   quote PDFs
+# Files:
+#   server.py    this entrypoint
+#   database.py  env config + MongoDB + admin check
+#   models.py    request/response shapes
+#   auth.py      sessions, Google OAuth, email/password, password rules
+#   routes.py    all endpoints (public, quotes, contact, admin)
+#   mailer.py    outgoing email   ·   pdfgen.py   quote PDFs   ·   utils.py   small helpers
 import logging
 import os
 
 from fastapi import FastAPI
 from starlette.middleware.cors import CORSMiddleware
 
-import config  # noqa: F401  (loads .env first)
+import database  # noqa: F401  (loads .env first)
 from database import client, db
 from auth import router as auth_router
-from routes.admin import router as admin_router
-from routes.contact import router as contact_router
-from routes.public import router as public_router
-from routes.quotes import router as quotes_router
+from routes import router as api_router
 
 app = FastAPI()
 
-for module_router in (public_router, quotes_router, contact_router, auth_router, admin_router):
-    app.include_router(module_router, prefix="/api")
+app.include_router(api_router, prefix="/api")
+app.include_router(auth_router, prefix="/api")
 
 app.add_middleware(
     CORSMiddleware,

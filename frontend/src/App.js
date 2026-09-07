@@ -12,7 +12,6 @@ const Shop = lazy(() => import("@/pages/Shop"));
 const Category = lazy(() => import("@/pages/Category"));
 const Accessories = lazy(() => import("@/pages/Accessories"));
 const Repairs = lazy(() => import("@/pages/Repairs"));
-const MicrosoftServices = lazy(() => import("@/pages/MicrosoftServices"));
 const About = lazy(() => import("@/pages/About"));
 const Contact = lazy(() => import("@/pages/Contact"));
 const ProductQuote = lazy(() => import("@/pages/ProductQuote"));
@@ -72,7 +71,6 @@ function AppRouter() {
           <Route path="/shop/:slug" element={<Category />} />
           <Route path="/accessories" element={<Accessories />} />
           <Route path="/repairs" element={<Repairs />} />
-          <Route path="/microsoft-services" element={<MicrosoftServices />} />
           <Route path="/about" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           <Route path="/quote/product" element={<ProductQuote />} />

@@ -4,7 +4,7 @@ import { ShieldAlert, RefreshCw, Wrench, PackageSearch, Mail, Trash2 } from "luc
 import { useAuth, startGoogleLogin } from "../lib/auth";
 import { MaskedLine, Reveal } from "../components/motion";
 import { STATUS_FLOWS, CANCEL_STATUS } from "../lib/data";
-import { StatsStrip, SalesPanel } from "../components/AdminExtras";
+import { StatsStrip, SalesPanel, TeamPanel } from "../components/AdminExtras";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 
@@ -15,6 +15,7 @@ const TABS = [
   { id: "repair", label: "Repairs" },
   { id: "contact", label: "Messages" },
   { id: "sales", label: "Sales" },
+  { id: "team", label: "Team" },
 ];
 
 export default function Admin() {
@@ -155,7 +156,9 @@ export default function Admin() {
           ))}
         </div>
 
-        {tab === "sales" ? (
+        {tab === "team" ? (
+          <div className="mt-8"><TeamPanel /></div>
+        ) : tab === "sales" ? (
           <div className="mt-8"><SalesPanel /></div>
         ) : data === null ? (
           <div className="mt-10 flex justify-center py-10"><div className="h-8 w-8 animate-spin rounded-full border-2 border-ink/10 border-t-brand" /></div>

@@ -43,7 +43,6 @@ export default function Footer() {
             <p className="eyebrow !text-paper/40">Company</p>
             <ul className="mt-4 space-y-2.5 text-sm text-paper/70">
               <li><Link to="/about" data-testid="footer-link-about" className="transition-colors duration-200 hover:text-brand">About</Link></li>
-              <li><Link to="/microsoft-services" data-testid="footer-link-microsoft" className="transition-colors duration-200 hover:text-brand">Microsoft Services</Link></li>
               <li><Link to="/repairs" data-testid="footer-link-repairs" className="transition-colors duration-200 hover:text-brand">Repairs</Link></li>
               <li><Link to="/contact" data-testid="footer-link-contact" className="transition-colors duration-200 hover:text-brand">Contact</Link></li>
               <li><Link to="/quote/product" data-testid="footer-link-quote" className="transition-colors duration-200 hover:text-brand">Get a Quote</Link></li>

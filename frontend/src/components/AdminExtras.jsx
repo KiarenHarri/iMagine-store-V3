@@ -1,8 +1,144 @@
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
-import { TrendingUp, Tag, Trash2, ImagePlus, Wrench, Percent, Inbox } from "lucide-react";
+import { TrendingUp, Tag, Trash2, ImagePlus, Wrench, Percent, Inbox, UserPlus, ShieldCheck } from "lucide-react";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+
+export function TeamPanel() {
+  const [admins, setAdmins] = useState(null);
+  const [email, setEmail] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [confirmRemove, setConfirmRemove] = useState("");
+
+  const load = async () => {
+    try {
+      const res = await fetch(`${API}/admin/admins`, { credentials: "include" });
+      if (!res.ok) throw new Error();
+      const data = await res.json();
+      setAdmins(data.admins || []);
+    } catch {
+      toast.error("Could not load team admins");
+    }
+  };
+
+  useEffect(() => {
+    load();
+  }, []);
+
+  const add = async () => {
+    setBusy(true);
+    try {
+      const res = await fetch(`${API}/admin/admins`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({ email: email.trim() }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.detail || "Could not add admin");
+      toast.success(`${email.trim()} can now open the team console`);
+      setEmail("");
+      load();
+    } catch (e) {
+      toast.error(e.message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const remove = async (target) => {
+    setBusy(true);
+    try {
+      const res = await fetch(`${API}/admin/admins/${encodeURIComponent(target)}`, { method: "DELETE", credentials: "include" });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.detail || "Could not remove admin");
+      toast.success(`${target} removed from the team`);
+      setConfirmRemove("");
+      load();
+    } catch (e) {
+      toast.error(e.message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const slug = (e) => e.replace(/[^a-z0-9]+/gi, "-");
+
+  return (
+    <div className="rounded-3xl border border-black/5 bg-white p-6 lg:p-8" data-testid="team-panel">
+      <div className="flex items-center gap-3">
+        <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-subtle text-brand"><ShieldCheck size={18} /></span>
+        <div>
+          <h2 className="font-display text-lg font-bold text-ink">Team admins</h2>
+          <p className="text-xs text-mute">These Google accounts can open the team console. They sign in with Google — no passwords needed.</p>
+        </div>
+      </div>
+
+      <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+        <input
+          type="email"
+          data-testid="team-email-input"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="teammate@gmail.com"
+          className="w-full flex-1 rounded-2xl border border-ink/10 bg-paper px-5 py-3.5 text-sm outline-none transition-colors focus:border-brand"
+        />
+        <button
+          type="button"
+          data-testid="team-add-btn"
+          disabled={busy || !/\S+@\S+\.\S+/.test(email)}
+          onClick={add}
+          className="flex items-center justify-center gap-2 rounded-full bg-brand px-6 py-3.5 text-sm font-semibold text-white transition-colors duration-300 hover:bg-brand-hover disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          <UserPlus size={15} /> {busy ? "Adding…" : "Add admin"}
+        </button>
+      </div>
+
+      <div className="mt-6 grid grid-cols-1 gap-3" data-testid="team-admin-list">
+        {(admins || []).map((a) => (
+          <div key={a.email} data-testid={`team-admin-row-${slug(a.email)}`} className="flex items-center justify-between gap-4 rounded-2xl border border-black/5 bg-paper px-5 py-4">
+            <div className="min-w-0">
+              <p className="truncate text-sm font-semibold text-ink">{a.email}</p>
+              <p className="mt-0.5 text-xs text-mute">
+                {a.builtin ? "Built-in admin" : `Added by ${a.added_by || "team"}${a.created_at ? ` · ${new Date(a.created_at).toLocaleDateString("en-ZA", { day: "numeric", month: "short" })}` : ""}`}
+              </p>
+            </div>
+            <div className="flex shrink-0 items-center gap-2">
+              {a.builtin && (
+                <span className="rounded-full bg-ink px-3 py-1 text-[10px] font-bold uppercase tracking-[0.15em] text-white">Built-in</span>
+              )}
+              {confirmRemove === a.email ? (
+                <button
+                  type="button"
+                  data-testid={`team-remove-confirm-${slug(a.email)}`}
+                  disabled={busy}
+                  onClick={() => remove(a.email)}
+                  className="shrink-0 rounded-full bg-red-600 px-4 py-2 text-xs font-bold text-white transition-colors duration-200 hover:bg-red-700 disabled:opacity-50"
+                >
+                  Confirm remove
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  data-testid={`team-remove-${slug(a.email)}`}
+                  aria-label={`Remove ${a.email}`}
+                  onClick={() => {
+                    setConfirmRemove(a.email);
+                    setTimeout(() => setConfirmRemove((c) => (c === a.email ? "" : c)), 4000);
+                  }}
+                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-ink/10 text-ink/40 transition-colors duration-200 hover:border-red-300 hover:text-red-600"
+                >
+                  <Trash2 size={15} />
+                </button>
+              )}
+            </div>
+          </div>
+        ))}
+        {admins === null && <p className="py-6 text-center text-sm text-mute">Loading…</p>}
+      </div>
+    </div>
+  );
+}
 
 export function StatsStrip() {
   const [stats, setStats] = useState(null);

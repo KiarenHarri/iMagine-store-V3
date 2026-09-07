@@ -26,6 +26,17 @@ db = client[os.environ['DB_NAME']]
 
 ADMIN_EMAILS = {e.strip().lower() for e in os.environ.get("ADMIN_EMAILS", "").split(",") if e.strip()}
 
+
+async def is_admin_email(email: str) -> bool:
+    e = email.lower().strip()
+    removed = await db.admin_removals.find_one({"email": e}, {"_id": 0})
+    if removed:
+        return False
+    if e in ADMIN_EMAILS:
+        return True
+    doc = await db.admins.find_one({"email": e}, {"_id": 0})
+    return doc is not None
+
 STATUS_FLOWS = {
     "product": ["Received", "Quoting", "Quote sent", "Confirmed", "Completed"],
     "repair": ["Received — awaiting assessment", "Assessing", "Quote sent", "Approved — in repair", "Ready for collection", "Completed"],
@@ -247,7 +258,7 @@ async def create_session_for(user: dict, response: Response) -> dict:
         path="/",
         max_age=7 * 24 * 3600,
     )
-    return {**user, "is_admin": user["email"].lower() in ADMIN_EMAILS}
+    return {**user, "is_admin": await is_admin_email(user["email"])}
 
 
 async def check_lockout(identifier: str) -> None:
@@ -351,7 +362,7 @@ async def exchange_session(payload: SessionExchange, response: Response):
         path="/",
         max_age=7 * 24 * 3600,
     )
-    return {**user, "is_admin": email.lower() in ADMIN_EMAILS}
+    return {**user, "is_admin": await is_admin_email(email)}
 
 
 @api_router.post("/auth/register")
@@ -445,12 +456,12 @@ async def reset_password(payload: ResetIn):
 @api_router.get("/auth/me")
 async def auth_me(request: Request):
     user = await get_current_user(request)
-    return {**user, "is_admin": user["email"].lower() in ADMIN_EMAILS}
+    return {**user, "is_admin": await is_admin_email(user["email"])}
 
 
 async def get_admin_user(request: Request):
     user = await get_current_user(request)
-    if user["email"].lower() not in ADMIN_EMAILS:
+    if not await is_admin_email(user["email"]):
         raise HTTPException(status_code=403, detail="Team access only")
     return user
 
@@ -520,6 +531,56 @@ async def admin_delete_quote(reference: str, request: Request):
     if res.deleted_count == 0:
         raise HTTPException(status_code=404, detail="Quote not found")
     return {"message": "Quote deleted", "reference": reference.strip().upper()}
+
+
+class AdminEmailIn(BaseModel):
+    email: EmailStr
+
+
+@api_router.get("/admin/admins")
+async def list_admins(request: Request):
+    await get_admin_user(request)
+    removed = {r["email"] async for r in db.admin_removals.find({}, {"_id": 0, "email": 1})}
+    extra = await db.admins.find({}, {"_id": 0}).sort("created_at", -1).to_list(100)
+    builtin = [{"email": e, "builtin": True, "added_by": None, "created_at": None} for e in sorted(ADMIN_EMAILS) if e not in removed]
+    return {"admins": builtin + [{**a, "builtin": False} for a in extra if a["email"] not in ADMIN_EMAILS]}
+
+
+@api_router.post("/admin/admins")
+async def add_admin(payload: AdminEmailIn, request: Request):
+    user = await get_admin_user(request)
+    email = payload.email.lower().strip()
+    if email in ADMIN_EMAILS:
+        # Re-adding a built-in admin clears any previous removal
+        res = await db.admin_removals.delete_many({"email": email})
+        if res.deleted_count:
+            return {"email": email, "added_by": user["email"], "created_at": now_iso(), "builtin": True}
+        raise HTTPException(status_code=400, detail="This email is already an admin")
+    if await db.admins.find_one({"email": email}, {"_id": 0}):
+        raise HTTPException(status_code=400, detail="This email is already an admin")
+    doc = {"id": str(uuid.uuid4()), "email": email, "added_by": user["email"], "created_at": now_iso()}
+    await db.admins.insert_one(doc)
+    return {"email": email, "added_by": user["email"], "created_at": doc["created_at"], "builtin": False}
+
+
+@api_router.delete("/admin/admins/{email}")
+async def remove_admin(email: str, request: Request):
+    user = await get_admin_user(request)
+    e = email.lower().strip()
+    if e == user["email"].lower():
+        raise HTTPException(status_code=400, detail="You cannot remove your own admin access")
+    if e in ADMIN_EMAILS:
+        await db.admin_removals.update_one(
+            {"email": e},
+            {"$set": {"email": e, "removed_by": user["email"], "created_at": now_iso()}},
+            upsert=True,
+        )
+        await db.admins.delete_many({"email": e})
+        return {"message": "Admin removed", "email": e}
+    res = await db.admins.delete_one({"email": e})
+    if res.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Admin not found")
+    return {"message": "Admin removed", "email": e}
 
 
 class SaleIn(BaseModel):

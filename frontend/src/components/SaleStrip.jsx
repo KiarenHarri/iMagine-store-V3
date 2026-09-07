@@ -1,10 +1,31 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { ArrowRight, Tag } from "lucide-react";
+import { ArrowRight, Tag, Timer } from "lucide-react";
 import { Reveal } from "./motion";
 import { products, accessories } from "../lib/data";
 
 const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
+
+const useNow = () => {
+  const [now, setNow] = useState(Date.now());
+  useEffect(() => {
+    const t = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(t);
+  }, []);
+  return now;
+};
+
+const countdownText = (endsAt, now) => {
+  const diff = new Date(endsAt).getTime() - now;
+  if (Number.isNaN(diff) || diff <= 0) return "Ending soon";
+  const d = Math.floor(diff / 86400000);
+  const h = Math.floor((diff % 86400000) / 3600000);
+  const m = Math.floor((diff % 3600000) / 60000);
+  const s = Math.floor((diff % 60000) / 1000);
+  if (d >= 2) return `Ends in ${d}d ${h}h`;
+  const hh = String(d * 24 + h).padStart(2, "0");
+  return `Ends in ${hh}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+};
 
 const findCategory = (name) => {
   const n = name.toLowerCase();
@@ -29,6 +50,7 @@ const saleQuoteLink = (s) => {
 
 export default function SaleStrip({ dark = false }) {
   const [sales, setSales] = useState(null);
+  const now = useNow();
 
   useEffect(() => {
     fetch(`${API}/sales`)
@@ -71,6 +93,16 @@ export default function SaleStrip({ dark = false }) {
                 <div className="flex flex-1 flex-col p-6">
                   <h3 className={`font-display text-lg font-bold ${dark ? "text-paper" : "text-ink"}`}>{s.name}</h3>
                   {s.description && <p className={`mt-1 text-sm ${dark ? "text-paper/60" : "text-ink/60"}`}>{s.description}</p>}
+                  {s.ends_at && (
+                    <span
+                      data-testid={`sale-countdown-${s.id}`}
+                      className={`mt-3 inline-flex w-fit items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-bold uppercase tracking-[0.12em] ${
+                        dark ? "bg-brand/15 text-brand" : "bg-brand-subtle text-brand"
+                      }`}
+                    >
+                      <Timer size={11} className="animate-pulse" /> {countdownText(s.ends_at, now)}
+                    </span>
+                  )}
                   <div className="mt-4 flex items-baseline gap-3">
                     <span className="font-display text-2xl font-extrabold text-brand">{s.price}</span>
                     {s.was_price && (

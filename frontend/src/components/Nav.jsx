@@ -7,34 +7,11 @@ import { useAuth, startGoogleLogin } from "../lib/auth";
 const LINKS = [
   { to: "/", label: "Home" },
   { to: "/shop", label: "Shop" },
-  { to: "/microsoft-services", label: "Microsoft" },
   { to: "/repairs", label: "Repairs" },
   { to: "/accessories", label: "Accessories" },
   { to: "/about", label: "About" },
   { to: "/contact", label: "Contact" },
 ];
-
-const MS_GRADIENT = "linear-gradient(90deg, #F25022 0%, #7FBA00 33%, #00A4EF 66%, #FFB900 100%)";
-
-const MicrosoftMark = ({ size = 5 }) => (
-  <span className="grid shrink-0 grid-cols-2 gap-[1.5px]" aria-hidden="true">
-    {["#F25022", "#7FBA00", "#00A4EF", "#FFB900"].map((c) => (
-      <span key={c} className="rounded-[1px]" style={{ backgroundColor: c, height: size, width: size }} />
-    ))}
-  </span>
-);
-
-const NavLabel = ({ label, mobile = false }) =>
-  label === "Microsoft" ? (
-    <span className="flex items-center gap-1.5">
-      <MicrosoftMark size={mobile ? 7 : 5} />
-      <span className="bg-clip-text text-transparent" style={{ backgroundImage: MS_GRADIENT }}>
-        Microsoft
-      </span>
-    </span>
-  ) : (
-    label
-  );
 
 export default function Nav() {
   const [open, setOpen] = useState(false);
@@ -61,7 +38,7 @@ export default function Nav() {
                 }`
               }
             >
-              <NavLabel label={l.label} />
+              {l.label}
             </NavLink>
           ))}
         </nav>
@@ -142,7 +119,7 @@ export default function Nav() {
                     `rounded-xl px-3 py-3 font-display text-lg font-bold ${isActive ? "text-brand" : "text-ink"}`
                   }
                 >
-                  <NavLabel label={l.label} mobile />
+                  {l.label}
                 </NavLink>
               ))}
               <div className="mt-3 flex gap-3">

@@ -233,3 +233,14 @@ Build a polished, responsive multi-page Imagine Store Apple reseller website. Pr
 - Deal step shows a sale card built from the sale itself: name, sale price, struck-through was-price and the sale description (SaleStrip now passes desc). Customer only picks a colour: real swatches when the sale matches a known iPhone (case-insensitive), otherwise an optional colour text field.
 - Sale description is included in the submission notes so the team sees it ("Sale description: ...").
 - Verified in browser: iPhone deal (3 swatches, colour required, summary "iphone 17 pro · Silver · On sale R23000"); MacBook deal clicked from the live homepage sale strip, description shown, submitted end-to-end (IMQ-9812FC stored with is_sale, prices, colour, description in notes); normal quote flow regression passed (4 steps, no sale badge).
+
+## Implemented (2026-09-07, update 37 — Microsoft page removed + admin-managed team)
+- Microsoft Services page fully removed: page file deleted, route gone (old URL falls through to Home), nav link and four-colour styling removed from desktop+mobile nav (pill nav design kept), footer link removed, contact form service-prefill reverted.
+- Admin management: new "Team" tab in the admin dashboard lists all admins and lets an admin add a teammate's Google email (they then sign in with Google to reach the console) or remove added admins with a confirm step.
+- Backend: admins now = ADMIN_EMAILS env list (built-in, "Owner" badge, cannot be removed from UI) + MongoDB admins collection. New endpoints GET/POST/DELETE /api/admin/admins (admin-only). Guards: duplicate add → 400, removing built-in → 400, removing yourself → 400, non-admin → 403.
+- Verified: curl (add/duplicate/remove/access-grant 200 → revoked 403, builtin protected) + browser (Team tab lists 3 owners, add ui-admin@example.com, remove it, nav clean of Microsoft, /microsoft-services redirects Home).
+
+## Implemented (2026-09-07, update 38 — Sale countdown + removable built-in admins)
+- Sale cards (home + shop strips) now show a live countdown pill when a sale has an end date: "Ends in Xd Yh" for 2+ days out, ticking HH:MM:SS under that, with a pulsing timer icon. Sales with no end date show no pill.
+- Built-in (env-listed) admins can now be removed from the dashboard Team tab: removal writes a revocation record (admin_removals collection) that overrides the env list; re-adding the email clears the revocation and restores access. Self-removal remains blocked so the console can never be fully locked out.
+- Verified: countdown ticking live in browser (flash test deal 02:27:21 → decremented; real deals show days), temp sale deleted after; full admin lifecycle via curl (db admin added → removed builtin → builtin lost access 403 → re-added → restored 200 → self-removal 400 → cleanup → baseline 3 builtin admins); UI shows remove buttons on all rows.

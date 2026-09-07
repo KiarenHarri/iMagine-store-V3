@@ -7,6 +7,7 @@ const API = `${process.env.REACT_APP_BACKEND_URL}/api`;
 export function TeamPanel() {
   const [admins, setAdmins] = useState(null);
   const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
   const [confirmRemove, setConfirmRemove] = useState("");
 
@@ -32,12 +33,13 @@ export function TeamPanel() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
-        body: JSON.stringify({ email: email.trim() }),
+        body: JSON.stringify({ email: email.trim(), password }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.detail || "Could not add admin");
-      toast.success(`${email.trim()} can now open the team console`);
+      toast.success(password ? `${email.trim()} can now sign in with email + password` : `${email.trim()} can now open the team console`);
       setEmail("");
+      setPassword("");
       load();
     } catch (e) {
       toast.error(e.message);
@@ -70,28 +72,39 @@ export function TeamPanel() {
         <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-subtle text-brand"><ShieldCheck size={18} /></span>
         <div>
           <h2 className="font-display text-lg font-bold text-ink">Team admins</h2>
-          <p className="text-xs text-mute">These Google accounts can open the team console. They sign in with Google — no passwords needed.</p>
+          <p className="text-xs text-mute">These accounts can open the team console. They sign in with Google, or with an email + password you set below.</p>
         </div>
       </div>
 
-      <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-        <input
-          type="email"
-          data-testid="team-email-input"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="teammate@gmail.com"
-          className="w-full flex-1 rounded-2xl border border-ink/10 bg-paper px-5 py-3.5 text-sm outline-none transition-colors focus:border-brand"
-        />
-        <button
-          type="button"
-          data-testid="team-add-btn"
-          disabled={busy || !/\S+@\S+\.\S+/.test(email)}
-          onClick={add}
-          className="flex items-center justify-center gap-2 rounded-full bg-brand px-6 py-3.5 text-sm font-semibold text-white transition-colors duration-300 hover:bg-brand-hover disabled:cursor-not-allowed disabled:opacity-40"
-        >
-          <UserPlus size={15} /> {busy ? "Adding…" : "Add admin"}
-        </button>
+      <div className="mt-6 flex flex-col gap-3">
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <input
+            type="email"
+            data-testid="team-email-input"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="teammate@example.com"
+            className="w-full flex-1 rounded-2xl border border-ink/10 bg-paper px-5 py-3.5 text-sm outline-none transition-colors focus:border-brand"
+          />
+          <input
+            type="password"
+            data-testid="team-password-input"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Password (optional, min 8 chars)"
+            className="w-full flex-1 rounded-2xl border border-ink/10 bg-paper px-5 py-3.5 text-sm outline-none transition-colors focus:border-brand"
+          />
+          <button
+            type="button"
+            data-testid="team-add-btn"
+            disabled={busy || !/\S+@\S+\.\S+/.test(email) || (password.length > 0 && password.length < 8)}
+            onClick={add}
+            className="flex items-center justify-center gap-2 rounded-full bg-brand px-6 py-3.5 text-sm font-semibold text-white transition-colors duration-300 hover:bg-brand-hover disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            <UserPlus size={15} /> {busy ? "Adding…" : "Add admin"}
+          </button>
+        </div>
+        <p className="text-xs text-mute">Leave the password blank for Google sign-in, or set one so they can log in with email + password instead.</p>
       </div>
 
       <div className="mt-6 grid grid-cols-1 gap-3" data-testid="team-admin-list">

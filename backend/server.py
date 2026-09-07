@@ -535,6 +535,8 @@ async def admin_delete_quote(reference: str, request: Request):
 
 class AdminEmailIn(BaseModel):
     email: EmailStr
+    password: str = ""
+    name: str = ""
 
 
 @api_router.get("/admin/admins")
@@ -550,17 +552,40 @@ async def list_admins(request: Request):
 async def add_admin(payload: AdminEmailIn, request: Request):
     user = await get_admin_user(request)
     email = payload.email.lower().strip()
+
+    # Optional: create/update an email+password login so this admin doesn't need Google
+    if payload.password:
+        if len(payload.password) < 8:
+            raise HTTPException(status_code=400, detail="Password must be at least 8 characters")
+        existing_user = await db.users.find_one({"email": email}, {"_id": 0})
+        if existing_user:
+            await db.users.update_one({"email": email}, {"$set": {"password_hash": hash_password(payload.password)}})
+        else:
+            await db.users.insert_one({
+                "user_id": f"user_{uuid.uuid4().hex[:12]}",
+                "email": email,
+                "name": payload.name.strip() or email.split("@")[0],
+                "picture": "",
+                "password_hash": hash_password(payload.password),
+                "auth_provider": "password",
+                "created_at": now_iso(),
+            })
+
     if email in ADMIN_EMAILS:
         # Re-adding a built-in admin clears any previous removal
         res = await db.admin_removals.delete_many({"email": email})
         if res.deleted_count:
             return {"email": email, "added_by": user["email"], "created_at": now_iso(), "builtin": True}
+        if not payload.password:
+            raise HTTPException(status_code=400, detail="This email is already an admin")
+        return {"email": email, "added_by": user["email"], "created_at": now_iso(), "builtin": True}
+    existing_admin = await db.admins.find_one({"email": email}, {"_id": 0})
+    if existing_admin and not payload.password:
         raise HTTPException(status_code=400, detail="This email is already an admin")
-    if await db.admins.find_one({"email": email}, {"_id": 0}):
-        raise HTTPException(status_code=400, detail="This email is already an admin")
-    doc = {"id": str(uuid.uuid4()), "email": email, "added_by": user["email"], "created_at": now_iso()}
-    await db.admins.insert_one(doc)
-    return {"email": email, "added_by": user["email"], "created_at": doc["created_at"], "builtin": False}
+    if not existing_admin:
+        doc = {"id": str(uuid.uuid4()), "email": email, "added_by": user["email"], "created_at": now_iso()}
+        await db.admins.insert_one(doc)
+    return {"email": email, "added_by": user["email"], "created_at": now_iso(), "builtin": False}
 
 
 @api_router.delete("/admin/admins/{email}")

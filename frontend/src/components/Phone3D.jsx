@@ -10,6 +10,19 @@ const useClock = () => {
   return now;
 };
 
+// Isolated so its 1s ticking never re-renders the phone's motion tree (that froze the spin + colour clicks)
+const ClockFace = () => {
+  const now = useClock();
+  const timeStr = now.toLocaleTimeString("en-ZA", { hour: "2-digit", minute: "2-digit", hour12: false });
+  const dateStr = now.toLocaleDateString("en-ZA", { weekday: "long", day: "numeric", month: "long" });
+  return (
+    <>
+      <p className="font-display text-5xl font-extrabold tracking-tight text-white sm:text-6xl" data-testid="hero-phone-time">{timeStr}</p>
+      <p className="mt-1 text-[11px] font-medium uppercase tracking-[0.25em] text-white/50" data-testid="hero-phone-date">{dateStr}</p>
+    </>
+  );
+};
+
 const COLORS = [
   { id: "natural", label: "Natural Titanium", frame: "#b5ac9d", back: ["#d6cfc2", "#b8b0a0", "#9c9384"], module: "#c2baa9", wallpaper: "from-[#17171a] via-[#2b2620] to-brand/50", swatch: "#c3bcae" },
   { id: "blue", label: "Blue Titanium", frame: "#33445a", back: ["#48597a", "#34445c", "#232f40"], module: "#3d4e68", wallpaper: "from-[#10151d] via-[#1c2735] to-brand/40", swatch: "#39485e" },
@@ -98,11 +111,8 @@ const playSpinSound = () => {
   } catch {}
 };
 
-export default function Phone3D({ progress }) {
+export default function Phone3D({ progress, rx, ry }) {
   const [color, setColor] = useState(COLORS[0]);
-  const now = useClock();
-  const timeStr = now.toLocaleTimeString("en-ZA", { hour: "2-digit", minute: "2-digit", hour12: false });
-  const dateStr = now.toLocaleDateString("en-ZA", { weekday: "long", day: "numeric", month: "long" });
   const spin = useMotionValue(0);
   const scrollRot = useTransform(progress, [0, 1], [-22, 698]);
   const rotY = useTransform([scrollRot, spin], ([a, b]) => a + b);
@@ -122,6 +132,8 @@ export default function Phone3D({ progress }) {
 
   return (
     <div className="relative mx-auto w-52 sm:w-60 lg:w-64">
+      {/* tilt applies to the phone only — the colour picker below stays flat so clicks always land */}
+      <motion.div style={{ rotateX: rx, rotateY: ry, transformPerspective: 900, transformStyle: "preserve-3d" }} className="relative">
       <div style={{ perspective: 1400 }} data-testid="hero-iphone-3d">
         <motion.div
           style={{ rotateY: rotY, y: float, transformStyle: "preserve-3d" }}
@@ -134,8 +146,7 @@ export default function Phone3D({ progress }) {
             <div className={`absolute inset-0 bg-gradient-to-br transition-colors duration-500 ${color.wallpaper}`} />
             <div className="absolute left-1/2 top-2.5 h-[22px] w-24 -translate-x-1/2 rounded-full bg-black ring-1 ring-white/10" />
             <div className="absolute inset-0 flex flex-col items-center pt-16">
-              <p className="font-display text-5xl font-extrabold tracking-tight text-white sm:text-6xl" data-testid="hero-phone-time">{timeStr}</p>
-              <p className="mt-1 text-[11px] font-medium uppercase tracking-[0.25em] text-white/50" data-testid="hero-phone-date">{dateStr}</p>
+              <ClockFace />
               <div className="mt-auto mb-8 flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 backdrop-blur">
                 <img src="/assets/logo.png" alt="iMagine" className="h-4 w-4 rounded-full object-cover" />
                 <span className="text-[11px] font-semibold text-white/90">iMagine Store</span>
@@ -169,6 +180,7 @@ export default function Phone3D({ progress }) {
         </motion.div>
         <div className="mx-auto mt-8 h-5 w-3/4 rounded-[50%] bg-ink/15 blur-xl" />
       </div>
+      </motion.div>
 
       <div className="mt-6 flex flex-col items-center gap-2.5" data-testid="hero-color-picker">
         <div className="flex items-center gap-3">

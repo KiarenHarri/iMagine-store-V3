@@ -1,5 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, useTransform, useMotionValue, animate } from "framer-motion";
+
+const useClock = () => {
+  const [now, setNow] = useState(new Date());
+  useEffect(() => {
+    const t = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(t);
+  }, []);
+  return now;
+};
 
 const COLORS = [
   { id: "natural", label: "Natural Titanium", frame: "#b5ac9d", back: ["#d6cfc2", "#b8b0a0", "#9c9384"], module: "#c2baa9", wallpaper: "from-[#17171a] via-[#2b2620] to-brand/50", swatch: "#c3bcae" },
@@ -91,6 +100,9 @@ const playSpinSound = () => {
 
 export default function Phone3D({ progress }) {
   const [color, setColor] = useState(COLORS[0]);
+  const now = useClock();
+  const timeStr = now.toLocaleTimeString("en-ZA", { hour: "2-digit", minute: "2-digit", hour12: false });
+  const dateStr = now.toLocaleDateString("en-ZA", { weekday: "long", day: "numeric", month: "long" });
   const spin = useMotionValue(0);
   const scrollRot = useTransform(progress, [0, 1], [-22, 698]);
   const rotY = useTransform([scrollRot, spin], ([a, b]) => a + b);
@@ -122,8 +134,8 @@ export default function Phone3D({ progress }) {
             <div className={`absolute inset-0 bg-gradient-to-br transition-colors duration-500 ${color.wallpaper}`} />
             <div className="absolute left-1/2 top-2.5 h-[22px] w-24 -translate-x-1/2 rounded-full bg-black ring-1 ring-white/10" />
             <div className="absolute inset-0 flex flex-col items-center pt-16">
-              <p className="font-display text-5xl font-extrabold tracking-tight text-white sm:text-6xl">9:41</p>
-              <p className="mt-1 text-[11px] font-medium uppercase tracking-[0.25em] text-white/50">Friday 5 September</p>
+              <p className="font-display text-5xl font-extrabold tracking-tight text-white sm:text-6xl" data-testid="hero-phone-time">{timeStr}</p>
+              <p className="mt-1 text-[11px] font-medium uppercase tracking-[0.25em] text-white/50" data-testid="hero-phone-date">{dateStr}</p>
               <div className="mt-auto mb-8 flex items-center gap-2 rounded-full bg-white/10 px-4 py-2 backdrop-blur">
                 <img src="/assets/logo.png" alt="iMagine" className="h-4 w-4 rounded-full object-cover" />
                 <span className="text-[11px] font-semibold text-white/90">iMagine Store</span>

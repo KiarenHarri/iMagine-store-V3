@@ -244,3 +244,9 @@ Build a polished, responsive multi-page Imagine Store Apple reseller website. Pr
 - Sale cards (home + shop strips) now show a live countdown pill when a sale has an end date: "Ends in Xd Yh" for 2+ days out, ticking HH:MM:SS under that, with a pulsing timer icon. Sales with no end date show no pill.
 - Built-in (env-listed) admins can now be removed from the dashboard Team tab: removal writes a revocation record (admin_removals collection) that overrides the env list; re-adding the email clears the revocation and restores access. Self-removal remains blocked so the console can never be fully locked out.
 - Verified: countdown ticking live in browser (flash test deal 02:27:21 → decremented; real deals show days), temp sale deleted after; full admin lifecycle via curl (db admin added → removed builtin → builtin lost access 403 → re-added → restored 200 → self-removal 400 → cleanup → baseline 3 builtin admins); UI shows remove buttons on all rows.
+
+## Implemented (2026-09-07, update 39 — Performance pass 2 + live phone clock)
+- Hero phone screen now shows the real current time and date, ticking live (en-ZA format), replacing the hardcoded 9:41.
+- Performance: logo.png 53KB→13KB (resized to 128px, still retina-crisp at display size); repair blueprint converted to WebP 148KB→88KB with lazy+async loading (old jpg deleted); trimmed unused Outfit 300 font weight from the Google Fonts request.
+- Baseline measured via production build: main chunk 165KB gz, every route split into its own small chunk (2-18KB), all below-fold images already lazy-loaded from the previous pass.
+- Verified in browser: live clock matches real time on the hero phone, logo renders crisp, blueprint.webp loads on Repairs, home renders clean.

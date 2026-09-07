@@ -121,9 +121,11 @@ function BlueprintEdit() {
         >
           <div className="overflow-hidden rounded-[2rem] border border-white/15 shadow-2xl shadow-black/50">
             <img
-              src="/assets/blueprint.jpg"
+              src="/assets/blueprint.webp"
               alt="iPhone Pro technical blueprint — front, side, back and camera views"
               data-testid="blueprint-parallax-image"
+              loading="lazy"
+              decoding="async"
               className="w-full object-cover"
             />
           </div>
